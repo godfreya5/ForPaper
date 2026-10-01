@@ -1,0 +1,498 @@
+// Imports
+import ___CSS_LOADER_API_SOURCEMAP_IMPORT___ from "../node_modules/css-loader/dist/runtime/sourceMaps.js";
+import ___CSS_LOADER_API_IMPORT___ from "../node_modules/css-loader/dist/runtime/api.js";
+var ___CSS_LOADER_EXPORT___ = ___CSS_LOADER_API_IMPORT___(___CSS_LOADER_API_SOURCEMAP_IMPORT___);
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, `/* ========== CSS 变量定义 ========== */
+/* 浅色主题（默认） */
+:root {
+    --material-background: #ffffff;
+    --material-sidepane: #f8f7f6;
+    --fill-primary: #24292e;
+    --fill-secondary: #586069;
+    --fill-tertiary: #6a737d;
+    --fill-quaternary: #d1d5da;
+    --fill-quinary: #e1e4e8;
+    --accent-blue: #0366d6;
+    --code-bg: #f6f8fa;
+    --border-color: #e1e4e8;
+    --panel-font-scale: 1;
+    --header-background: rgba(255, 255, 255, 0.75);
+}
+
+/* 暗夜主题 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --material-background: #1e1e1e;
+        --material-sidepane: #2d2d2d;
+        --fill-primary: #ffffffe5;
+        --fill-secondary: #ffffff8c;
+        --fill-tertiary: #ffffff4d;
+        --fill-quaternary: #ffffff2e;
+        --fill-quinary: #ffffff0f;
+        --accent-blue: #4072e5;
+        --code-bg: #2d2d2d;
+        --border-color: #ffffff2e;
+        --header-background: rgba(45, 45, 45, 0.75);
+    }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: calc(13px * var(--panel-font-scale, 1));
+}
+
+.code-pane-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    background: var(--material-background);
+    overflow: hidden;
+}
+
+/* 加载状态 */
+.code-pane-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--fill-secondary);
+}
+
+.loading-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(0.95);
+    }
+}
+
+.loading-text {
+    font-size: 14px;
+}
+
+/* 空状态 */
+.code-pane-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--fill-tertiary);
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.empty-text {
+    font-size: 14px;
+    color: var(--fill-secondary);
+    margin-bottom: 8px;
+}
+
+.empty-hint {
+    font-size: 12px;
+    color: var(--fill-tertiary);
+}
+
+/* 仓库信息头部 */
+.code-pane-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--header-background);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    margin: -16px -16px 12px -16px;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.code-pane-header svg {
+    color: var(--fill-primary);
+    flex-shrink: 0;
+}
+
+.repo-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.repo-name {
+    display: inline-flex;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent-blue);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.repo-name:hover {
+    text-decoration: underline;
+}
+
+.repo-stars {
+    font-size: 11px;
+    color: var(--fill-secondary);
+}
+
+/* 代理状态 */
+.proxy-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.proxy-status.connected {
+    color: #22863a;
+    background: #dcffe4;
+}
+
+.proxy-status.disconnected {
+    color: #cb2431;
+    background: #ffeef0;
+}
+
+/* 仓库描述 */
+.repo-description {
+    font-size: 12px;
+    color: var(--fill-secondary);
+    line-height: 1.4;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+
+/* 代理未连接提示 */
+.proxy-hint {
+    padding: 20px;
+    text-align: center;
+    color: var(--fill-secondary);
+    background: var(--code-bg);
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.proxy-hint p {
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.proxy-hint code {
+    display: block;
+    padding: 8px 12px;
+    background: var(--material-background);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--fill-primary);
+    margin-bottom: 12px;
+}
+
+.retry-btn {
+    padding: 6px 12px;
+    background: var(--accent-blue);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.retry-btn:hover {
+    opacity: 0.9;
+}
+
+.retry-btn.small {
+    padding: 4px 8px;
+    font-size: 11px;
+    margin-left: 8px;
+}
+
+/* Wiki 文档区域 */
+.wiki-section {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--material-sidepane);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fill-primary);
+}
+
+.refresh-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--fill-secondary);
+    transition: all 0.2s;
+}
+
+.refresh-btn:hover:not(:disabled) {
+    background: var(--material-background);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+.refresh-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.wiki-content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--material-background);
+}
+
+.wiki-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px;
+    color: var(--fill-secondary);
+    font-size: 13px;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--fill-quinary);
+    border-top-color: var(--accent-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.wiki-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #cb2431;
+    font-size: 13px;
+    background: #ffeef0;
+    border-radius: 6px;
+}
+
+.wiki-placeholder {
+    text-align: center;
+    padding: 40px;
+    color: var(--fill-tertiary);
+    font-size: 13px;
+}
+
+/* Markdown 内容样式 */
+.markdown-content {
+    font-size: calc(13px * var(--panel-font-scale, 1));
+    line-height: 1.6;
+    color: var(--fill-primary);
+}
+
+.markdown-content h1 {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin: 1em 0 0.5em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--fill-quinary);
+    color: var(--fill-primary);
+}
+
+.markdown-content h1:first-child {
+    margin-top: 0;
+}
+
+.markdown-content h2 {
+    font-size: 1.3em;
+    font-weight: 600;
+    margin: 1em 0 0.5em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--fill-quinary);
+    color: var(--fill-primary);
+}
+
+.markdown-content h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin: 1em 0 0.5em;
+    color: var(--fill-primary);
+}
+
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+    font-size: 1em;
+    font-weight: 600;
+    margin: 1em 0 0.5em;
+    color: var(--fill-primary);
+}
+
+.markdown-content p {
+    margin: 0.5em 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    margin: 0.5em 0;
+    padding-left: 2em;
+}
+
+.markdown-content li {
+    margin: 0.25em 0;
+}
+
+.markdown-content li>ul,
+.markdown-content li>ol {
+    margin: 0.25em 0;
+}
+
+.markdown-content code {
+    padding: 0.2em 0.4em;
+    background: var(--code-bg);
+    border-radius: 3px;
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.9em;
+    color: var(--fill-primary);
+}
+
+.markdown-content pre {
+    padding: 12px;
+    background: var(--code-bg);
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 0.5em 0;
+}
+
+.markdown-content pre code {
+    padding: 0;
+    background: transparent;
+    font-size: 0.85em;
+    line-height: 1.45;
+}
+
+.markdown-content blockquote {
+    margin: 0.5em 0;
+    padding: 0 1em;
+    border-left: 4px solid var(--fill-quaternary);
+    color: var(--fill-secondary);
+}
+
+.markdown-content a {
+    color: var(--accent-blue);
+    text-decoration: none;
+}
+
+.markdown-content a:hover {
+    text-decoration: underline;
+}
+
+.markdown-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.5em 0;
+}
+
+.markdown-content th,
+.markdown-content td {
+    padding: 6px 13px;
+    border: 1px solid var(--border-color);
+}
+
+.markdown-content th {
+    background: var(--code-bg);
+    font-weight: 600;
+    color: var(--fill-primary);
+}
+
+.markdown-content tr:nth-child(2n) {
+    background: var(--code-bg);
+}
+
+.markdown-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+.markdown-content hr {
+    height: 1px;
+    background: var(--border-color);
+    border: none;
+    margin: 1em 0;
+}
+
+/* 强调文本 */
+.markdown-content strong {
+    font-weight: 600;
+}
+
+.markdown-content em {
+    font-style: italic;
+}`, "",{"version":3,"sources":["webpack://./src/styles.css"],"names":[],"mappings":"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","sourcesContent":["/* ========== CSS 变量定义 ========== */\n/* 浅色主题（默认） */\n:root {\n    --material-background: #ffffff;\n    --material-sidepane: #f8f7f6;\n    --fill-primary: #24292e;\n    --fill-secondary: #586069;\n    --fill-tertiary: #6a737d;\n    --fill-quaternary: #d1d5da;\n    --fill-quinary: #e1e4e8;\n    --accent-blue: #0366d6;\n    --code-bg: #f6f8fa;\n    --border-color: #e1e4e8;\n    --panel-font-scale: 1;\n    --header-background: rgba(255, 255, 255, 0.75);\n}\n\n/* 暗夜主题 */\n@media (prefers-color-scheme: dark) {\n    :root {\n        --material-background: #1e1e1e;\n        --material-sidepane: #2d2d2d;\n        --fill-primary: #ffffffe5;\n        --fill-secondary: #ffffff8c;\n        --fill-tertiary: #ffffff4d;\n        --fill-quaternary: #ffffff2e;\n        --fill-quinary: #ffffff0f;\n        --accent-blue: #4072e5;\n        --code-bg: #2d2d2d;\n        --border-color: #ffffff2e;\n        --header-background: rgba(45, 45, 45, 0.75);\n    }\n}\n\n* {\n    margin: 0;\n    padding: 0;\n    box-sizing: border-box;\n}\n\nhtml,\nbody,\n#root {\n    width: 100%;\n    height: 100%;\n    font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n    font-size: calc(13px * var(--panel-font-scale, 1));\n}\n\n.code-pane-container {\n    display: flex;\n    flex-direction: column;\n    width: 100%;\n    height: 100%;\n    padding: 16px;\n    background: var(--material-background);\n    overflow: hidden;\n}\n\n/* 加载状态 */\n.code-pane-loading {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    justify-content: center;\n    height: 100%;\n    color: var(--fill-secondary);\n}\n\n.loading-icon {\n    font-size: 32px;\n    margin-bottom: 12px;\n    animation: pulse 1.5s ease-in-out infinite;\n}\n\n@keyframes pulse {\n\n    0%,\n    100% {\n        opacity: 1;\n        transform: scale(1);\n    }\n\n    50% {\n        opacity: 0.6;\n        transform: scale(0.95);\n    }\n}\n\n.loading-text {\n    font-size: 14px;\n}\n\n/* 空状态 */\n.code-pane-empty {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    justify-content: center;\n    height: 100%;\n    color: var(--fill-tertiary);\n    text-align: center;\n}\n\n.empty-icon {\n    font-size: 48px;\n    margin-bottom: 16px;\n}\n\n.empty-text {\n    font-size: 14px;\n    color: var(--fill-secondary);\n    margin-bottom: 8px;\n}\n\n.empty-hint {\n    font-size: 12px;\n    color: var(--fill-tertiary);\n}\n\n/* 仓库信息头部 */\n.code-pane-header {\n    display: flex;\n    align-items: center;\n    gap: 12px;\n    padding: 12px;\n    background: var(--header-background);\n    backdrop-filter: blur(10px);\n    -webkit-backdrop-filter: blur(10px);\n    border-bottom: 1px solid var(--border-color);\n    margin: -16px -16px 12px -16px;\n    flex-shrink: 0;\n    z-index: 10;\n}\n\n.code-pane-header svg {\n    color: var(--fill-primary);\n    flex-shrink: 0;\n}\n\n.repo-info {\n    display: flex;\n    flex-direction: column;\n    gap: 2px;\n    min-width: 0;\n    flex: 1;\n}\n\n.repo-name {\n    display: inline-flex;\n    align-items: center;\n    font-size: 15px;\n    font-weight: 600;\n    color: var(--accent-blue);\n    text-decoration: none;\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n\n.repo-name:hover {\n    text-decoration: underline;\n}\n\n.repo-stars {\n    font-size: 11px;\n    color: var(--fill-secondary);\n}\n\n/* 代理状态 */\n.proxy-status {\n    font-size: 11px;\n    padding: 2px 8px;\n    border-radius: 12px;\n    flex-shrink: 0;\n}\n\n.proxy-status.connected {\n    color: #22863a;\n    background: #dcffe4;\n}\n\n.proxy-status.disconnected {\n    color: #cb2431;\n    background: #ffeef0;\n}\n\n/* 仓库描述 */\n.repo-description {\n    font-size: 12px;\n    color: var(--fill-secondary);\n    line-height: 1.4;\n    margin-bottom: 12px;\n    flex-shrink: 0;\n}\n\n/* 代理未连接提示 */\n.proxy-hint {\n    padding: 20px;\n    text-align: center;\n    color: var(--fill-secondary);\n    background: var(--code-bg);\n    border-radius: 8px;\n    margin-top: 16px;\n}\n\n.proxy-hint p {\n    font-size: 13px;\n    margin-bottom: 8px;\n}\n\n.proxy-hint code {\n    display: block;\n    padding: 8px 12px;\n    background: var(--material-background);\n    border: 1px solid var(--border-color);\n    border-radius: 4px;\n    font-family: monospace;\n    font-size: 12px;\n    color: var(--fill-primary);\n    margin-bottom: 12px;\n}\n\n.retry-btn {\n    padding: 6px 12px;\n    background: var(--accent-blue);\n    color: #fff;\n    border: none;\n    border-radius: 4px;\n    font-size: 12px;\n    cursor: pointer;\n}\n\n.retry-btn:hover {\n    opacity: 0.9;\n}\n\n.retry-btn.small {\n    padding: 4px 8px;\n    font-size: 11px;\n    margin-left: 8px;\n}\n\n/* Wiki 文档区域 */\n.wiki-section {\n    display: flex;\n    flex-direction: column;\n    flex: 1;\n    min-height: 0;\n    border: 1px solid var(--border-color);\n    border-radius: 8px;\n    overflow: hidden;\n}\n\n.section-header {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    padding: 10px 14px;\n    background: var(--material-sidepane);\n    border-bottom: 1px solid var(--border-color);\n    flex-shrink: 0;\n}\n\n.section-title {\n    font-size: 13px;\n    font-weight: 600;\n    color: var(--fill-primary);\n}\n\n.refresh-btn {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    width: 28px;\n    height: 28px;\n    background: transparent;\n    border: 1px solid var(--border-color);\n    border-radius: 4px;\n    cursor: pointer;\n    color: var(--fill-secondary);\n    transition: all 0.2s;\n}\n\n.refresh-btn:hover:not(:disabled) {\n    background: var(--material-background);\n    border-color: var(--accent-blue);\n    color: var(--accent-blue);\n}\n\n.refresh-btn:disabled {\n    opacity: 0.5;\n    cursor: not-allowed;\n}\n\n.wiki-content-area {\n    flex: 1;\n    overflow-y: auto;\n    padding: 16px;\n    background: var(--material-background);\n}\n\n.wiki-loading {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    gap: 12px;\n    padding: 40px;\n    color: var(--fill-secondary);\n    font-size: 13px;\n}\n\n.loading-spinner {\n    width: 20px;\n    height: 20px;\n    border: 2px solid var(--fill-quinary);\n    border-top-color: var(--accent-blue);\n    border-radius: 50%;\n    animation: spin 0.8s linear infinite;\n}\n\n@keyframes spin {\n    to {\n        transform: rotate(360deg);\n    }\n}\n\n.wiki-error {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    padding: 20px;\n    color: #cb2431;\n    font-size: 13px;\n    background: #ffeef0;\n    border-radius: 6px;\n}\n\n.wiki-placeholder {\n    text-align: center;\n    padding: 40px;\n    color: var(--fill-tertiary);\n    font-size: 13px;\n}\n\n/* Markdown 内容样式 */\n.markdown-content {\n    font-size: calc(13px * var(--panel-font-scale, 1));\n    line-height: 1.6;\n    color: var(--fill-primary);\n}\n\n.markdown-content h1 {\n    font-size: 1.5em;\n    font-weight: 600;\n    margin: 1em 0 0.5em;\n    padding-bottom: 0.3em;\n    border-bottom: 1px solid var(--fill-quinary);\n    color: var(--fill-primary);\n}\n\n.markdown-content h1:first-child {\n    margin-top: 0;\n}\n\n.markdown-content h2 {\n    font-size: 1.3em;\n    font-weight: 600;\n    margin: 1em 0 0.5em;\n    padding-bottom: 0.3em;\n    border-bottom: 1px solid var(--fill-quinary);\n    color: var(--fill-primary);\n}\n\n.markdown-content h3 {\n    font-size: 1.1em;\n    font-weight: 600;\n    margin: 1em 0 0.5em;\n    color: var(--fill-primary);\n}\n\n.markdown-content h4,\n.markdown-content h5,\n.markdown-content h6 {\n    font-size: 1em;\n    font-weight: 600;\n    margin: 1em 0 0.5em;\n    color: var(--fill-primary);\n}\n\n.markdown-content p {\n    margin: 0.5em 0;\n}\n\n.markdown-content ul,\n.markdown-content ol {\n    margin: 0.5em 0;\n    padding-left: 2em;\n}\n\n.markdown-content li {\n    margin: 0.25em 0;\n}\n\n.markdown-content li>ul,\n.markdown-content li>ol {\n    margin: 0.25em 0;\n}\n\n.markdown-content code {\n    padding: 0.2em 0.4em;\n    background: var(--code-bg);\n    border-radius: 3px;\n    font-family: SFMono-Regular, Consolas, \"Liberation Mono\", Menlo, monospace;\n    font-size: 0.9em;\n    color: var(--fill-primary);\n}\n\n.markdown-content pre {\n    padding: 12px;\n    background: var(--code-bg);\n    border-radius: 6px;\n    overflow-x: auto;\n    margin: 0.5em 0;\n}\n\n.markdown-content pre code {\n    padding: 0;\n    background: transparent;\n    font-size: 0.85em;\n    line-height: 1.45;\n}\n\n.markdown-content blockquote {\n    margin: 0.5em 0;\n    padding: 0 1em;\n    border-left: 4px solid var(--fill-quaternary);\n    color: var(--fill-secondary);\n}\n\n.markdown-content a {\n    color: var(--accent-blue);\n    text-decoration: none;\n}\n\n.markdown-content a:hover {\n    text-decoration: underline;\n}\n\n.markdown-content table {\n    border-collapse: collapse;\n    width: 100%;\n    margin: 0.5em 0;\n}\n\n.markdown-content th,\n.markdown-content td {\n    padding: 6px 13px;\n    border: 1px solid var(--border-color);\n}\n\n.markdown-content th {\n    background: var(--code-bg);\n    font-weight: 600;\n    color: var(--fill-primary);\n}\n\n.markdown-content tr:nth-child(2n) {\n    background: var(--code-bg);\n}\n\n.markdown-content img {\n    max-width: 100%;\n    height: auto;\n}\n\n.markdown-content hr {\n    height: 1px;\n    background: var(--border-color);\n    border: none;\n    margin: 1em 0;\n}\n\n/* 强调文本 */\n.markdown-content strong {\n    font-weight: 600;\n}\n\n.markdown-content em {\n    font-style: italic;\n}"],"sourceRoot":""}]);
+// Exports
+export default ___CSS_LOADER_EXPORT___;

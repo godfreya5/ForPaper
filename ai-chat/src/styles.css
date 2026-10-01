@@ -1,0 +1,1332 @@
+// Imports
+import ___CSS_LOADER_API_SOURCEMAP_IMPORT___ from "../node_modules/css-loader/dist/runtime/sourceMaps.js";
+import ___CSS_LOADER_API_IMPORT___ from "../node_modules/css-loader/dist/runtime/api.js";
+var ___CSS_LOADER_EXPORT___ = ___CSS_LOADER_API_IMPORT___(___CSS_LOADER_API_SOURCEMAP_IMPORT___);
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, `/* ========== CSS 变量定义 ========== */
+/* 浅色主题（默认） */
+:root {
+    --material-background: #ffffff;
+    --material-sidepane: #f5f5f5;
+    --fill-primary: #333;
+    --fill-secondary: #595959;
+    --fill-tertiary: #999;
+    --fill-quaternary: #ccc;
+    --fill-quinary: #e0e0e0;
+    --accent-blue: #1890ff;
+    --panel-font-scale: 1;
+}
+
+/* 暗夜主题 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --material-background: #1e1e1e;
+        --material-sidepane: #303030;
+        --fill-primary: #ffffffe5;
+        --fill-secondary: #ffffff8c;
+        --fill-tertiary: #ffffff4d;
+        --fill-quaternary: #ffffff2e;
+        --fill-quinary: #ffffff0f;
+        --accent-blue: #4072e5;
+    }
+
+    /* 强制覆盖 Ant Design 组件的默认样式 */
+
+    /* 所有文字默认使用浅色 */
+    body,
+    .ai-chat-container,
+    .ant-btn,
+    .ant-dropdown-menu-item,
+    .ant-space,
+    .ant-flex {
+        color: var(--fill-primary) !important;
+    }
+
+    /* 图标颜色 */
+    .anticon,
+    .ant-btn .anticon,
+    svg[class*="icon"] {
+        color: var(--fill-primary) !important;
+    }
+
+    /* 按钮文字 */
+    .ant-btn-text,
+    .ant-btn-default,
+    .ant-btn-link {
+        color: var(--fill-primary) !important;
+    }
+
+    .ant-btn-text:hover,
+    .ant-btn-default:hover,
+    .ant-btn-link:hover {
+        color: var(--fill-primary) !important;
+    }
+
+    /* 下拉菜单 */
+    .ant-dropdown-menu {
+        background: var(--material-background) !important;
+        color: var(--fill-primary) !important;
+    }
+
+    .ant-dropdown-menu-item {
+        color: var(--fill-primary) !important;
+    }
+
+    .ant-dropdown-menu-item:hover {
+        background: var(--material-sidepane) !important;
+        color: var(--fill-primary) !important;
+    }
+
+    /* Spin 加载图标 */
+    .ant-spin,
+    .ant-spin-dot,
+    .ant-spin-dot-item {
+        color: var(--fill-primary) !important;
+        background-color: var(--fill-primary) !important;
+    }
+
+    /* LoadingOutlined 图标 */
+    .anticon-loading,
+    .anticon-loading svg {
+        color: var(--fill-primary) !important;
+    }
+
+    /* Bubble 中的 Spin */
+    .ant-bubble .ant-spin,
+    .ant-bubble .anticon-loading {
+        color: var(--fill-primary) !important;
+    }
+
+    /* Prompts 组件 */
+    .ant-prompts-item {
+        background: var(--material-background) !important;
+        border-color: var(--fill-quinary) !important;
+        color: var(--fill-primary) !important;
+    }
+
+    .ant-prompts-item-label,
+    .ant-prompts-item-description {
+        color: var(--fill-primary) !important;
+    }
+
+    /* Bubble 消息气泡 — AI 消息暗色模式 */
+    .ant-bubble[data-placement="start"] .ant-bubble-content {
+        background: transparent !important;
+        color: var(--fill-primary) !important;
+        box-shadow: none !important;
+    }
+
+    /* Sender 输入框 */
+    .ant-sender {
+        background: var(--material-background) !important;
+        border-color: var(--fill-quinary) !important;
+        color: var(--fill-primary) !important;
+    }
+
+    .ant-sender-input {
+        color: var(--fill-primary) !important;
+    }
+
+    .ant-sender-input::placeholder {
+        color: var(--fill-tertiary) !important;
+    }
+
+    /* Modal 弹窗 */
+    .ant-modal-content {
+        background: var(--material-background) !important;
+        color: var(--fill-primary) !important;
+    }
+
+    .ant-modal-body {
+        color: var(--fill-primary) !important;
+    }
+}
+
+/*
+ * Message：背景/正文随 :root 变量切换亮暗；!important 压过 Ant 默认（iframe 内暗色还有 ai-chat-iframe.html 兜底）。
+ */
+.ant-message .ant-message-notice-content {
+    background: var(--material-background) !important;
+    color: var(--fill-primary) !important;
+    border: 1px solid var(--fill-quinary) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ant-message .ant-message-notice-content {
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
+    }
+}
+
+.ant-message .ant-message-notice-content .anticon {
+    color: var(--fill-secondary) !important;
+}
+
+.ant-message-error .ant-message-notice-content .anticon {
+    color: #ff4d4f !important;
+}
+
+.ant-message-success .ant-message-notice-content .anticon {
+    color: #52c41a !important;
+}
+
+.ant-message-warning .ant-message-notice-content .anticon {
+    color: #faad14 !important;
+}
+
+.ant-message-info .ant-message-notice-content .anticon {
+    color: var(--accent-blue) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ant-message-error .ant-message-notice-content .anticon {
+        color: #ff7875 !important;
+    }
+
+    .ant-message-success .ant-message-notice-content .anticon {
+        color: #73d13d !important;
+    }
+
+    .ant-message-warning .ant-message-notice-content .anticon {
+        color: #ffc53d !important;
+    }
+
+    .ant-message-info .ant-message-notice-content .anticon {
+        color: #69b1ff !important;
+    }
+}
+
+/* AI Chat Container */
+.ai-chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--material-background);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: calc(14px * var(--panel-font-scale, 1));
+}
+
+/* Notion-like buttons */
+.btn-black {
+    background: var(--fill-primary) !important;
+    border-color: var(--fill-primary) !important;
+    color: var(--material-background) !important;
+}
+
+.btn-black:hover {
+    background: var(--fill-secondary) !important;
+    border-color: var(--fill-secondary) !important;
+    color: var(--material-background) !important;
+}
+
+.btn-black:active,
+.btn-black.ant-btn:active {
+    background: var(--fill-secondary) !important;
+    border-color: var(--fill-secondary) !important;
+}
+
+.btn-black[disabled],
+.btn-black.ant-btn[disabled] {
+    background: var(--fill-tertiary) !important;
+    border-color: var(--fill-tertiary) !important;
+    color: var(--fill-quaternary) !important;
+}
+
+.btn-gray {
+    background: var(--material-sidepane) !important;
+    border: 1px solid var(--fill-quinary) !important;
+    color: var(--fill-primary) !important;
+}
+
+.btn-gray:hover {
+    background: var(--fill-quinary) !important;
+    border-color: var(--fill-quaternary) !important;
+}
+
+.btn-gray:active,
+.btn-gray.btn-gray-active {
+    background: var(--fill-quaternary) !important;
+    border-color: var(--fill-tertiary) !important;
+    color: var(--fill-primary) !important;
+}
+
+.btn-gray[disabled],
+.btn-gray.ant-btn[disabled] {
+    background: var(--material-sidepane) !important;
+    border-color: var(--fill-quinary) !important;
+    color: var(--fill-tertiary) !important;
+}
+
+/* Icon button active state */
+.icon-btn-active.ant-btn-text {
+    background: var(--fill-quinary) !important;
+}
+
+.icon-btn-active.ant-btn-text:hover {
+    background: var(--fill-quaternary) !important;
+}
+
+/* Model dropdown menu - Notion style */
+.model-dropdown-menu.ant-dropdown-menu {
+    background: var(--material-background) !important;
+    border: 1px solid var(--fill-quinary) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    /* 足够容纳图标 + 长标签 + credits + 勾选，避免右侧被挤成省略号 */
+    min-width: min(280px, 92vw) !important;
+    max-width: min(320px, 96vw) !important;
+    /* 约半屏内可扫完 + 纵向滚动；避免列表过长占满窗口 */
+    max-height: min(240px, 38vh) !important;
+    overflow-y: auto !important;
+    padding: 4px !important;
+}
+
+/* GitHub repo dropdown menu */
+.github-repo-dropdown-menu.ant-dropdown-menu {
+    background: var(--material-background) !important;
+    border: 1px solid var(--fill-quinary) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.github-repo-dropdown-menu .ant-dropdown-menu-item {
+    padding: 8px 12px !important;
+    border-radius: 4px !important;
+}
+
+.github-repo-dropdown-menu .ant-dropdown-menu-item:hover {
+    background: var(--material-sidepane) !important;
+    padding: 4px !important;
+    min-width: 180px !important;
+}
+
+.model-dropdown-menu .ant-dropdown-menu-item {
+    border-radius: 4px !important;
+    padding: 4px 8px !important;
+    margin: 0 !important;
+    min-height: 28px !important;
+    color: var(--fill-primary) !important;
+    font-size: 12px !important;
+}
+
+/* 键盘焦点项不要与「已选中」同款灰底，否则易与选中自定义项叠在一起 */
+.model-dropdown-menu .ant-dropdown-menu-item-active:not(.ant-dropdown-menu-item-selected) {
+    background: transparent !important;
+}
+
+.model-dropdown-menu .ant-dropdown-menu-item-group-title {
+    padding: 4px 8px 2px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+}
+
+/* Advanced 与 Standard 之间：虚线分隔 + 间距 */
+.model-dropdown-menu .ant-dropdown-menu-item-group:first-child .ant-dropdown-menu-item-group-list {
+    border-bottom: 1px dashed var(--fill-quinary) !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 6px !important;
+}
+
+.model-dropdown-menu .ant-dropdown-menu-item-group:not(:first-child) .ant-dropdown-menu-item-group-title {
+    margin-top: 2px !important;
+}
+
+.model-dropdown-menu .ant-dropdown-menu-item:hover:not(.ant-dropdown-menu-item-disabled) {
+    background: var(--material-sidepane) !important;
+}
+
+.model-dropdown-menu .ant-dropdown-menu-item-disabled {
+    color: var(--fill-tertiary) !important;
+    cursor: not-allowed !important;
+}
+
+.model-dropdown-menu .ant-dropdown-menu-item-selected {
+    background: var(--material-sidepane) !important;
+    color: var(--fill-primary) !important;
+    font-weight: 500 !important;
+}
+
+.extra-paper-dropdown-panel {
+    min-width: min(280px, 92vw);
+    max-width: min(320px, 96vw);
+}
+
+.extra-paper-dropdown-panel .ant-checkbox .ant-checkbox-inner {
+    border-color: var(--fill-quaternary) !important;
+    border-radius: 6px !important;
+    background: var(--material-background) !important;
+    transition: background-color 0.15s, border-color 0.15s !important;
+}
+
+.extra-paper-dropdown-panel .ant-checkbox:hover .ant-checkbox-inner,
+.extra-paper-dropdown-panel .ant-checkbox-input:focus + .ant-checkbox-inner {
+    border-color: var(--fill-primary) !important;
+}
+
+.extra-paper-dropdown-panel .ant-checkbox-checked .ant-checkbox-inner {
+    background: var(--fill-primary) !important;
+    border-color: var(--fill-primary) !important;
+}
+
+.extra-paper-dropdown-panel .ant-checkbox-checked::after {
+    border-color: var(--fill-primary) !important;
+    border-radius: 6px !important;
+}
+
+/* Header */
+.ai-chat-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--fill-quinary);
+    background: var(--material-sidepane);
+}
+
+.ai-chat-header h3 {
+    margin: 0;
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--fill-primary);
+}
+
+/* Messages Area */
+.ai-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--material-background);
+}
+
+.ai-chat-messages::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ai-chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ai-chat-messages::-webkit-scrollbar-thumb {
+    background: var(--fill-quinary);
+    border-radius: 4px;
+}
+
+.ai-chat-messages::-webkit-scrollbar-thumb:hover {
+    background: var(--fill-quaternary);
+}
+
+/* Input Area */
+.ai-chat-input-area {
+    border-top: 1px solid var(--fill-quinary);
+    background: var(--material-sidepane);
+    padding: 12px;
+}
+
+/* Slate 输入框 */
+.slate-input-container {
+    background: var(--material-background);
+    border: 1px solid var(--fill-quinary);
+    border-radius: 4px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.slate-input-container:focus-within {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(64, 114, 229, 0.1);
+}
+
+.slate-input-container [data-slate-editor] {
+    outline: none;
+}
+
+.slate-input-container [data-slate-editor]::-webkit-scrollbar {
+    width: 6px;
+}
+
+.slate-input-container [data-slate-editor]::-webkit-scrollbar-thumb {
+    background: var(--fill-quinary);
+    border-radius: 3px;
+}
+
+.slate-input-container [data-slate-placeholder] {
+    color: var(--fill-tertiary);
+    opacity: 1;
+}
+
+/* Slate Sender 组件（Ant Design X 风格） */
+.slate-sender-container {
+    background: var(--material-background);
+    border: 1px solid var(--fill-quinary);
+    border-radius: 8px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+    /* 防止内容溢出 */
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    /* 允许 flex 子元素收缩 */
+}
+
+.slate-sender-container:focus-within {
+    border-color: var(--fill-quaternary);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+}
+
+.slate-sender-container [data-slate-editor] {
+    outline: none;
+}
+
+.slate-sender-container [data-slate-editor]::-webkit-scrollbar {
+    width: 6px;
+}
+
+.slate-sender-container [data-slate-editor]::-webkit-scrollbar-thumb {
+    background: var(--fill-quinary);
+    border-radius: 3px;
+}
+
+.slate-sender-container [data-slate-placeholder] {
+    color: var(--fill-tertiary);
+    opacity: 1;
+}
+
+/* Slate Sender Footer 工具栏 */
+.slate-sender-container .ant-flex {
+    min-width: 0;
+    /* 允许 flex 子元素收缩 */
+    flex-wrap: wrap;
+    /* 窄屏时自动换行 */
+}
+
+.slate-sender-container .ant-btn {
+    flex-shrink: 0;
+    /* 按钮不收缩 */
+}
+
+/* 窄屏优化 */
+@media (max-width: 400px) {
+    .slate-sender-container .ant-flex {
+        gap: 4px !important;
+    }
+
+    .slate-sender-container .ant-btn-sm {
+        padding: 0 8px;
+        font-size: 12px;
+    }
+}
+
+/* Ant Design X 样式覆盖 */
+.ant-bubble-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* 只限制 AI 消息的宽度，用户消息紧贴右边界 */
+.ant-bubble[data-placement="start"] {
+    max-width: 80%;
+}
+
+.ant-bubble[data-placement="end"] {
+    max-width: fit-content;
+}
+
+.ant-bubble-content {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 1em !important;
+    line-height: 1.5;
+}
+
+/* 角色标签 — Notion 风格小标签 */
+.ant-bubble .ant-bubble-header {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--fill-tertiary);
+    margin-bottom: 2px;
+    user-select: none;
+}
+
+/* 用户消息 — Notion 风格，细灰边框气泡 */
+.ai-chat-container .ant-bubble[data-placement="end"] .ant-bubble-content {
+    background: transparent !important;
+    color: var(--fill-primary) !important;
+    border: 1px solid var(--fill-quaternary) !important;
+    border-radius: 12px !important;
+    padding: 8px 14px !important;
+    box-shadow: none !important;
+}
+
+/* 用户消息标签右对齐 */
+.ant-bubble[data-placement="end"] .ant-bubble-header {
+    text-align: right;
+}
+
+/* VibeCard chip in user message bubble */
+.ant-bubble[data-placement="end"] .ant-bubble-content span[style*="backgroundColor"] {
+    border: 1px solid var(--fill-quaternary) !important;
+}
+
+/* AI 消息 — 细灰边框，左侧强调线 */
+.ai-chat-container .ant-bubble[data-placement="start"] .ant-bubble-content {
+    background: transparent !important;
+    color: var(--fill-primary) !important;
+    border: 1px solid var(--fill-quinary) !important;
+    border-left: 2.5px solid var(--fill-quaternary) !important;
+    border-radius: 2px 8px 8px 2px !important;
+    padding: 8px 14px !important;
+    box-shadow: none !important;
+}
+
+/* 强制覆盖所有可能的 Bubble 内容样式 - 使用 CSS 变量直接计算 */
+.ai-chat-container .ant-bubble[data-placement="start"] .ant-bubble-content,
+.ai-chat-container .ant-bubble[data-placement="end"] .ant-bubble-content {
+    font-size: calc(14px * var(--panel-font-scale, 1)) !important;
+}
+
+/* Sender 输入框 */
+.ant-sender {
+    background: var(--material-background);
+    border: 1px solid var(--fill-quinary);
+    border-radius: 4px;
+}
+
+.ant-sender:focus-within {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(64, 114, 229, 0.1);
+}
+
+.ant-sender-input {
+    min-height: 36px;
+    max-height: 120px;
+    padding: 8px 12px;
+    font-size: 1em;
+    color: var(--fill-primary);
+}
+
+.ant-sender-input::placeholder {
+    color: var(--fill-tertiary);
+}
+
+.ant-sender-actions {
+    padding: 4px 8px;
+}
+
+/* 加载状态 */
+.ant-bubble-typing {
+    animation: typing 1.5s infinite;
+}
+
+@keyframes typing {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* 对话容器 */
+.conversation-container {
+    position: relative;
+    padding: 12px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: all 0.2s;
+    cursor: pointer;
+    /* 改为 pointer，表示可点击 */
+}
+
+.conversation-container:hover {
+    background: var(--fill-quinary);
+    border-color: var(--fill-quaternary);
+}
+
+.conversation-container.selected {
+    background: var(--fill-quinary);
+    border-color: var(--fill-quaternary);
+}
+
+.conversation-container:active {
+    cursor: grabbing;
+}
+
+.conversation-container.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.conversation-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.conversation-container:hover .conversation-actions,
+.conversation-container.selected .conversation-actions,
+.conversation-container:focus-within .conversation-actions {
+    opacity: 1;
+}
+
+.conversation-actions .ant-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    padding: 0 !important;
+    border-radius: 6px;
+    background: var(--material-background) !important;
+    border: 1px solid var(--fill-quinary) !important;
+    color: var(--fill-primary) !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.conversation-actions .ant-btn .anticon {
+    font-size: 14px;
+}
+
+.conversation-actions .ant-btn:hover {
+    background: var(--material-sidepane) !important;
+    border-color: var(--fill-quaternary) !important;
+}
+
+.conversation-actions .conversation-action-delete-btn.ant-btn,
+.conversation-actions .conversation-action-delete-btn.ant-btn .anticon {
+    color: #ff4d4f !important;
+}
+
+/* 对话消息内容 */
+.conversation-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+    /* 禁用消息容器的指针事件，让拖拽生效 */
+}
+
+/* 消息气泡内的文本可选中 */
+.conversation-messages .ant-bubble-content {
+    user-select: text;
+    cursor: text;
+    pointer-events: auto;
+    /* 重新启用文本区域的指针事件 */
+}
+
+.conversation-inline-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: min(420px, 72vw);
+}
+
+.conversation-inline-editor .ant-input {
+    border-radius: 8px;
+}
+
+.conversation-inline-editor-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.conversation-inline-editor-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* 单独消息（没有配对） */
+.single-message {
+    margin-bottom: 12px;
+}
+
+/* 错误消息样式 */
+.error-message .ant-bubble-content {
+    background: var(--material-sidepane) !important;
+    border: 1px solid var(--fill-quaternary) !important;
+    color: #cf1322 !important;
+}
+
+.error-message .ant-bubble-content p:first-child {
+    font-weight: 500;
+}
+
+/* Action bar：与对话容器平级的通用组件 */
+.conversation-action-bar {
+    margin: 4px 0 12px 0;
+    line-height: 1;
+    display: flex;
+    justify-content: center;
+    /* 水平居中 */
+    align-items: center;
+    /* 垂直居中 */
+}
+
+.conversation-action-bar .ant-btn {
+    max-width: 100%;
+    white-space: normal;
+    /* 允许换行 */
+    height: auto;
+    /* 文案多行时自适应高度 */
+    line-height: 1.4;
+    /* 多行更易读 */
+    padding: 4px 8px;
+    /* 文案模式下提供内边距 */
+    margin: 0;
+    display: block;
+    /* 覆盖 antd 的 inline-flex，允许内容换行 */
+    text-align: center;
+    /* 居中文案 */
+}
+
+/* 按钮内部文字容器：允许换行并在窄宽度时断词 */
+.conversation-action-bar .ant-btn>span {
+    display: inline;
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* 欢迎对话容器 - 极简白灰风格，复用现有的 conversation-container 样式 */
+.welcome-section {
+    position: relative;
+    padding: 12px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: all 0.2s;
+    cursor: grab;
+}
+
+.welcome-section:hover {
+    background: var(--fill-quinary);
+    border-color: var(--fill-quaternary);
+}
+
+.welcome-section:active {
+    cursor: grabbing;
+}
+
+.welcome-section.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+/* 欢迎 Prompts 容器 */
+.welcome-prompts-container {
+    margin: 8px 0;
+}
+
+.welcome-title {
+    font-size: 1.14em;
+    font-weight: 500;
+    color: var(--fill-primary);
+}
+
+.welcome-subtitle {
+    font-size: 0.86em;
+    color: var(--fill-secondary);
+    margin-top: 4px;
+}
+
+.welcome-prompts-container .ant-prompts {
+    background: transparent;
+}
+
+.welcome-prompts-container .ant-prompts-item {
+    background: var(--material-background);
+    border: 1px solid var(--fill-quinary);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    cursor: pointer;
+    font-size: calc(14px * var(--panel-font-scale, 1)) !important;
+}
+
+.welcome-prompts-container .ant-prompts-item:hover {
+    background: var(--fill-quinary);
+    border-color: var(--fill-quaternary);
+}
+
+.welcome-prompts-container .ant-prompts-item:last-child {
+    margin-bottom: 0;
+}
+
+.welcome-prompts-container .ant-prompts-item-label {
+    font-weight: 500;
+    color: var(--fill-primary);
+    font-size: 1em !important;
+    margin-bottom: 4px;
+}
+
+.welcome-prompts-container .ant-prompts-item-description {
+    font-size: 0.93em !important;
+    color: var(--fill-secondary);
+    line-height: 1.4;
+}
+
+.welcome-prompts-container .ant-prompts-content {
+    font-size: calc(14px * var(--panel-font-scale, 1)) !important;
+}
+
+.welcome-prompts-container .ant-prompts-label {
+    font-size: 1em !important;
+    font-weight: 500;
+    color: var(--fill-primary) !important;
+    line-height: 1.4 !important;
+}
+
+.welcome-prompts-container .ant-prompts-desc {
+    font-size: 0.93em !important;
+    color: var(--fill-secondary) !important;
+    line-height: 1.4 !important;
+}
+
+.welcome-prompts-container .ant-prompts-desc * {
+    font-size: inherit !important;
+}
+
+/* Markdown 内容样式 */
+.markdown-content {
+    font-size: 1em !important;
+    line-height: 1.6;
+    color: var(--fill-primary);
+}
+
+.markdown-content>*:first-child {
+    margin-top: 0;
+}
+
+.markdown-content>*:last-child {
+    margin-bottom: 0;
+}
+
+/* 标题 */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+    margin: 16px 0 8px 0;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--fill-primary);
+}
+
+.markdown-content h1 {
+    font-size: 24px;
+    border-bottom: 1px solid var(--fill-quinary);
+    padding-bottom: 8px;
+}
+
+.markdown-content h2 {
+    font-size: 20px;
+    border-bottom: 1px solid var(--fill-quinary);
+    padding-bottom: 6px;
+}
+
+.markdown-content h3 {
+    font-size: 18px;
+}
+
+.markdown-content h4 {
+    font-size: 16px;
+}
+
+.markdown-content h5,
+.markdown-content h6 {
+    font-size: 14px;
+}
+
+/* 段落 */
+.markdown-content p {
+    margin: 8px 0;
+}
+
+/* 列表 */
+.markdown-content ul,
+.markdown-content ol {
+    margin: 8px 0;
+    padding-left: 24px;
+}
+
+.markdown-content li {
+    margin: 4px 0;
+}
+
+.markdown-content li>p {
+    margin: 0;
+}
+
+/* 引用块 */
+.markdown-content blockquote {
+    margin: 8px 0;
+    padding: 8px 12px;
+    border-left: 4px solid var(--fill-quaternary);
+    background: var(--fill-quinary);
+    color: var(--fill-secondary);
+}
+
+.markdown-content blockquote>*:first-child {
+    margin-top: 0;
+}
+
+.markdown-content blockquote>*:last-child {
+    margin-bottom: 0;
+}
+
+/* 行内代码 */
+.markdown-content code.inline-code {
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--fill-quinary);
+    color: var(--accent-blue);
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 0.9em;
+    border: 1px solid var(--fill-quaternary);
+}
+
+/* 代码块容器 */
+.markdown-content .code-block-wrapper {
+    position: relative;
+    margin: 12px 0;
+}
+
+/* 代码块语言标签 */
+.markdown-content .code-block-lang {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    padding: 2px 8px;
+    background: var(--fill-quinary);
+    border-radius: 3px;
+    font-size: 11px;
+    color: var(--fill-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    z-index: 1;
+}
+
+/* 代码块 */
+.markdown-content pre {
+    margin: 0;
+    padding: 12px;
+    border-radius: 6px;
+    background: var(--material-sidepane);
+    overflow-x: auto;
+    border: 1px solid var(--fill-quinary);
+}
+
+.markdown-content pre code {
+    background: none;
+    padding: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    color: var(--fill-primary);
+}
+
+/* 代码块滚动条 */
+.markdown-content pre::-webkit-scrollbar {
+    height: 8px;
+}
+
+.markdown-content pre::-webkit-scrollbar-track {
+    background: var(--fill-quinary);
+    border-radius: 4px;
+}
+
+.markdown-content pre::-webkit-scrollbar-thumb {
+    background: var(--fill-quaternary);
+    border-radius: 4px;
+}
+
+.markdown-content pre::-webkit-scrollbar-thumb:hover {
+    background: var(--fill-tertiary);
+}
+
+/* 水平分割线 */
+.markdown-content hr {
+    margin: 16px 0;
+    border: none;
+    border-top: 1px solid var(--fill-quinary, #e0e0e0);
+}
+
+/* 链接 */
+.markdown-content a {
+    color: var(--accent-blue);
+    text-decoration: none;
+}
+
+.markdown-content a:hover {
+    text-decoration: underline;
+}
+
+/* 表格容器 */
+.markdown-content .table-wrapper {
+    overflow-x: auto;
+    margin: 12px 0;
+}
+
+/* 表格 */
+.markdown-content table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.markdown-content table th,
+.markdown-content table td {
+    padding: 8px 12px;
+    border: 1px solid var(--fill-quinary);
+    text-align: left;
+}
+
+.markdown-content table th {
+    background: var(--material-sidepane);
+    font-weight: 600;
+    color: var(--fill-primary);
+}
+
+.markdown-content table tr:nth-child(even) {
+    background: var(--fill-quinary);
+}
+
+.markdown-content table tr:hover {
+    background: var(--material-sidepane);
+}
+
+/* 数学公式样式优化 */
+/* 行内数学公式 */
+.markdown-content .math.math-inline {
+    display: inline;
+    margin: 0 2px;
+}
+
+/* 块级数学公式 */
+.markdown-content .math.math-display {
+    display: block;
+    margin: 16px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 12px;
+    background: var(--material-sidepane);
+    border-radius: 4px;
+    border: 1px solid var(--fill-quinary);
+}
+
+.markdown-content .vibero-math-display {
+    display: block;
+    margin: 14px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 12px;
+    background: var(--material-sidepane);
+    border-radius: 4px;
+    border: 1px solid var(--fill-quinary);
+}
+
+/* KaTeX 字体优化 */
+.markdown-content .katex {
+    font-size: 1.05em;
+}
+
+.markdown-content .katex-display {
+    margin: 0;
+}
+
+/* KaTeX 无法解析时的降级文本：默认鲜红刺眼，改为次要前景色 */
+.markdown-content .katex-error {
+    color: var(--fill-secondary) !important;
+}
+
+/* 数学公式滚动条 */
+.markdown-content .math.math-display::-webkit-scrollbar {
+    height: 6px;
+}
+
+.markdown-content .math.math-display::-webkit-scrollbar-track {
+    background: var(--fill-quinary);
+    border-radius: 3px;
+}
+
+.markdown-content .math.math-display::-webkit-scrollbar-thumb {
+    background: var(--fill-quaternary);
+    border-radius: 3px;
+}
+
+.markdown-content .math.math-display::-webkit-scrollbar-thumb:hover {
+    background: var(--fill-tertiary);
+}
+
+/* 图片 */
+.markdown-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 8px 0;
+}
+
+/* 删除线 */
+.markdown-content del {
+    text-decoration: line-through;
+    color: var(--fill-tertiary);
+}
+
+/* 强调 */
+.markdown-content strong {
+    font-weight: 600;
+    color: var(--fill-primary);
+}
+
+.markdown-content em {
+    font-style: italic;
+}
+
+/* 响应式 */
+@media (max-width: 600px) {
+    .ai-chat-header {
+        padding: 10px 12px;
+    }
+
+    .ai-chat-messages {
+        padding: 12px;
+    }
+
+    .ai-chat-input-area {
+        padding: 10px;
+    }
+
+    .ant-bubble {
+        max-width: 90%;
+    }
+
+    .welcome-container {
+        margin: 10px;
+        padding: 16px;
+        max-width: 100%;
+    }
+
+    .markdown-content {
+        font-size: 13px;
+    }
+
+    .markdown-content pre {
+        padding: 8px;
+    }
+
+    .markdown-content table {
+        font-size: 12px;
+    }
+}
+
+
+/* AI Chat Modal - 黑白 Notion 风格 */
+.ai-chat-modal .ant-modal-content {
+    background: var(--material-background);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.ai-chat-modal .ant-modal-header {
+    display: none;
+}
+
+.ai-chat-modal .ant-modal-body {
+    text-align: center;
+    font-size: 14px;
+    color: var(--fill-primary);
+    line-height: 1.5;
+    margin-bottom: 5px;
+}
+
+.ai-chat-modal .ant-modal-footer {
+    border-top: none;
+    text-align: center;
+}
+
+.ai-chat-modal .ant-btn-primary {
+    background-color: var(--fill-primary) !important;
+    border-color: var(--fill-primary) !important;
+    color: var(--material-background) !important;
+    font-weight: 500;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.ai-chat-modal .ant-btn-primary:hover {
+    background-color: var(--fill-secondary) !important;
+    border-color: var(--fill-secondary) !important;
+}
+
+.ai-chat-modal .ant-btn-primary:active {
+    background-color: var(--fill-secondary) !important;
+    border-color: var(--fill-secondary) !important;
+}
+
+.ai-chat-modal .ant-modal-mask {
+    background: rgba(0, 0, 0, 0.45);
+}
+
+/* message 默认 z-index 低于本页 Modal(10001) / Confirm(10002)，提层避免被遮罩盖住 */
+.ant-message {
+    z-index: 11000 !important;
+}
+
+/* 删除确认弹窗中的红色删除按钮 */
+.ai-chat-modal .ant-btn-dangerous {
+    background-color: #ff4d4f !important;
+    border-color: #ff4d4f !important;
+    color: #fff !important;
+}
+
+.ai-chat-modal .ant-btn-dangerous:hover {
+    background-color: #ff7875 !important;
+    border-color: #ff7875 !important;
+    color: #fff !important;
+}
+
+/* Custom 配置列表的删除按钮：红色图标无背景 */
+.slate-sender-container .custom-config-delete-btn.ant-btn,
+.slate-sender-container .custom-config-delete-btn.ant-btn:hover,
+.slate-sender-container .custom-config-delete-btn.ant-btn:active {
+    color: #ff4d4f !important;
+    background: transparent !important;
+    border-color: transparent !important;
+}
+
+.slate-sender-container .custom-config-delete-btn.ant-btn:hover {
+    color: #ff7875 !important;
+}
+
+/* 自定义模型：右侧表单「添加」重复点击时的轻微高亮脉冲 */
+@keyframes custom-config-form-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.35);
+    }
+    40% {
+        box-shadow: 0 0 0 6px rgba(24, 144, 255, 0.12);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
+    }
+}
+
+.slate-sender-container .custom-config-form-pane.custom-config-form-flash {
+    animation: custom-config-form-pulse 0.55s ease-out;
+    border-radius: 8px;
+}
+`, "",{"version":3,"sources":["webpack://./src/styles.css"],"names":[],"mappings":"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","sourcesContent":["/* ========== CSS 变量定义 ========== */\n/* 浅色主题（默认） */\n:root {\n    --material-background: #ffffff;\n    --material-sidepane: #f5f5f5;\n    --fill-primary: #333;\n    --fill-secondary: #595959;\n    --fill-tertiary: #999;\n    --fill-quaternary: #ccc;\n    --fill-quinary: #e0e0e0;\n    --accent-blue: #1890ff;\n    --panel-font-scale: 1;\n}\n\n/* 暗夜主题 */\n@media (prefers-color-scheme: dark) {\n    :root {\n        --material-background: #1e1e1e;\n        --material-sidepane: #303030;\n        --fill-primary: #ffffffe5;\n        --fill-secondary: #ffffff8c;\n        --fill-tertiary: #ffffff4d;\n        --fill-quaternary: #ffffff2e;\n        --fill-quinary: #ffffff0f;\n        --accent-blue: #4072e5;\n    }\n\n    /* 强制覆盖 Ant Design 组件的默认样式 */\n\n    /* 所有文字默认使用浅色 */\n    body,\n    .ai-chat-container,\n    .ant-btn,\n    .ant-dropdown-menu-item,\n    .ant-space,\n    .ant-flex {\n        color: var(--fill-primary) !important;\n    }\n\n    /* 图标颜色 */\n    .anticon,\n    .ant-btn .anticon,\n    svg[class*=\"icon\"] {\n        color: var(--fill-primary) !important;\n    }\n\n    /* 按钮文字 */\n    .ant-btn-text,\n    .ant-btn-default,\n    .ant-btn-link {\n        color: var(--fill-primary) !important;\n    }\n\n    .ant-btn-text:hover,\n    .ant-btn-default:hover,\n    .ant-btn-link:hover {\n        color: var(--fill-primary) !important;\n    }\n\n    /* 下拉菜单 */\n    .ant-dropdown-menu {\n        background: var(--material-background) !important;\n        color: var(--fill-primary) !important;\n    }\n\n    .ant-dropdown-menu-item {\n        color: var(--fill-primary) !important;\n    }\n\n    .ant-dropdown-menu-item:hover {\n        background: var(--material-sidepane) !important;\n        color: var(--fill-primary) !important;\n    }\n\n    /* Spin 加载图标 */\n    .ant-spin,\n    .ant-spin-dot,\n    .ant-spin-dot-item {\n        color: var(--fill-primary) !important;\n        background-color: var(--fill-primary) !important;\n    }\n\n    /* LoadingOutlined 图标 */\n    .anticon-loading,\n    .anticon-loading svg {\n        color: var(--fill-primary) !important;\n    }\n\n    /* Bubble 中的 Spin */\n    .ant-bubble .ant-spin,\n    .ant-bubble .anticon-loading {\n        color: var(--fill-primary) !important;\n    }\n\n    /* Prompts 组件 */\n    .ant-prompts-item {\n        background: var(--material-background) !important;\n        border-color: var(--fill-quinary) !important;\n        color: var(--fill-primary) !important;\n    }\n\n    .ant-prompts-item-label,\n    .ant-prompts-item-description {\n        color: var(--fill-primary) !important;\n    }\n\n    /* Bubble 消息气泡 — AI 消息暗色模式 */\n    .ant-bubble[data-placement=\"start\"] .ant-bubble-content {\n        background: transparent !important;\n        color: var(--fill-primary) !important;\n        box-shadow: none !important;\n    }\n\n    /* Sender 输入框 */\n    .ant-sender {\n        background: var(--material-background) !important;\n        border-color: var(--fill-quinary) !important;\n        color: var(--fill-primary) !important;\n    }\n\n    .ant-sender-input {\n        color: var(--fill-primary) !important;\n    }\n\n    .ant-sender-input::placeholder {\n        color: var(--fill-tertiary) !important;\n    }\n\n    /* Modal 弹窗 */\n    .ant-modal-content {\n        background: var(--material-background) !important;\n        color: var(--fill-primary) !important;\n    }\n\n    .ant-modal-body {\n        color: var(--fill-primary) !important;\n    }\n}\n\n/*\n * Message：背景/正文随 :root 变量切换亮暗；!important 压过 Ant 默认（iframe 内暗色还有 ai-chat-iframe.html 兜底）。\n */\n.ant-message .ant-message-notice-content {\n    background: var(--material-background) !important;\n    color: var(--fill-primary) !important;\n    border: 1px solid var(--fill-quinary) !important;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;\n}\n\n@media (prefers-color-scheme: dark) {\n    .ant-message .ant-message-notice-content {\n        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;\n    }\n}\n\n.ant-message .ant-message-notice-content .anticon {\n    color: var(--fill-secondary) !important;\n}\n\n.ant-message-error .ant-message-notice-content .anticon {\n    color: #ff4d4f !important;\n}\n\n.ant-message-success .ant-message-notice-content .anticon {\n    color: #52c41a !important;\n}\n\n.ant-message-warning .ant-message-notice-content .anticon {\n    color: #faad14 !important;\n}\n\n.ant-message-info .ant-message-notice-content .anticon {\n    color: var(--accent-blue) !important;\n}\n\n@media (prefers-color-scheme: dark) {\n    .ant-message-error .ant-message-notice-content .anticon {\n        color: #ff7875 !important;\n    }\n\n    .ant-message-success .ant-message-notice-content .anticon {\n        color: #73d13d !important;\n    }\n\n    .ant-message-warning .ant-message-notice-content .anticon {\n        color: #ffc53d !important;\n    }\n\n    .ant-message-info .ant-message-notice-content .anticon {\n        color: #69b1ff !important;\n    }\n}\n\n/* AI Chat Container */\n.ai-chat-container {\n    display: flex;\n    flex-direction: column;\n    height: 100%;\n    background: var(--material-background);\n    font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;\n    font-size: calc(14px * var(--panel-font-scale, 1));\n}\n\n/* Notion-like buttons */\n.btn-black {\n    background: var(--fill-primary) !important;\n    border-color: var(--fill-primary) !important;\n    color: var(--material-background) !important;\n}\n\n.btn-black:hover {\n    background: var(--fill-secondary) !important;\n    border-color: var(--fill-secondary) !important;\n    color: var(--material-background) !important;\n}\n\n.btn-black:active,\n.btn-black.ant-btn:active {\n    background: var(--fill-secondary) !important;\n    border-color: var(--fill-secondary) !important;\n}\n\n.btn-black[disabled],\n.btn-black.ant-btn[disabled] {\n    background: var(--fill-tertiary) !important;\n    border-color: var(--fill-tertiary) !important;\n    color: var(--fill-quaternary) !important;\n}\n\n.btn-gray {\n    background: var(--material-sidepane) !important;\n    border: 1px solid var(--fill-quinary) !important;\n    color: var(--fill-primary) !important;\n}\n\n.btn-gray:hover {\n    background: var(--fill-quinary) !important;\n    border-color: var(--fill-quaternary) !important;\n}\n\n.btn-gray:active,\n.btn-gray.btn-gray-active {\n    background: var(--fill-quaternary) !important;\n    border-color: var(--fill-tertiary) !important;\n    color: var(--fill-primary) !important;\n}\n\n.btn-gray[disabled],\n.btn-gray.ant-btn[disabled] {\n    background: var(--material-sidepane) !important;\n    border-color: var(--fill-quinary) !important;\n    color: var(--fill-tertiary) !important;\n}\n\n/* Icon button active state */\n.icon-btn-active.ant-btn-text {\n    background: var(--fill-quinary) !important;\n}\n\n.icon-btn-active.ant-btn-text:hover {\n    background: var(--fill-quaternary) !important;\n}\n\n/* Model dropdown menu - Notion style */\n.model-dropdown-menu.ant-dropdown-menu {\n    background: var(--material-background) !important;\n    border: 1px solid var(--fill-quinary) !important;\n    border-radius: 8px !important;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;\n    /* 足够容纳图标 + 长标签 + credits + 勾选，避免右侧被挤成省略号 */\n    min-width: min(280px, 92vw) !important;\n    max-width: min(320px, 96vw) !important;\n    /* 约半屏内可扫完 + 纵向滚动；避免列表过长占满窗口 */\n    max-height: min(240px, 38vh) !important;\n    overflow-y: auto !important;\n    padding: 4px !important;\n}\n\n/* GitHub repo dropdown menu */\n.github-repo-dropdown-menu.ant-dropdown-menu {\n    background: var(--material-background) !important;\n    border: 1px solid var(--fill-quinary) !important;\n    border-radius: 8px !important;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;\n    max-height: 400px;\n    overflow-y: auto;\n}\n\n.github-repo-dropdown-menu .ant-dropdown-menu-item {\n    padding: 8px 12px !important;\n    border-radius: 4px !important;\n}\n\n.github-repo-dropdown-menu .ant-dropdown-menu-item:hover {\n    background: var(--material-sidepane) !important;\n    padding: 4px !important;\n    min-width: 180px !important;\n}\n\n.model-dropdown-menu .ant-dropdown-menu-item {\n    border-radius: 4px !important;\n    padding: 4px 8px !important;\n    margin: 0 !important;\n    min-height: 28px !important;\n    color: var(--fill-primary) !important;\n    font-size: 12px !important;\n}\n\n/* 键盘焦点项不要与「已选中」同款灰底，否则易与选中自定义项叠在一起 */\n.model-dropdown-menu .ant-dropdown-menu-item-active:not(.ant-dropdown-menu-item-selected) {\n    background: transparent !important;\n}\n\n.model-dropdown-menu .ant-dropdown-menu-item-group-title {\n    padding: 4px 8px 2px !important;\n    font-size: 11px !important;\n    line-height: 1.2 !important;\n}\n\n/* Advanced 与 Standard 之间：虚线分隔 + 间距 */\n.model-dropdown-menu .ant-dropdown-menu-item-group:first-child .ant-dropdown-menu-item-group-list {\n    border-bottom: 1px dashed var(--fill-quinary) !important;\n    padding-bottom: 8px !important;\n    margin-bottom: 6px !important;\n}\n\n.model-dropdown-menu .ant-dropdown-menu-item-group:not(:first-child) .ant-dropdown-menu-item-group-title {\n    margin-top: 2px !important;\n}\n\n.model-dropdown-menu .ant-dropdown-menu-item:hover:not(.ant-dropdown-menu-item-disabled) {\n    background: var(--material-sidepane) !important;\n}\n\n.model-dropdown-menu .ant-dropdown-menu-item-disabled {\n    color: var(--fill-tertiary) !important;\n    cursor: not-allowed !important;\n}\n\n.model-dropdown-menu .ant-dropdown-menu-item-selected {\n    background: var(--material-sidepane) !important;\n    color: var(--fill-primary) !important;\n    font-weight: 500 !important;\n}\n\n.extra-paper-dropdown-panel {\n    min-width: min(280px, 92vw);\n    max-width: min(320px, 96vw);\n}\n\n.extra-paper-dropdown-panel .ant-checkbox .ant-checkbox-inner {\n    border-color: var(--fill-quaternary) !important;\n    border-radius: 6px !important;\n    background: var(--material-background) !important;\n    transition: background-color 0.15s, border-color 0.15s !important;\n}\n\n.extra-paper-dropdown-panel .ant-checkbox:hover .ant-checkbox-inner,\n.extra-paper-dropdown-panel .ant-checkbox-input:focus + .ant-checkbox-inner {\n    border-color: var(--fill-primary) !important;\n}\n\n.extra-paper-dropdown-panel .ant-checkbox-checked .ant-checkbox-inner {\n    background: var(--fill-primary) !important;\n    border-color: var(--fill-primary) !important;\n}\n\n.extra-paper-dropdown-panel .ant-checkbox-checked::after {\n    border-color: var(--fill-primary) !important;\n    border-radius: 6px !important;\n}\n\n/* Header */\n.ai-chat-header {\n    padding: 12px 16px;\n    border-bottom: 1px solid var(--fill-quinary);\n    background: var(--material-sidepane);\n}\n\n.ai-chat-header h3 {\n    margin: 0;\n    font-size: 1em;\n    font-weight: 600;\n    color: var(--fill-primary);\n}\n\n/* Messages Area */\n.ai-chat-messages {\n    flex: 1;\n    overflow-y: auto;\n    padding: 16px;\n    background: var(--material-background);\n}\n\n.ai-chat-messages::-webkit-scrollbar {\n    width: 8px;\n}\n\n.ai-chat-messages::-webkit-scrollbar-track {\n    background: transparent;\n}\n\n.ai-chat-messages::-webkit-scrollbar-thumb {\n    background: var(--fill-quinary);\n    border-radius: 4px;\n}\n\n.ai-chat-messages::-webkit-scrollbar-thumb:hover {\n    background: var(--fill-quaternary);\n}\n\n/* Input Area */\n.ai-chat-input-area {\n    border-top: 1px solid var(--fill-quinary);\n    background: var(--material-sidepane);\n    padding: 12px;\n}\n\n/* Slate 输入框 */\n.slate-input-container {\n    background: var(--material-background);\n    border: 1px solid var(--fill-quinary);\n    border-radius: 4px;\n    transition: border-color 0.2s, box-shadow 0.2s;\n}\n\n.slate-input-container:focus-within {\n    border-color: var(--accent-blue);\n    box-shadow: 0 0 0 2px rgba(64, 114, 229, 0.1);\n}\n\n.slate-input-container [data-slate-editor] {\n    outline: none;\n}\n\n.slate-input-container [data-slate-editor]::-webkit-scrollbar {\n    width: 6px;\n}\n\n.slate-input-container [data-slate-editor]::-webkit-scrollbar-thumb {\n    background: var(--fill-quinary);\n    border-radius: 3px;\n}\n\n.slate-input-container [data-slate-placeholder] {\n    color: var(--fill-tertiary);\n    opacity: 1;\n}\n\n/* Slate Sender 组件（Ant Design X 风格） */\n.slate-sender-container {\n    background: var(--material-background);\n    border: 1px solid var(--fill-quinary);\n    border-radius: 8px;\n    transition: border-color 0.2s, box-shadow 0.2s;\n    overflow: hidden;\n    /* 防止内容溢出 */\n    display: flex;\n    flex-direction: column;\n    min-width: 0;\n    /* 允许 flex 子元素收缩 */\n}\n\n.slate-sender-container:focus-within {\n    border-color: var(--fill-quaternary);\n    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);\n}\n\n.slate-sender-container [data-slate-editor] {\n    outline: none;\n}\n\n.slate-sender-container [data-slate-editor]::-webkit-scrollbar {\n    width: 6px;\n}\n\n.slate-sender-container [data-slate-editor]::-webkit-scrollbar-thumb {\n    background: var(--fill-quinary);\n    border-radius: 3px;\n}\n\n.slate-sender-container [data-slate-placeholder] {\n    color: var(--fill-tertiary);\n    opacity: 1;\n}\n\n/* Slate Sender Footer 工具栏 */\n.slate-sender-container .ant-flex {\n    min-width: 0;\n    /* 允许 flex 子元素收缩 */\n    flex-wrap: wrap;\n    /* 窄屏时自动换行 */\n}\n\n.slate-sender-container .ant-btn {\n    flex-shrink: 0;\n    /* 按钮不收缩 */\n}\n\n/* 窄屏优化 */\n@media (max-width: 400px) {\n    .slate-sender-container .ant-flex {\n        gap: 4px !important;\n    }\n\n    .slate-sender-container .ant-btn-sm {\n        padding: 0 8px;\n        font-size: 12px;\n    }\n}\n\n/* Ant Design X 样式覆盖 */\n.ant-bubble-list {\n    display: flex;\n    flex-direction: column;\n    gap: 12px;\n}\n\n/* 只限制 AI 消息的宽度，用户消息紧贴右边界 */\n.ant-bubble[data-placement=\"start\"] {\n    max-width: 80%;\n}\n\n.ant-bubble[data-placement=\"end\"] {\n    max-width: fit-content;\n}\n\n.ant-bubble-content {\n    padding: 8px 12px;\n    border-radius: 8px;\n    font-size: 1em !important;\n    line-height: 1.5;\n}\n\n/* 角色标签 — Notion 风格小标签 */\n.ant-bubble .ant-bubble-header {\n    font-size: 11px;\n    font-weight: 600;\n    letter-spacing: 0.02em;\n    color: var(--fill-tertiary);\n    margin-bottom: 2px;\n    user-select: none;\n}\n\n/* 用户消息 — Notion 风格，细灰边框气泡 */\n.ai-chat-container .ant-bubble[data-placement=\"end\"] .ant-bubble-content {\n    background: transparent !important;\n    color: var(--fill-primary) !important;\n    border: 1px solid var(--fill-quaternary) !important;\n    border-radius: 12px !important;\n    padding: 8px 14px !important;\n    box-shadow: none !important;\n}\n\n/* 用户消息标签右对齐 */\n.ant-bubble[data-placement=\"end\"] .ant-bubble-header {\n    text-align: right;\n}\n\n/* VibeCard chip in user message bubble */\n.ant-bubble[data-placement=\"end\"] .ant-bubble-content span[style*=\"backgroundColor\"] {\n    border: 1px solid var(--fill-quaternary) !important;\n}\n\n/* AI 消息 — 细灰边框，左侧强调线 */\n.ai-chat-container .ant-bubble[data-placement=\"start\"] .ant-bubble-content {\n    background: transparent !important;\n    color: var(--fill-primary) !important;\n    border: 1px solid var(--fill-quinary) !important;\n    border-left: 2.5px solid var(--fill-quaternary) !important;\n    border-radius: 2px 8px 8px 2px !important;\n    padding: 8px 14px !important;\n    box-shadow: none !important;\n}\n\n/* 强制覆盖所有可能的 Bubble 内容样式 - 使用 CSS 变量直接计算 */\n.ai-chat-container .ant-bubble[data-placement=\"start\"] .ant-bubble-content,\n.ai-chat-container .ant-bubble[data-placement=\"end\"] .ant-bubble-content {\n    font-size: calc(14px * var(--panel-font-scale, 1)) !important;\n}\n\n/* Sender 输入框 */\n.ant-sender {\n    background: var(--material-background);\n    border: 1px solid var(--fill-quinary);\n    border-radius: 4px;\n}\n\n.ant-sender:focus-within {\n    border-color: var(--accent-blue);\n    box-shadow: 0 0 0 2px rgba(64, 114, 229, 0.1);\n}\n\n.ant-sender-input {\n    min-height: 36px;\n    max-height: 120px;\n    padding: 8px 12px;\n    font-size: 1em;\n    color: var(--fill-primary);\n}\n\n.ant-sender-input::placeholder {\n    color: var(--fill-tertiary);\n}\n\n.ant-sender-actions {\n    padding: 4px 8px;\n}\n\n/* 加载状态 */\n.ant-bubble-typing {\n    animation: typing 1.5s infinite;\n}\n\n@keyframes typing {\n\n    0%,\n    100% {\n        opacity: 0.5;\n    }\n\n    50% {\n        opacity: 1;\n    }\n}\n\n/* 对话容器 */\n.conversation-container {\n    position: relative;\n    padding: 12px;\n    border: 2px solid transparent;\n    border-radius: 8px;\n    transition: all 0.2s;\n    cursor: pointer;\n    /* 改为 pointer，表示可点击 */\n}\n\n.conversation-container:hover {\n    background: var(--fill-quinary);\n    border-color: var(--fill-quaternary);\n}\n\n.conversation-container.selected {\n    background: var(--fill-quinary);\n    border-color: var(--fill-quaternary);\n}\n\n.conversation-container:active {\n    cursor: grabbing;\n}\n\n.conversation-container.dragging {\n    opacity: 0.5;\n    transform: scale(0.95);\n}\n\n.conversation-actions {\n    position: absolute;\n    top: 8px;\n    right: 8px;\n    display: flex;\n    gap: 4px;\n    z-index: 2;\n    opacity: 0;\n    transition: opacity 0.2s ease;\n}\n\n.conversation-container:hover .conversation-actions,\n.conversation-container.selected .conversation-actions,\n.conversation-container:focus-within .conversation-actions {\n    opacity: 1;\n}\n\n.conversation-actions .ant-btn {\n    width: 28px;\n    height: 28px;\n    min-width: 28px;\n    padding: 0 !important;\n    border-radius: 6px;\n    background: var(--material-background) !important;\n    border: 1px solid var(--fill-quinary) !important;\n    color: var(--fill-primary) !important;\n    box-shadow: none !important;\n    display: inline-flex !important;\n    align-items: center;\n    justify-content: center;\n}\n\n.conversation-actions .ant-btn .anticon {\n    font-size: 14px;\n}\n\n.conversation-actions .ant-btn:hover {\n    background: var(--material-sidepane) !important;\n    border-color: var(--fill-quaternary) !important;\n}\n\n.conversation-actions .conversation-action-delete-btn.ant-btn,\n.conversation-actions .conversation-action-delete-btn.ant-btn .anticon {\n    color: #ff4d4f !important;\n}\n\n/* 对话消息内容 */\n.conversation-messages {\n    display: flex;\n    flex-direction: column;\n    gap: 8px;\n    pointer-events: none;\n    /* 禁用消息容器的指针事件，让拖拽生效 */\n}\n\n/* 消息气泡内的文本可选中 */\n.conversation-messages .ant-bubble-content {\n    user-select: text;\n    cursor: text;\n    pointer-events: auto;\n    /* 重新启用文本区域的指针事件 */\n}\n\n.conversation-inline-editor {\n    display: flex;\n    flex-direction: column;\n    gap: 8px;\n    min-width: min(420px, 72vw);\n}\n\n.conversation-inline-editor .ant-input {\n    border-radius: 8px;\n}\n\n.conversation-inline-editor-images {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 8px;\n}\n\n.conversation-inline-editor-actions {\n    display: flex;\n    justify-content: flex-end;\n    gap: 8px;\n}\n\n/* 单独消息（没有配对） */\n.single-message {\n    margin-bottom: 12px;\n}\n\n/* 错误消息样式 */\n.error-message .ant-bubble-content {\n    background: var(--material-sidepane) !important;\n    border: 1px solid var(--fill-quaternary) !important;\n    color: #cf1322 !important;\n}\n\n.error-message .ant-bubble-content p:first-child {\n    font-weight: 500;\n}\n\n/* Action bar：与对话容器平级的通用组件 */\n.conversation-action-bar {\n    margin: 4px 0 12px 0;\n    line-height: 1;\n    display: flex;\n    justify-content: center;\n    /* 水平居中 */\n    align-items: center;\n    /* 垂直居中 */\n}\n\n.conversation-action-bar .ant-btn {\n    max-width: 100%;\n    white-space: normal;\n    /* 允许换行 */\n    height: auto;\n    /* 文案多行时自适应高度 */\n    line-height: 1.4;\n    /* 多行更易读 */\n    padding: 4px 8px;\n    /* 文案模式下提供内边距 */\n    margin: 0;\n    display: block;\n    /* 覆盖 antd 的 inline-flex，允许内容换行 */\n    text-align: center;\n    /* 居中文案 */\n}\n\n/* 按钮内部文字容器：允许换行并在窄宽度时断词 */\n.conversation-action-bar .ant-btn>span {\n    display: inline;\n    white-space: normal;\n    word-break: break-word;\n}\n\n/* 欢迎对话容器 - 极简白灰风格，复用现有的 conversation-container 样式 */\n.welcome-section {\n    position: relative;\n    padding: 12px;\n    border: 2px solid transparent;\n    border-radius: 8px;\n    transition: all 0.2s;\n    cursor: grab;\n}\n\n.welcome-section:hover {\n    background: var(--fill-quinary);\n    border-color: var(--fill-quaternary);\n}\n\n.welcome-section:active {\n    cursor: grabbing;\n}\n\n.welcome-section.dragging {\n    opacity: 0.5;\n    transform: scale(0.95);\n}\n\n/* 欢迎 Prompts 容器 */\n.welcome-prompts-container {\n    margin: 8px 0;\n}\n\n.welcome-title {\n    font-size: 1.14em;\n    font-weight: 500;\n    color: var(--fill-primary);\n}\n\n.welcome-subtitle {\n    font-size: 0.86em;\n    color: var(--fill-secondary);\n    margin-top: 4px;\n}\n\n.welcome-prompts-container .ant-prompts {\n    background: transparent;\n}\n\n.welcome-prompts-container .ant-prompts-item {\n    background: var(--material-background);\n    border: 1px solid var(--fill-quinary);\n    border-radius: 6px;\n    padding: 12px;\n    margin-bottom: 8px;\n    transition: all 0.2s;\n    cursor: pointer;\n    font-size: calc(14px * var(--panel-font-scale, 1)) !important;\n}\n\n.welcome-prompts-container .ant-prompts-item:hover {\n    background: var(--fill-quinary);\n    border-color: var(--fill-quaternary);\n}\n\n.welcome-prompts-container .ant-prompts-item:last-child {\n    margin-bottom: 0;\n}\n\n.welcome-prompts-container .ant-prompts-item-label {\n    font-weight: 500;\n    color: var(--fill-primary);\n    font-size: 1em !important;\n    margin-bottom: 4px;\n}\n\n.welcome-prompts-container .ant-prompts-item-description {\n    font-size: 0.93em !important;\n    color: var(--fill-secondary);\n    line-height: 1.4;\n}\n\n.welcome-prompts-container .ant-prompts-content {\n    font-size: calc(14px * var(--panel-font-scale, 1)) !important;\n}\n\n.welcome-prompts-container .ant-prompts-label {\n    font-size: 1em !important;\n    font-weight: 500;\n    color: var(--fill-primary) !important;\n    line-height: 1.4 !important;\n}\n\n.welcome-prompts-container .ant-prompts-desc {\n    font-size: 0.93em !important;\n    color: var(--fill-secondary) !important;\n    line-height: 1.4 !important;\n}\n\n.welcome-prompts-container .ant-prompts-desc * {\n    font-size: inherit !important;\n}\n\n/* Markdown 内容样式 */\n.markdown-content {\n    font-size: 1em !important;\n    line-height: 1.6;\n    color: var(--fill-primary);\n}\n\n.markdown-content>*:first-child {\n    margin-top: 0;\n}\n\n.markdown-content>*:last-child {\n    margin-bottom: 0;\n}\n\n/* 标题 */\n.markdown-content h1,\n.markdown-content h2,\n.markdown-content h3,\n.markdown-content h4,\n.markdown-content h5,\n.markdown-content h6 {\n    margin: 16px 0 8px 0;\n    font-weight: 600;\n    line-height: 1.3;\n    color: var(--fill-primary);\n}\n\n.markdown-content h1 {\n    font-size: 24px;\n    border-bottom: 1px solid var(--fill-quinary);\n    padding-bottom: 8px;\n}\n\n.markdown-content h2 {\n    font-size: 20px;\n    border-bottom: 1px solid var(--fill-quinary);\n    padding-bottom: 6px;\n}\n\n.markdown-content h3 {\n    font-size: 18px;\n}\n\n.markdown-content h4 {\n    font-size: 16px;\n}\n\n.markdown-content h5,\n.markdown-content h6 {\n    font-size: 14px;\n}\n\n/* 段落 */\n.markdown-content p {\n    margin: 8px 0;\n}\n\n/* 列表 */\n.markdown-content ul,\n.markdown-content ol {\n    margin: 8px 0;\n    padding-left: 24px;\n}\n\n.markdown-content li {\n    margin: 4px 0;\n}\n\n.markdown-content li>p {\n    margin: 0;\n}\n\n/* 引用块 */\n.markdown-content blockquote {\n    margin: 8px 0;\n    padding: 8px 12px;\n    border-left: 4px solid var(--fill-quaternary);\n    background: var(--fill-quinary);\n    color: var(--fill-secondary);\n}\n\n.markdown-content blockquote>*:first-child {\n    margin-top: 0;\n}\n\n.markdown-content blockquote>*:last-child {\n    margin-bottom: 0;\n}\n\n/* 行内代码 */\n.markdown-content code.inline-code {\n    padding: 2px 6px;\n    border-radius: 3px;\n    background: var(--fill-quinary);\n    color: var(--accent-blue);\n    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;\n    font-size: 0.9em;\n    border: 1px solid var(--fill-quaternary);\n}\n\n/* 代码块容器 */\n.markdown-content .code-block-wrapper {\n    position: relative;\n    margin: 12px 0;\n}\n\n/* 代码块语言标签 */\n.markdown-content .code-block-lang {\n    position: absolute;\n    top: 8px;\n    right: 12px;\n    padding: 2px 8px;\n    background: var(--fill-quinary);\n    border-radius: 3px;\n    font-size: 11px;\n    color: var(--fill-secondary);\n    font-weight: 500;\n    text-transform: uppercase;\n    z-index: 1;\n}\n\n/* 代码块 */\n.markdown-content pre {\n    margin: 0;\n    padding: 12px;\n    border-radius: 6px;\n    background: var(--material-sidepane);\n    overflow-x: auto;\n    border: 1px solid var(--fill-quinary);\n}\n\n.markdown-content pre code {\n    background: none;\n    padding: 0;\n    font-size: 13px;\n    line-height: 1.5;\n    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;\n    color: var(--fill-primary);\n}\n\n/* 代码块滚动条 */\n.markdown-content pre::-webkit-scrollbar {\n    height: 8px;\n}\n\n.markdown-content pre::-webkit-scrollbar-track {\n    background: var(--fill-quinary);\n    border-radius: 4px;\n}\n\n.markdown-content pre::-webkit-scrollbar-thumb {\n    background: var(--fill-quaternary);\n    border-radius: 4px;\n}\n\n.markdown-content pre::-webkit-scrollbar-thumb:hover {\n    background: var(--fill-tertiary);\n}\n\n/* 水平分割线 */\n.markdown-content hr {\n    margin: 16px 0;\n    border: none;\n    border-top: 1px solid var(--fill-quinary, #e0e0e0);\n}\n\n/* 链接 */\n.markdown-content a {\n    color: var(--accent-blue);\n    text-decoration: none;\n}\n\n.markdown-content a:hover {\n    text-decoration: underline;\n}\n\n/* 表格容器 */\n.markdown-content .table-wrapper {\n    overflow-x: auto;\n    margin: 12px 0;\n}\n\n/* 表格 */\n.markdown-content table {\n    width: 100%;\n    border-collapse: collapse;\n    font-size: 13px;\n}\n\n.markdown-content table th,\n.markdown-content table td {\n    padding: 8px 12px;\n    border: 1px solid var(--fill-quinary);\n    text-align: left;\n}\n\n.markdown-content table th {\n    background: var(--material-sidepane);\n    font-weight: 600;\n    color: var(--fill-primary);\n}\n\n.markdown-content table tr:nth-child(even) {\n    background: var(--fill-quinary);\n}\n\n.markdown-content table tr:hover {\n    background: var(--material-sidepane);\n}\n\n/* 数学公式样式优化 */\n/* 行内数学公式 */\n.markdown-content .math.math-inline {\n    display: inline;\n    margin: 0 2px;\n}\n\n/* 块级数学公式 */\n.markdown-content .math.math-display {\n    display: block;\n    margin: 16px 0;\n    overflow-x: auto;\n    overflow-y: hidden;\n    padding: 12px;\n    background: var(--material-sidepane);\n    border-radius: 4px;\n    border: 1px solid var(--fill-quinary);\n}\n\n.markdown-content .vibero-math-display {\n    display: block;\n    margin: 14px 0;\n    overflow-x: auto;\n    overflow-y: hidden;\n    padding: 10px 12px;\n    background: var(--material-sidepane);\n    border-radius: 4px;\n    border: 1px solid var(--fill-quinary);\n}\n\n/* KaTeX 字体优化 */\n.markdown-content .katex {\n    font-size: 1.05em;\n}\n\n.markdown-content .katex-display {\n    margin: 0;\n}\n\n/* KaTeX 无法解析时的降级文本：默认鲜红刺眼，改为次要前景色 */\n.markdown-content .katex-error {\n    color: var(--fill-secondary) !important;\n}\n\n/* 数学公式滚动条 */\n.markdown-content .math.math-display::-webkit-scrollbar {\n    height: 6px;\n}\n\n.markdown-content .math.math-display::-webkit-scrollbar-track {\n    background: var(--fill-quinary);\n    border-radius: 3px;\n}\n\n.markdown-content .math.math-display::-webkit-scrollbar-thumb {\n    background: var(--fill-quaternary);\n    border-radius: 3px;\n}\n\n.markdown-content .math.math-display::-webkit-scrollbar-thumb:hover {\n    background: var(--fill-tertiary);\n}\n\n/* 图片 */\n.markdown-content img {\n    max-width: 100%;\n    height: auto;\n    border-radius: 4px;\n    margin: 8px 0;\n}\n\n/* 删除线 */\n.markdown-content del {\n    text-decoration: line-through;\n    color: var(--fill-tertiary);\n}\n\n/* 强调 */\n.markdown-content strong {\n    font-weight: 600;\n    color: var(--fill-primary);\n}\n\n.markdown-content em {\n    font-style: italic;\n}\n\n/* 响应式 */\n@media (max-width: 600px) {\n    .ai-chat-header {\n        padding: 10px 12px;\n    }\n\n    .ai-chat-messages {\n        padding: 12px;\n    }\n\n    .ai-chat-input-area {\n        padding: 10px;\n    }\n\n    .ant-bubble {\n        max-width: 90%;\n    }\n\n    .welcome-container {\n        margin: 10px;\n        padding: 16px;\n        max-width: 100%;\n    }\n\n    .markdown-content {\n        font-size: 13px;\n    }\n\n    .markdown-content pre {\n        padding: 8px;\n    }\n\n    .markdown-content table {\n        font-size: 12px;\n    }\n}\n\n\n/* AI Chat Modal - 黑白 Notion 风格 */\n.ai-chat-modal .ant-modal-content {\n    background: var(--material-background);\n    border-radius: 8px;\n    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);\n}\n\n.ai-chat-modal .ant-modal-header {\n    display: none;\n}\n\n.ai-chat-modal .ant-modal-body {\n    text-align: center;\n    font-size: 14px;\n    color: var(--fill-primary);\n    line-height: 1.5;\n    margin-bottom: 5px;\n}\n\n.ai-chat-modal .ant-modal-footer {\n    border-top: none;\n    text-align: center;\n}\n\n.ai-chat-modal .ant-btn-primary {\n    background-color: var(--fill-primary) !important;\n    border-color: var(--fill-primary) !important;\n    color: var(--material-background) !important;\n    font-weight: 500;\n    height: 28px;\n    border-radius: 6px;\n    font-size: 13px;\n}\n\n.ai-chat-modal .ant-btn-primary:hover {\n    background-color: var(--fill-secondary) !important;\n    border-color: var(--fill-secondary) !important;\n}\n\n.ai-chat-modal .ant-btn-primary:active {\n    background-color: var(--fill-secondary) !important;\n    border-color: var(--fill-secondary) !important;\n}\n\n.ai-chat-modal .ant-modal-mask {\n    background: rgba(0, 0, 0, 0.45);\n}\n\n/* message 默认 z-index 低于本页 Modal(10001) / Confirm(10002)，提层避免被遮罩盖住 */\n.ant-message {\n    z-index: 11000 !important;\n}\n\n/* 删除确认弹窗中的红色删除按钮 */\n.ai-chat-modal .ant-btn-dangerous {\n    background-color: #ff4d4f !important;\n    border-color: #ff4d4f !important;\n    color: #fff !important;\n}\n\n.ai-chat-modal .ant-btn-dangerous:hover {\n    background-color: #ff7875 !important;\n    border-color: #ff7875 !important;\n    color: #fff !important;\n}\n\n/* Custom 配置列表的删除按钮：红色图标无背景 */\n.slate-sender-container .custom-config-delete-btn.ant-btn,\n.slate-sender-container .custom-config-delete-btn.ant-btn:hover,\n.slate-sender-container .custom-config-delete-btn.ant-btn:active {\n    color: #ff4d4f !important;\n    background: transparent !important;\n    border-color: transparent !important;\n}\n\n.slate-sender-container .custom-config-delete-btn.ant-btn:hover {\n    color: #ff7875 !important;\n}\n\n/* 自定义模型：右侧表单「添加」重复点击时的轻微高亮脉冲 */\n@keyframes custom-config-form-pulse {\n    0% {\n        box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.35);\n    }\n    40% {\n        box-shadow: 0 0 0 6px rgba(24, 144, 255, 0.12);\n    }\n    100% {\n        box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);\n    }\n}\n\n.slate-sender-container .custom-config-form-pane.custom-config-form-flash {\n    animation: custom-config-form-pulse 0.55s ease-out;\n    border-radius: 8px;\n}\n"],"sourceRoot":""}]);
+// Exports
+export default ___CSS_LOADER_EXPORT___;

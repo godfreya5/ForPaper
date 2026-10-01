@@ -1,0 +1,272 @@
+/**
+ * AI Chat 面板文案：iframe 内 Zotero.ftl 往往拿不到 vibe 条目或仍为英文，故以内置表为准，
+ * 按 Zotero.locale（或 navigator.language）在 zh / en 间切换。
+ */
+
+export function getZotero() {
+    return window.Zotero || window.parent?.Zotero || window.top?.Zotero;
+}
+
+/** 是否使用中文 UI（优先 Zotero.locale，其次 navigator；皆无时默认 en-US） */
+export function isZhLocale() {
+    const Z = getZotero();
+    const loc = (Z && Z.locale) || (typeof navigator !== 'undefined' ? navigator.language : '') || 'en-US';
+    return String(loc).toLowerCase().startsWith('zh');
+}
+
+function interpolate(template, args) {
+    if (!args || !template) return template;
+    return template.replace(/\{\s*\$([a-zA-Z0-9_]+)\s*\}/g, (_, k) =>
+        (args[k] != null ? String(args[k]) : ''));
+}
+
+const STR = {
+    zh: {
+        'general-cancel': '取消',
+        'vibe-ai-chat-model-tier-advanced': '高级模型',
+        'vibe-ai-chat-model-tier-advanced-pro-only-suffix': '（PRO及以上可使用）',
+        'vibe-ai-chat-advanced-models-require-pro': '高级模型仅 PRO / Ultimate 活跃订阅可用，请升级套餐或改用标准模型。',
+        'vibe-ai-chat-model-tier-standard': '标准模型',
+        'vibe-ai-chat-model-chatgpt': 'ChatGPT',
+        'vibe-ai-chat-model-grok': 'Grok',
+        'vibe-ai-chat-model-gemini': 'Gemini',
+        'vibe-ai-chat-model-kimi': 'KIMI',
+        'vibe-ai-chat-model-minimax': 'MiniMax',
+        'vibe-ai-chat-model-qwen': 'Qwen',
+        'vibe-ai-chat-model-doubao': 'Doubao',
+        'vibe-ai-chat-model-deepseek': 'DeepSeek',
+        'vibe-ai-chat-model-zhipu': '智谱 GLM',
+        'vibe-ai-chat-custom-model-named': '自定义模型（{ $modelName }）',
+        'vibe-ai-chat-custom-model-fallback': '自定义模型',
+        'vibe-ai-chat-manage-custom-models': '管理自定义模型',
+        'vibe-ai-chat-custom-model-settings-title': '自定义模型设置',
+        'vibe-ai-chat-saved-configurations': '已保存的配置',
+        'vibe-ai-chat-add-configuration': '添加新配置',
+        'vibe-ai-chat-api-base-url': 'API Base URL',
+        'vibe-ai-chat-api-base-url-row-tooltip':
+            '左侧选择 OpenAI 或 Anthropic 格式。OpenAI 兼容使用 Bearer；Anthropic 使用 x-api-key。OpenAI 可填根地址或 /v1；Anthropic 可填 https://api.anthropic.com 或完整 …/v1/messages。',
+        'vibe-ai-chat-api-base-url-placeholder-openai': 'https://api.openai.com/v1',
+        'vibe-ai-chat-api-base-url-placeholder-anthropic': 'https://api.anthropic.com',
+        'vibe-ai-chat-api-format-label-openai': 'OpenAI格式',
+        'vibe-ai-chat-api-format-label-anthropic': 'Anthropic格式',
+        'vibe-ai-chat-api-key-shared': 'API Key',
+        'vibe-ai-chat-api-key-tooltip': '两种格式共用此输入框：按所选格式填写对应服务商的密钥。',
+        'vibe-ai-chat-api-key-placeholder': '粘贴服务商提供的 API Key',
+        'vibe-ai-chat-model-name': '模型名称',
+        'vibe-ai-chat-model-name-tooltip': '例如 gpt-4o、deepseek-v4-flash 等，以服务商文档为准。',
+        'vibe-ai-chat-model-name-placeholder': '如 gpt-4o',
+        'vibe-ai-chat-config-updated': '配置已更新',
+        'vibe-ai-chat-config-added': '配置已添加',
+        'vibe-ai-chat-config-save-failed': '保存失败',
+        'vibe-ai-chat-confirm-delete-title': '确认删除',
+        'vibe-ai-chat-confirm-delete-body': '确定要删除配置「{ $name }」吗？',
+        'vibe-ai-chat-config-deleted': '配置已删除',
+        'vibe-ai-chat-button-update': '更新',
+        'vibe-ai-chat-button-add': '添加',
+        'vibe-ai-chat-button-close': '关闭',
+        'vibe-ai-chat-button-delete': '删除',
+        'vibe-ai-chat-button-edit': '编辑',
+        'vibe-ai-chat-button-resend': '重新发送',
+        'vibe-ai-chat-unnamed': '未命名',
+        'vibe-ai-chat-current-model-title': '当前模型：{ $model }',
+        'vibe-ai-chat-prompt-configure-custom-first': '请先在模型菜单中打开「管理自定义模型」并添加、选择配置。',
+        'vibe-ai-chat-text-only-model-badge': '纯文本模型（不支持附图）',
+        'vibe-ai-chat-multimodal-not-supported':
+            '「{ $model }」不支持带图片或多模态输入，请切换其他模型。',
+        'vibe-ai-chat-uploading-image': '正在上传图片到云存储...',
+        'vibe-ai-chat-image-upload-success': '图片上传成功',
+        'vibe-ai-chat-image-upload-failed': '图片上传失败: { $error }',
+        'vibe-ai-chat-image-too-large': '图片大小不能超过 10MB',
+        'vibe-ai-chat-image-read-failed': '读取图片失败',
+        'vibe-ai-chat-system-error-restart': '系统错误，请重启 Zotero',
+        'vibe-ai-chat-login-required': '请登录账号以继续使用',
+        'vibe-ai-chat-send-failed': '发送失败: { $error }',
+        'vibe-ai-chat-balance-fetch-failed': '无法获取 Credits 信息，请稍后重试',
+        'vibe-ai-chat-balance-check-failed': '余额检查失败，请稍后重试',
+        'vibe-ai-chat-credits-insufficient': 'Credits 不足（需要 { $required} Credits，剩余 { $remaining } Credits）',
+        'vibe-ai-chat-custom-config-load-failed': '自定义模型配置加载失败',
+        'vibe-ai-chat-parse-paper-first': '请先解析论文',
+        'vibe-ai-chat-clear-history-title': '确认清空对话历史？',
+        'vibe-ai-chat-clear-history-content': '此操作将清空当前所有对话记录和 AI 的上下文记忆。',
+        'vibe-ai-chat-confirm': '确认',
+        'vibe-ai-chat-history-cleared': '对话历史已清空',
+        'vibe-ai-chat-delete-conversation-title': '删除这组对话？',
+        'vibe-ai-chat-delete-conversation-content': '删除后，这一轮问答会从当前聊天记录和上下文中移除。',
+        'vibe-ai-chat-conversation-deleted': '这组对话已删除',
+        'vibe-ai-chat-conversation-resent': '已按新消息重新发送',
+        'vibe-ai-chat-edit-empty-warning': '编辑后的消息不能为空',
+        'vibe-ai-chat-font-size': '字体大小',
+        'vibe-ai-chat-font-size-adjust': '调整字体大小',
+        'vibe-ai-chat-clear-history-action': '清空对话历史',
+        'vibe-ai-chat-clear': '清空',
+        'vibe-ai-chat-reset-default': '恢复默认',
+        'vibe-ai-chat-reset': '重置',
+        'vibe-ai-chat-extra-paper-title': '添加额外论文上下文',
+        'vibe-ai-chat-extra-paper-search-placeholder': '搜索论文标题',
+        'vibe-ai-chat-extra-paper-loading': '正在加载论文列表...',
+        'vibe-ai-chat-extra-paper-empty': '没有可选论文（请先解析其他论文）',
+        'vibe-ai-chat-extra-paper-pages-and-cost': '{ $pages } 页，{ $cost } credits',
+        'vibe-ai-chat-extra-paper-selected-cost': '已选 { $count } 篇，额外 { $cost } credits',
+        'vibe-ai-chat-extra-paper-load-failed': '加载论文列表失败，请稍后重试',
+        'vibe-ai-chat-extra-paper-context-missing': '以下论文尚未解析完成：{ $titles }',
+        'vibe-ai-chat-click-view-large': '点击查看大图',
+        'vibe-ai-chat-remove-image': '移除图片',
+        'vibe-ai-chat-screenshot': '截图',
+        'vibe-ai-chat-screenshot-label': '截图',
+        'vibe-ai-chat-image-label': '图片',
+        'vibe-ai-chat-select-image-file': '请选择图片文件',
+        'vibe-ai-chat-screenshot-success': '截图成功',
+        'vibe-ai-chat-screenshot-failed': '截图失败: { $error }',
+        'vibe-ai-chat-screenshot-unavailable': '截图功能暂不可用，请稍后重试',
+        'vibe-ai-chat-screenshot-unsupported': '当前环境不支持截图功能',
+        'vibe-ai-chat-upload-image': '上传图片',
+        'vibe-ai-chat-current-model-no-image': '当前模型不支持带图',
+        'vibe-ai-chat-region-blocked': '该模型不支持该区域，请使用中国以外的 VPN 代理',
+        'vibe-ai-chat-error-header': '❌ **发生错误**',
+        'vibe-ai-chat-tip-image': '💡 **建议**: 请删除图片后重新上传或截图。',
+        'vibe-ai-chat-tip-apikey': '💡 **建议**: 请在设置中检查 API Key 配置。',
+        'vibe-ai-chat-tip-rate-limit': '💡 **建议**: 请稍候再试，或者缩短问题内容。',
+        'vibe-ai-chat-tip-network': '💡 **建议**: 请检查网络连接并重试。',
+        'vibe-ai-chat-tip-timeout': '💡 **建议**: 网络连接不稳定，请重试或稍后再试。',
+        'vibe-ai-chat-tip-server': '💡 **建议**: 服务器可能在维护中，请稍后再试。',
+        'vibe-ai-chat-custom-model-config-incomplete': '自定义模型配置不完整，请点击模型菜单右侧的设置图标进行配置。',
+        'vibe-ai-chat-network-timeout': '网络连接超时，请检查网络并重试',
+        'vibe-ai-chat-network-failed': '网络连接失败，请检查网络并重试',
+        'vibe-ai-chat-request-interrupted': '请求被中断，请重试'
+    },
+    en: {
+        'general-cancel': 'Cancel',
+        'vibe-ai-chat-model-tier-advanced': 'Advanced',
+        'vibe-ai-chat-model-tier-advanced-pro-only-suffix': ' (PRO & Ultimate only)',
+        'vibe-ai-chat-advanced-models-require-pro':
+            'Advanced models require an active PRO or Ultimate plan. Upgrade or pick a Standard model.',
+        'vibe-ai-chat-model-tier-standard': 'Standard',
+        'vibe-ai-chat-model-chatgpt': 'ChatGPT',
+        'vibe-ai-chat-model-grok': 'Grok',
+        'vibe-ai-chat-model-gemini': 'Gemini ',
+        'vibe-ai-chat-model-kimi': 'KIMI',
+        'vibe-ai-chat-model-minimax': 'MiniMax',
+        'vibe-ai-chat-model-qwen': 'Qwen',
+        'vibe-ai-chat-model-doubao': 'Doubao ',
+        'vibe-ai-chat-model-deepseek': 'DeepSeek',
+        'vibe-ai-chat-model-zhipu': 'Zhipu GLM',
+        'vibe-ai-chat-custom-model-named': 'Custom model ({ $modelName })',
+        'vibe-ai-chat-custom-model-fallback': 'Custom model',
+        'vibe-ai-chat-manage-custom-models': 'Manage Custom Models',
+        'vibe-ai-chat-custom-model-settings-title': 'Custom Model Settings',
+        'vibe-ai-chat-saved-configurations': 'Saved configurations',
+        'vibe-ai-chat-add-configuration': 'Add configuration',
+        'vibe-ai-chat-api-base-url': 'API Base URL',
+        'vibe-ai-chat-api-base-url-row-tooltip':
+            'Choose OpenAI-compatible or Anthropic on the left. OpenAI uses Bearer; Anthropic uses x-api-key. URL: OpenAI root or /v1; Anthropic e.g. https://api.anthropic.com or full …/v1/messages.',
+        'vibe-ai-chat-api-base-url-placeholder-openai': 'https://api.openai.com/v1',
+        'vibe-ai-chat-api-base-url-placeholder-anthropic': 'https://api.anthropic.com',
+        'vibe-ai-chat-api-format-label-openai': 'OpenAI format',
+        'vibe-ai-chat-api-format-label-anthropic': 'Anthropic format',
+        'vibe-ai-chat-api-key-shared': 'API Key',
+        'vibe-ai-chat-api-key-tooltip': 'One field for both formats: use the key for the provider you selected.',
+        'vibe-ai-chat-api-key-placeholder': "Paste your provider's API key",
+        'vibe-ai-chat-model-name': 'Model name',
+        'vibe-ai-chat-model-name-tooltip': 'Examples: gpt-4o, deepseek-v4-flash, etc. (see your provider docs).',
+        'vibe-ai-chat-model-name-placeholder': 'e.g. gpt-4o',
+        'vibe-ai-chat-config-updated': 'Configuration updated',
+        'vibe-ai-chat-config-added': 'Configuration added',
+        'vibe-ai-chat-config-save-failed': 'Failed to save',
+        'vibe-ai-chat-confirm-delete-title': 'Remove configuration',
+        'vibe-ai-chat-confirm-delete-body': 'Remove “{ $name }”? This cannot be undone.',
+        'vibe-ai-chat-config-deleted': 'Configuration removed',
+        'vibe-ai-chat-button-update': 'Update',
+        'vibe-ai-chat-button-add': 'Add',
+        'vibe-ai-chat-button-close': 'Close',
+        'vibe-ai-chat-button-delete': 'Delete',
+        'vibe-ai-chat-button-edit': 'Edit',
+        'vibe-ai-chat-button-resend': 'Resend',
+        'vibe-ai-chat-unnamed': 'Unnamed',
+        'vibe-ai-chat-current-model-title': 'Current model: { $model }',
+        'vibe-ai-chat-prompt-configure-custom-first':
+            'Add and select a custom model under Manage Custom Models in the model menu.',
+        'vibe-ai-chat-text-only-model-badge': 'Text-only model (no images)',
+        'vibe-ai-chat-multimodal-not-supported':
+            '{ $model } does not support images or multimodal input. Switch to other model.',
+        'vibe-ai-chat-uploading-image': 'Uploading image to cloud storage...',
+        'vibe-ai-chat-image-upload-success': 'Image uploaded successfully',
+        'vibe-ai-chat-image-upload-failed': 'Image upload failed: { $error }',
+        'vibe-ai-chat-image-too-large': 'Image size must be <= 10MB',
+        'vibe-ai-chat-image-read-failed': 'Failed to read image',
+        'vibe-ai-chat-system-error-restart': 'System error. Please restart Zotero',
+        'vibe-ai-chat-login-required': 'Please log in to continue',
+        'vibe-ai-chat-send-failed': 'Send failed: { $error }',
+        'vibe-ai-chat-balance-fetch-failed': 'Unable to fetch credits. Please try again later',
+        'vibe-ai-chat-balance-check-failed': 'Balance check failed. Please try again later',
+        'vibe-ai-chat-credits-insufficient': 'Insufficient credits (need { $required} Credits, have { $remaining } Credits)',
+        'vibe-ai-chat-custom-config-load-failed': 'Failed to load custom model configuration',
+        'vibe-ai-chat-parse-paper-first': 'Please parse the paper first',
+        'vibe-ai-chat-clear-history-title': 'Clear chat history?',
+        'vibe-ai-chat-clear-history-content': 'This will clear all current chat history and AI context memory.',
+        'vibe-ai-chat-confirm': 'Confirm',
+        'vibe-ai-chat-history-cleared': 'Chat history cleared',
+        'vibe-ai-chat-delete-conversation-title': 'Delete this exchange?',
+        'vibe-ai-chat-delete-conversation-content': 'This removes the selected user message and reply from the current chat and context.',
+        'vibe-ai-chat-conversation-deleted': 'Exchange deleted',
+        'vibe-ai-chat-conversation-resent': 'Resent as a new message',
+        'vibe-ai-chat-edit-empty-warning': 'Edited message cannot be empty',
+        'vibe-ai-chat-font-size': 'Font size',
+        'vibe-ai-chat-font-size-adjust': 'Adjust font size',
+        'vibe-ai-chat-clear-history-action': 'Clear chat history',
+        'vibe-ai-chat-clear': 'Clear',
+        'vibe-ai-chat-reset-default': 'Reset to default',
+        'vibe-ai-chat-reset': 'Reset',
+        'vibe-ai-chat-extra-paper-title': 'Add Extra Paper Context',
+        'vibe-ai-chat-extra-paper-search-placeholder': 'Search paper title',
+        'vibe-ai-chat-extra-paper-loading': 'Loading papers...',
+        'vibe-ai-chat-extra-paper-empty': 'No available papers (parse other papers first)',
+        'vibe-ai-chat-extra-paper-pages-and-cost': '{ $pages } pages, { $cost } credits',
+        'vibe-ai-chat-extra-paper-selected-cost': '{ $count } selected, +{ $cost } credits',
+        'vibe-ai-chat-extra-paper-load-failed': 'Failed to load paper list. Please try again later',
+        'vibe-ai-chat-extra-paper-context-missing': 'These papers are not parsed yet: { $titles }',
+        'vibe-ai-chat-click-view-large': 'Click to view full size',
+        'vibe-ai-chat-remove-image': 'Remove image',
+        'vibe-ai-chat-screenshot': 'Screenshot',
+        'vibe-ai-chat-screenshot-label': 'Screenshot',
+        'vibe-ai-chat-image-label': 'Image',
+        'vibe-ai-chat-select-image-file': 'Please select an image file',
+        'vibe-ai-chat-screenshot-success': 'Screenshot captured',
+        'vibe-ai-chat-screenshot-failed': 'Screenshot failed: { $error }',
+        'vibe-ai-chat-screenshot-unavailable': 'Screenshot is temporarily unavailable. Please try again later',
+        'vibe-ai-chat-screenshot-unsupported': 'Screenshot is not supported in current environment',
+        'vibe-ai-chat-upload-image': 'Upload image',
+        'vibe-ai-chat-current-model-no-image': 'Current model does not support images',
+        'vibe-ai-chat-region-blocked': 'This model is not available in your region. Please use a VPN outside China',
+        'vibe-ai-chat-error-header': '❌ **Error occurred**',
+        'vibe-ai-chat-tip-image': '💡 **Tip**: Remove and re-upload the image or use screenshot.',
+        'vibe-ai-chat-tip-apikey': '💡 **Tip**: Check your API Key settings.',
+        'vibe-ai-chat-tip-rate-limit': '💡 **Tip**: Try again later or shorten your prompt.',
+        'vibe-ai-chat-tip-network': '💡 **Tip**: Check your network connection and retry.',
+        'vibe-ai-chat-tip-timeout': '💡 **Tip**: Network is unstable. Retry now or later.',
+        'vibe-ai-chat-tip-server': '💡 **Tip**: Server may be under maintenance. Please try again later.',
+        'vibe-ai-chat-custom-model-config-incomplete': 'Custom model configuration is incomplete. Open model settings and finish configuration.',
+        'vibe-ai-chat-network-timeout': 'Network timeout. Please check your connection and retry',
+        'vibe-ai-chat-network-failed': 'Network error. Please check your connection and retry',
+        'vibe-ai-chat-request-interrupted': 'Request was interrupted. Please retry'
+    }
+};
+
+/**
+ * @param {string} id
+ * @param {Record<string, string|number>|undefined} args
+ * @param {string} [fallback]
+ */
+export function zoteroL10n(id, args, fallback) {
+    const lang = isZhLocale() ? 'zh' : 'en';
+    const table = STR[lang];
+    const raw = table[id] ?? STR.en[id] ?? fallback ?? id;
+    return interpolate(raw, args);
+}
+
+export function formatCustomModelLabel(modelName) {
+    const name = (modelName || '').trim();
+    if (name) {
+        return zoteroL10n('vibe-ai-chat-custom-model-named', { modelName: name });
+    }
+    return zoteroL10n('vibe-ai-chat-custom-model-fallback');
+}

@@ -1,0 +1,539 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+		xmlns:html="http://www.w3.org/1999/xhtml"
+		title="从 Zotero 导入插件"
+		width="720"
+		height="520"
+		onload="init();">
+
+	<script><![CDATA[
+		var io;
+		const isZhLocale = () => String(window.opener?.Zotero?.locale || navigator.language || 'en-US')
+			.toLowerCase()
+			.startsWith('zh');
+		const bilingual = (zh, en) => isZhLocale() ? zh : en;
+
+		async function init() {
+			io = window.arguments[0];
+			applyLocaleTexts();
+			let data = io.data; // { zoteroPlugins, viberoPlugins }
+
+			renderZoteroList(data.zoteroPlugins);
+			renderViberoList(data.viberoPlugins);
+			updateImportButton();
+		}
+
+		function applyLocaleTexts() {
+			document.title = bilingual("从 Zotero 导入插件", "Import Plugins from Zotero");
+			const textMap = {
+				"header-title-text": bilingual("插件迁移", "Plugin Migration"),
+				"header-subtitle": bilingual(
+					"从 Zotero 导入插件到 Vibero，并自动尽量迁移配置",
+					"Import plugins from Zotero into Vibero and migrate settings when possible"
+				),
+				"zotero-panel-title-text": bilingual("Zotero 插件", "Zotero Plugins"),
+				"select-all-btn": bilingual("全选 / 反选", "Select All / Invert"),
+				"vibero-panel-title-text": bilingual("Vibero 已安装", "Installed in Vibero"),
+				"footer-hint": bilingual(
+					"默认会尽量迁移所选插件配置；已同步插件和 Vibero 已有配置会自动跳过。",
+					"Selected plugin settings will be migrated when possible. Already synced plugins and existing Vibero settings will be skipped automatically."
+				),
+				"cancel-btn": bilingual("取消", "Cancel")
+			};
+			for (let [id, value] of Object.entries(textMap)) {
+				let el = document.getElementById(id);
+				if (el) {
+					el.textContent = value;
+				}
+			}
+		}
+
+		function renderZoteroList(plugins) {
+			let container = document.getElementById("zotero-list");
+			container.innerHTML = "";
+			document.getElementById("zotero-count").textContent = plugins.length;
+
+			if (!plugins.length) {
+				container.innerHTML = `<div class="empty-state">${bilingual("未检测到 Zotero 插件", "No Zotero plugins detected")}</div>`;
+				return;
+			}
+
+			for (let plugin of plugins) {
+				let row = document.createElementNS("http://www.w3.org/1999/xhtml", "html:label");
+				row.className = "plugin-row" + (plugin.importable ? " importable" : " disabled");
+
+				let checkbox = document.createElementNS("http://www.w3.org/1999/xhtml", "html:input");
+				checkbox.type = "checkbox";
+				checkbox.className = "plugin-checkbox";
+				checkbox.dataset.id = plugin.id;
+				checkbox.disabled = !plugin.importable;
+				if (plugin.importable) {
+					checkbox.checked = true;
+					checkbox.addEventListener("change", updateImportButton);
+				}
+
+				let info = document.createElementNS("http://www.w3.org/1999/xhtml", "html:div");
+				info.className = "plugin-info";
+
+				let nameEl = document.createElementNS("http://www.w3.org/1999/xhtml", "html:div");
+				nameEl.className = "plugin-name";
+				nameEl.textContent = plugin.name;
+
+				let meta = document.createElementNS("http://www.w3.org/1999/xhtml", "html:div");
+				meta.className = "plugin-meta";
+				meta.textContent = "v" + plugin.version;
+
+				if (plugin.alreadyInVibero) {
+					let tag = document.createElementNS("http://www.w3.org/1999/xhtml", "html:span");
+					tag.className = "tag tag-synced";
+					tag.textContent = bilingual("已同步", "Synced");
+					meta.appendChild(tag);
+				}
+				else if (!plugin.xpiPath) {
+					let tag = document.createElementNS("http://www.w3.org/1999/xhtml", "html:span");
+					tag.className = "tag tag-missing";
+					tag.textContent = bilingual("文件缺失", "Missing File");
+					meta.appendChild(tag);
+				}
+
+				info.appendChild(nameEl);
+				info.appendChild(meta);
+				row.appendChild(checkbox);
+				row.appendChild(info);
+				container.appendChild(row);
+			}
+		}
+
+		function renderViberoList(plugins) {
+			let container = document.getElementById("vibero-list");
+			container.innerHTML = "";
+			document.getElementById("vibero-count").textContent = plugins.length;
+
+			if (!plugins.length) {
+				container.innerHTML = `<div class="empty-state">${bilingual("尚未安装任何插件", "No plugins installed yet")}</div>`;
+				return;
+			}
+
+			for (let plugin of plugins) {
+				let row = document.createElementNS("http://www.w3.org/1999/xhtml", "html:div");
+				row.className = "plugin-row installed";
+
+				let dot = document.createElementNS("http://www.w3.org/1999/xhtml", "html:div");
+				dot.className = "status-dot" + (plugin.active ? " active" : "");
+
+				let info = document.createElementNS("http://www.w3.org/1999/xhtml", "html:div");
+				info.className = "plugin-info";
+
+				let nameEl = document.createElementNS("http://www.w3.org/1999/xhtml", "html:div");
+				nameEl.className = "plugin-name";
+				nameEl.textContent = plugin.name;
+
+				let meta = document.createElementNS("http://www.w3.org/1999/xhtml", "html:div");
+				meta.className = "plugin-meta";
+				meta.textContent = "v" + plugin.version;
+
+				let tag = document.createElementNS("http://www.w3.org/1999/xhtml", "html:span");
+				tag.className = "tag " + (plugin.active ? "tag-active" : "tag-inactive");
+				tag.textContent = plugin.active ? bilingual("运行中", "Active") : bilingual("已禁用", "Disabled");
+				meta.appendChild(tag);
+
+				info.appendChild(nameEl);
+				info.appendChild(meta);
+				row.appendChild(dot);
+				row.appendChild(info);
+				container.appendChild(row);
+			}
+		}
+
+		function updateImportButton() {
+			let count = getSelectedIds().length;
+			let btn = document.getElementById("import-btn");
+			btn.textContent = count > 0
+				? bilingual(`导入选中的 ${count} 个插件`, `Import ${count} Selected Plugin(s)`)
+				: bilingual("请选择要导入的插件", "Choose Plugins to Import");
+			btn.disabled = count === 0;
+		}
+
+		function getSelectedIds() {
+			let checkboxes = document.querySelectorAll(".plugin-checkbox:checked:not(:disabled)");
+			return Array.from(checkboxes).map(cb => cb.dataset.id);
+		}
+
+		function toggleSelectAll() {
+			let checkboxes = document.querySelectorAll(".plugin-checkbox:not(:disabled)");
+			let allChecked = Array.from(checkboxes).every(cb => cb.checked);
+			for (let cb of checkboxes) cb.checked = !allChecked;
+			updateImportButton();
+		}
+
+		function doImport() {
+			io.selectedIds = getSelectedIds();
+			window.close();
+		}
+
+		function doCancel() {
+			io.selectedIds = [];
+			window.close();
+		}
+	]]></script>
+
+	<html:style>
+		:root {
+			color-scheme: light;
+			--bg: #f5f5f3;
+			--panel: rgba(255, 255, 255, 0.92);
+			--panel-strong: #ffffff;
+			--text: #191919;
+			--muted: #6f6f6b;
+			--line: rgba(15, 23, 42, 0.08);
+			--line-strong: rgba(15, 23, 42, 0.14);
+			--accent: #151515;
+			--accent-soft: #f1f1ef;
+			--green: #16a34a;
+			--green-bg: #f0fdf4;
+			--blue: #2563eb;
+			--blue-bg: #eff6ff;
+			--orange: #ea580c;
+			--orange-bg: #fff7ed;
+			--red-bg: #fef2f2;
+			--red: #dc2626;
+		}
+
+		html, body {
+			margin: 0;
+			padding: 0;
+			background: var(--bg);
+			font-family: "SF Pro Display", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+			color: var(--text);
+			-moz-appearance: none;
+		}
+
+		.shell {
+			display: flex;
+			flex-direction: column;
+			height: 100vh;
+			padding: 20px;
+			box-sizing: border-box;
+			gap: 16px;
+		}
+
+		/* Header */
+		.header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.header-left {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.header-icon {
+			width: 32px;
+			height: 32px;
+			border-radius: 10px;
+			background: linear-gradient(135deg, #151515, #404040);
+			display: grid;
+			place-items: center;
+			color: white;
+			font-size: 15px;
+			font-weight: 700;
+		}
+
+		.header-title {
+			font-size: 18px;
+			font-weight: 700;
+			letter-spacing: -0.02em;
+		}
+
+		.header-subtitle {
+			font-size: 13px;
+			color: var(--muted);
+		}
+
+		/* Two-panel layout */
+		.panels {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 14px;
+			flex: 1;
+			min-height: 0;
+		}
+
+		.panel {
+			display: flex;
+			flex-direction: column;
+			border: 1px solid var(--line);
+			border-radius: 16px;
+			background: var(--panel);
+			overflow: hidden;
+		}
+
+		.panel-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 14px 16px 12px;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.panel-title {
+			font-size: 14px;
+			font-weight: 600;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.panel-count {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 20px;
+			height: 20px;
+			padding: 0 6px;
+			border-radius: 999px;
+			background: var(--accent-soft);
+			font-size: 11px;
+			font-weight: 600;
+			color: var(--muted);
+		}
+
+		.select-all-link {
+			font-size: 12px;
+			color: var(--blue);
+			cursor: pointer;
+			border: none;
+			background: none;
+			font-family: inherit;
+			padding: 0;
+		}
+
+		.select-all-link:hover {
+			text-decoration: underline;
+		}
+
+		.panel-body {
+			flex: 1;
+			overflow-y: auto;
+			padding: 6px 8px;
+		}
+
+		/* Plugin row */
+		.plugin-row {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 10px 10px;
+			border-radius: 10px;
+			cursor: default;
+			transition: background 100ms;
+		}
+
+		.plugin-row.importable {
+			cursor: pointer;
+		}
+
+		.plugin-row.importable:hover {
+			background: var(--blue-bg);
+		}
+
+		.plugin-row.disabled {
+			opacity: 0.45;
+		}
+
+		.plugin-row.installed:hover {
+			background: var(--accent-soft);
+		}
+
+		.plugin-checkbox {
+			width: 16px;
+			height: 16px;
+			margin: 0;
+			flex-shrink: 0;
+			accent-color: var(--accent);
+		}
+
+		.status-dot {
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			flex-shrink: 0;
+			background: #d1d5db;
+			margin: 0 4px;
+		}
+
+		.status-dot.active {
+			background: var(--green);
+			box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+		}
+
+		.plugin-info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.plugin-name {
+			font-size: 13px;
+			font-weight: 500;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.plugin-meta {
+			font-size: 11px;
+			color: var(--muted);
+			margin-top: 2px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		/* Tags */
+		.tag {
+			display: inline-flex;
+			align-items: center;
+			padding: 1px 7px;
+			border-radius: 999px;
+			font-size: 10px;
+			font-weight: 600;
+			letter-spacing: 0.02em;
+		}
+
+		.tag-synced {
+			background: var(--blue-bg);
+			color: var(--blue);
+		}
+
+		.tag-missing {
+			background: var(--red-bg);
+			color: var(--red);
+		}
+
+		.tag-active {
+			background: var(--green-bg);
+			color: var(--green);
+		}
+
+		.tag-inactive {
+			background: var(--accent-soft);
+			color: var(--muted);
+		}
+
+		.empty-state {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 100%;
+			font-size: 13px;
+			color: var(--muted);
+		}
+
+		/* Footer */
+		.footer {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 10px;
+		}
+
+		.footer-hint {
+			flex: 1;
+			font-size: 12px;
+			color: var(--muted);
+		}
+
+		.footer-actions {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			flex-shrink: 0;
+		}
+
+		button.btn {
+			appearance: none;
+			border: 0;
+			cursor: pointer;
+			font-family: inherit;
+			border-radius: 999px;
+			font-size: 13px;
+			font-weight: 600;
+			padding: 9px 18px;
+			transition: transform 100ms, box-shadow 100ms, opacity 100ms;
+		}
+
+		button.btn:hover:not(:disabled) {
+			transform: translateY(-1px);
+		}
+
+		button.btn:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
+
+		.btn-secondary {
+			background: transparent;
+			color: var(--muted);
+			border: 1px solid var(--line-strong);
+		}
+
+		.btn-primary {
+			background: var(--accent);
+			color: #fff;
+			box-shadow: 0 4px 16px rgba(17, 24, 39, 0.12);
+		}
+	</html:style>
+
+	<html:div class="shell">
+		<!-- Header -->
+		<html:div class="header">
+			<html:div class="header-left">
+				<html:div class="header-icon">P</html:div>
+				<html:div>
+					<html:div class="header-title"><html:span id="header-title-text">插件迁移</html:span></html:div>
+					<html:div id="header-subtitle" class="header-subtitle">从 Zotero 导入插件到 Vibero，并自动尽量迁移配置</html:div>
+				</html:div>
+			</html:div>
+		</html:div>
+
+		<!-- Two panels -->
+		<html:div class="panels">
+			<!-- Left: Zotero -->
+			<html:div class="panel">
+				<html:div class="panel-header">
+					<html:div class="panel-title">
+						<html:span id="zotero-panel-title-text">Zotero 插件</html:span>
+						<html:span id="zotero-count" class="panel-count">0</html:span>
+					</html:div>
+					<html:button id="select-all-btn" class="select-all-link" onclick="toggleSelectAll()">全选 / 反选</html:button>
+				</html:div>
+				<html:div class="panel-body" id="zotero-list"></html:div>
+			</html:div>
+
+			<!-- Right: Vibero -->
+			<html:div class="panel">
+				<html:div class="panel-header">
+					<html:div class="panel-title">
+						<html:span id="vibero-panel-title-text">Vibero 已安装</html:span>
+						<html:span id="vibero-count" class="panel-count">0</html:span>
+					</html:div>
+				</html:div>
+				<html:div class="panel-body" id="vibero-list"></html:div>
+			</html:div>
+		</html:div>
+
+		<!-- Footer -->
+		<html:div class="footer">
+			<html:div id="footer-hint" class="footer-hint">默认会尽量迁移所选插件配置；已同步插件和 Vibero 已有配置会自动跳过。</html:div>
+			<html:div class="footer-actions">
+				<html:button id="cancel-btn" class="btn btn-secondary" onclick="doCancel()">取消</html:button>
+				<html:button class="btn btn-primary" id="import-btn" onclick="doImport()" disabled="true">请选择要导入的插件</html:button>
+			</html:div>
+		</html:div>
+	</html:div>
+</window>

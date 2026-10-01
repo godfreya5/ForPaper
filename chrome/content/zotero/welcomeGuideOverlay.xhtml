@@ -1,0 +1,760 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://zotero/skin/zotero.css" type="text/css"?>
+<?xml-stylesheet href="chrome://zotero-platform/content/zotero.css" type="text/css"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="utf-8" />
+	<title>Welcome to Vibero</title>
+	<script><![CDATA[
+		Services.scriptloader.loadSubScript("chrome://zotero/content/include.js", this);
+		Services.scriptloader.loadSubScript("chrome://zotero/content/customElements.js", this);
+
+		const WELCOME_GUIDE_SHOWN_PREF = 'extensions.zotero.vibeZotero.welcomeGuideShown';
+		const WELCOME_GUIDE_RESUME_PREF = 'extensions.zotero.vibeZotero.welcomeGuideResumeAfterRestart';
+		const VIBE_PARSE_LANGUAGE_OPTIONS = [
+			['zh', '简体中文'],
+			['zh-TW', '繁體中文'],
+			['en', 'English'],
+			['ja', '日本語'],
+			['ko', '한국어'],
+			['th', 'ภาษาไทย'],
+			['fr', 'Français'],
+			['es', 'Español'],
+			['de', 'Deutsch']
+		];
+
+		let isRestartingForLocaleChange = false;
+		let hasPendingLocaleRestart = false;
+		const isZhLocale = () => String(Zotero?.locale || Services.locale.appLocaleAsBCP47 || navigator.language || 'en-US')
+			.toLowerCase()
+			.startsWith('zh');
+		const bilingual = (zh, en) => (isZhLocale() ? zh : en);
+
+		function getMainWindow() {
+			if (window.top && window.top !== window && window.top.ZoteroPane) {
+				return window.top;
+			}
+			return Services.wm.getMostRecentWindow("navigator:browser");
+		}
+
+		function openDataDirectorySettings() {
+			let mainWindow = getMainWindow();
+			let prefWindow = mainWindow?.Zotero.Utilities.Internal.openPreferences('zotero-prefpane-advanced', {
+				scrollTo: '#data-dir-path'
+			});
+			prefWindow?.focus();
+		}
+
+		function openPluginImport() {
+			let mainWindow = getMainWindow();
+			if (!mainWindow) return;
+			mainWindow.focus();
+			setTimeout(() => {
+				mainWindow.ZoteroStandalone.importZoteroPlugins();
+			}, 0);
+		}
+
+		function openAccountLogin() {
+			let mainWindow = getMainWindow();
+			if (!mainWindow || !mainWindow.ZoteroPane) return;
+
+			let syncButton = mainWindow.document.getElementById('zotero-tb-cloud-sync');
+			let panel = mainWindow.document.getElementById('zotero-cloud-sync-panel');
+			if (!syncButton || !panel) return;
+
+			mainWindow.focus();
+
+			setTimeout(async () => {
+				try {
+					await mainWindow.ZoteroPane._initCloudSyncPanel(panel);
+					if (panel.state !== 'open') {
+						panel.openPopup(syncButton, 'after_end', 0, 0, false, false);
+					}
+
+					let attempts = 0;
+					let maxAttempts = 12;
+					let showLogin = () => {
+						let accountIframe = mainWindow.document.getElementById('account-status-iframe');
+						if (!accountIframe || !accountIframe.contentWindow) {
+							return false;
+						}
+						if (typeof accountIframe.contentWindow.showLoginView !== 'function') {
+							return false;
+						}
+						accountIframe.contentWindow.showLoginView();
+						let firstInput = accountIframe.contentWindow.document?.querySelector('input');
+						firstInput?.focus();
+						return true;
+					};
+
+					if (showLogin()) {
+						return;
+					}
+
+					let retryTimer = window.setInterval(() => {
+						attempts++;
+						if (showLogin() || attempts >= maxAttempts) {
+							window.clearInterval(retryTimer);
+						}
+					}, 250);
+				}
+				catch (e) {
+					Zotero.logError(e);
+				}
+			}, 0);
+		}
+
+		function openUserGuide() {
+			let mainWindow = getMainWindow();
+			mainWindow?.Zotero.launchURL('https://vibero.dev/guide');
+		}
+
+		function getAutomaticLocaleLabel() {
+			let currentLocaleName = Zotero.Locale.availableLocales[Zotero.locale] || Zotero.locale;
+			return isZhLocale() ? `自动（${currentLocaleName}）` : `Automatic (${currentLocaleName})`;
+		}
+
+		function applyGuideLocaleTexts() {
+			document.title = bilingual('欢迎使用 Vibero', 'Welcome to Vibero');
+
+			const textMap = {
+				'welcome-guide-title': bilingual('欢迎来到 Vibero', 'Welcome to Vibero'),
+				'welcome-guide-subtitle': bilingual('首次配置指引', 'First-time setup guide'),
+				'step-language-title': bilingual('语言设置', 'Language settings'),
+				'step-language-copy': bilingual('系统语言用于软件界面显示，VIBE 解析语言用于 AI 总结与翻译输出。', 'System language controls the app interface. VIBE parse language controls AI summary and translation output.'),
+				'system-language-label': bilingual('系统语言', 'System language'),
+				'parse-language-label': bilingual('VIBE 解析语言', 'VIBE parse language'),
+				'step-data-dir-title': bilingual('配置文献库数据目录', 'Configure library data directory'),
+				'step-data-dir-copy': bilingual('与Zotero的数据目录设置为同一路径，以同步文献库。', 'Set it to the same path as Zotero data directory to keep libraries synced.'),
+				'step-data-dir-btn': bilingual('打开系统设置', 'Open settings'),
+				'step-data-dir-note': bilingual('点击按钮设置', 'Click the button to set'),
+				'step-plugin-title': bilingual('导入 Zotero 插件', 'Import Zotero plugins'),
+				'step-plugin-copy': bilingual('迁移Zotero已有插件。', 'Migrate existing Zotero plugins.'),
+				'step-plugin-btn': bilingual('导入插件', 'Import plugins'),
+				'step-plugin-note': bilingual('点击按钮导入', 'Click the button to import'),
+				'step-login-title': bilingual('登录 Vibero 账户', 'Sign in to Vibero account'),
+				'step-login-copy': bilingual('登录后Vibero账号。', 'Sign in with your Vibero account.'),
+				'step-login-btn': bilingual('打开登录面板', 'Open login panel'),
+				'step-login-note': bilingual('点击按钮登录', 'Click the button to sign in'),
+				'finish-hint': bilingual('开始Vibero！', 'Start Vibero!'),
+				'finish-note': bilingual('（重启生效）', '(Takes effect after restart)'),
+				'welcome-guide-footer': bilingual('关闭引导后，以上入口仍可在菜单栏中随时访问。', 'After closing the guide, all entries above remain available from the menu bar.')
+			};
+			for (let [id, value] of Object.entries(textMap)) {
+				let el = document.getElementById(id);
+				if (el) {
+					el.textContent = value;
+				}
+			}
+		}
+
+		function populateSystemLanguageOptions() {
+			let select = document.getElementById('system-language-select');
+			if (!select) return;
+
+			select.textContent = '';
+
+			let automaticOption = document.createElement('option');
+			automaticOption.value = 'automatic';
+			automaticOption.textContent = getAutomaticLocaleLabel();
+			select.appendChild(automaticOption);
+
+			for (let [locale, label] of Object.entries(Zotero.Locale.availableLocales)) {
+				let option = document.createElement('option');
+				option.value = locale;
+				option.textContent = label;
+				select.appendChild(option);
+			}
+
+			select.value = Services.locale.requestedLocale || 'automatic';
+		}
+
+		function populateParseLanguageOptions() {
+			let select = document.getElementById('vibe-parse-language-select');
+			if (!select) return;
+
+			select.textContent = '';
+			for (let [value, label] of VIBE_PARSE_LANGUAGE_OPTIONS) {
+				let option = document.createElement('option');
+				option.value = value;
+				option.textContent = label;
+				select.appendChild(option);
+			}
+
+			select.value = Zotero.Prefs.get('vibeParseLanguage') || 'zh';
+		}
+
+		function updateLanguageStatus(message = '', state = 'idle') {
+			let status = document.getElementById('language-status');
+			if (!status) return;
+			status.textContent = message;
+			status.dataset.state = state;
+			status.hidden = !message;
+		}
+
+		function applySystemLanguageChange(selectedValue) {
+			let requestedLocale = Services.locale.requestedLocale || '';
+			let changed = false;
+
+			if (selectedValue === 'automatic') {
+				changed = requestedLocale !== '';
+				Services.locale.requestedLocales = [];
+			}
+			else {
+				changed = requestedLocale !== selectedValue;
+				Services.locale.requestedLocales = [selectedValue];
+			}
+
+			if (Services.locale.isAppLocaleRTL) {
+				Zotero.Prefs.set('bidi.browser.ui', true, true);
+			}
+
+			return changed;
+		}
+
+		function restartAppForLanguageChange() {
+			isRestartingForLocaleChange = true;
+			Zotero.Utilities.Internal.quitZotero(true);
+		}
+
+		function updateFinishActionState() {
+			let finishHint = document.getElementById('finish-hint');
+			if (!finishHint) return;
+			finishHint.textContent = bilingual('开始Vibero！', 'Start Vibero!');
+		}
+
+		function setPendingLocaleRestart(pending) {
+			hasPendingLocaleRestart = pending;
+			Services.prefs.setBoolPref(WELCOME_GUIDE_RESUME_PREF, pending);
+			updateFinishActionState();
+		}
+
+		function saveLanguageSettings() {
+			let systemLanguageSelect = document.getElementById('system-language-select');
+			let parseLanguageSelect = document.getElementById('vibe-parse-language-select');
+			if (!systemLanguageSelect || !parseLanguageSelect) return;
+
+			Zotero.Prefs.set('vibeParseLanguage', parseLanguageSelect.value);
+
+			let localeChanged = applySystemLanguageChange(systemLanguageSelect.value);
+			if (!localeChanged) {
+				setPendingLocaleRestart(false);
+				updateLanguageStatus('', 'idle');
+				return;
+			}
+
+			setPendingLocaleRestart(true);
+			updateLanguageStatus('', 'idle');
+		}
+
+		function completeWelcomeGuide() {
+			Services.prefs.setBoolPref(WELCOME_GUIDE_SHOWN_PREF, true);
+			if (Services.prefs.prefHasUserValue(WELCOME_GUIDE_RESUME_PREF)) {
+				Services.prefs.clearUserPref(WELCOME_GUIDE_RESUME_PREF);
+			}
+			getMainWindow()?.ZoteroStandalone?.hideWelcomeGuideOverlay?.();
+		}
+
+		function finishWelcomeGuide() {
+			openUserGuide();
+			completeWelcomeGuide();
+			restartAppForLanguageChange();
+		}
+
+		function finalizeWelcomeGuide() {
+			if (isRestartingForLocaleChange) {
+				return;
+			}
+			if (!Services.prefs.getBoolPref(WELCOME_GUIDE_RESUME_PREF, false)
+					&& Services.prefs.prefHasUserValue(WELCOME_GUIDE_RESUME_PREF)) {
+				Services.prefs.clearUserPref(WELCOME_GUIDE_RESUME_PREF);
+			}
+		}
+
+		function initWelcomeGuide() {
+			applyGuideLocaleTexts();
+			populateSystemLanguageOptions();
+			populateParseLanguageOptions();
+			hasPendingLocaleRestart = Services.prefs.getBoolPref(WELCOME_GUIDE_RESUME_PREF, false);
+			updateFinishActionState();
+
+			document.getElementById('system-language-select')?.addEventListener('change', saveLanguageSettings);
+			document.getElementById('vibe-parse-language-select')?.addEventListener('change', saveLanguageSettings);
+			updateLanguageStatus('', 'idle');
+
+			let firstAction = document.querySelector('.step-button');
+			firstAction?.focus();
+			window.addEventListener('unload', finalizeWelcomeGuide, { once: true });
+		}
+	]]></script>
+	<style><![CDATA[
+		:root {
+			color-scheme: light;
+			--bg: #f5f5f3;
+			--panel: rgba(255, 255, 255, 0.92);
+			--text: #191919;
+			--muted: #6f6f6b;
+			--line: rgba(15, 23, 42, 0.08);
+		}
+
+		html, body {
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			background: radial-gradient(circle at top left, rgba(255,255,255,0.95), rgba(245,245,243,0.75) 36%, rgba(241,239,234,0.95) 100%);
+			font-family: "SF Pro Display", "PingFang SC", "Noto Sans SC", sans-serif;
+			color: var(--text);
+		}
+
+		.guide-shell {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			height: 100%;
+			padding: 24px;
+			box-sizing: border-box;
+			overflow: hidden;
+		}
+
+		.steps-panel {
+			padding: 28px 30px 24px;
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			min-height: 0;
+			overflow: hidden;
+			border-radius: 28px;
+			background: var(--panel);
+			box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+			backdrop-filter: blur(18px);
+			-webkit-backdrop-filter: blur(18px);
+		}
+
+		.hero-brand {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			gap: 18px;
+			width: 100%;
+			padding-bottom: 22px;
+			margin-bottom: 18px;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.hero-logo {
+			width: 56px;
+			height: 56px;
+			object-fit: contain;
+			filter: drop-shadow(0 10px 28px rgba(15, 23, 42, 0.12));
+			flex-shrink: 0;
+		}
+
+		.title {
+			margin: 0;
+			font-size: 34px;
+			line-height: 1.08;
+			font-weight: 700;
+			letter-spacing: -0.03em;
+		}
+
+		button {
+			appearance: none;
+			border: 0;
+			cursor: pointer;
+			font-family: inherit;
+		}
+
+		.step-button {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			height: 108px;
+			padding: 0 22px;
+			border-radius: 10px;
+			background: #111827;
+			color: #fff;
+			width: fit-content;
+			min-width: 0;
+			font-size: 16px;
+			font-weight: 600;
+			justify-self: center;
+			box-shadow: 0 8px 18px rgba(15, 23, 42, 0.10);
+			text-align: center;
+			line-height: 1.2;
+			white-space: nowrap;
+			transition: transform 120ms ease;
+		}
+
+		.step-button:hover {
+			transform: translateY(-1px);
+		}
+
+		.steps-header {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			margin-bottom: 28px;
+			align-items: center;
+			text-align: center;
+		}
+
+		.steps-main {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			padding-bottom: 28px;
+			min-height: 0;
+		}
+
+		.steps-title {
+			font-size: 22px;
+			font-weight: 700;
+			letter-spacing: -0.02em;
+		}
+
+		.steps-list {
+			position: relative;
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) 84px;
+			gap: 14px;
+			flex: 0 0 auto;
+			min-height: 0;
+			overflow: hidden;
+			align-items: start;
+		}
+
+		.steps-list::before {
+			content: "";
+			position: absolute;
+			left: 4%;
+			right: 10%;
+			top: 40px;
+			height: 1px;
+			background: linear-gradient(90deg, rgba(15, 23, 42, 0.04), rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.04));
+			z-index: 0;
+		}
+
+		.steps-grid {
+			display: grid;
+			grid-template-columns: 1.12fr 1.06fr 0.91fr 0.91fr;
+			gap: 22px;
+			align-items: start;
+			min-width: 0;
+		}
+
+		.step-card {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 8px;
+			padding: 18px 8px 12px;
+			background: transparent;
+			border: 0;
+			min-height: 0;
+			align-content: start;
+			justify-items: center;
+			text-align: center;
+			position: relative;
+			z-index: 1;
+		}
+
+		.step-card > div:last-child {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			width: 100%;
+		}
+
+		.step-index {
+			width: 52px;
+			height: 52px;
+			display: grid;
+			place-items: center;
+			border-radius: 18px;
+			background: #f6f6f4;
+			font-size: 18px;
+			font-weight: 700;
+			box-sizing: border-box;
+			border: 6px solid rgba(255,255,255,0.98);
+			justify-self: center;
+		}
+
+		.step-title {
+			font-size: 16px;
+			font-weight: 600;
+			margin-bottom: 6px;
+			text-align: center;
+		}
+
+		.step-card--data-dir .step-title {
+			white-space: nowrap;
+		}
+
+		.step-copy {
+			font-size: 12px;
+			line-height: 1.62;
+			color: var(--muted);
+			margin-bottom: 0;
+			text-align: left;
+			max-width: 245px;
+			width: 100%;
+			min-height: 92px;
+		}
+
+		.step-card--action .step-copy {
+			min-height: 128px;
+			text-align: center;
+		}
+
+		.language-form {
+			display: grid;
+			gap: 10px;
+			width: 100%;
+			max-width: 245px;
+			margin-top: 4px;
+		}
+
+		.language-row {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			column-gap: 10px;
+			align-items: center;
+			width: 100%;
+		}
+
+		.language-label {
+			font-size: 12px;
+			font-weight: 600;
+			color: #434341;
+			text-align: left;
+			white-space: nowrap;
+		}
+
+		.language-select {
+			appearance: none;
+			width: 168px;
+			height: 34px;
+			padding: 0 28px 0 10px;
+			border-radius: 12px;
+			border: 1px solid rgba(15, 23, 42, 0.10);
+			background:
+				linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,249,247,0.98)),
+				url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%236f6f6b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.25 6 6.25l5-5'/%3E%3C/svg%3E") no-repeat right 12px center / 12px 8px;
+			box-shadow: inset 0 1px 0 rgba(255,255,255,0.95);
+			color: var(--text);
+			font: inherit;
+			justify-self: end;
+		}
+
+		.language-select:focus {
+			outline: none;
+			border-color: rgba(17, 24, 39, 0.28);
+			box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.06);
+		}
+
+		.language-status {
+			width: 100%;
+			max-width: 245px;
+			margin: 2px 0 0;
+			padding: 7px 9px;
+			border-radius: 14px;
+			font-size: 11px;
+			line-height: 1.55;
+			text-align: left;
+			box-sizing: border-box;
+		}
+
+		.step-note {
+			margin-top: 4px;
+			font-size: 11px;
+			line-height: 1.5;
+			color: #8a8a84;
+			text-align: center;
+			max-width: none;
+		}
+
+		.step-action {
+			margin-top: 0;
+			align-self: center;
+		}
+
+		.step-action-note {
+			margin-top: 4px;
+			width: 100%;
+			text-align: center;
+		}
+
+		.step-card--language .step-note {
+			margin-top: 10px;
+			text-align: left;
+		}
+
+		.footer-note {
+			margin-top: auto;
+			padding-top: 16px;
+			border-top: 1px solid var(--line);
+			font-size: 12px;
+			line-height: 1.6;
+			color: var(--muted);
+			text-align: center;
+			flex-shrink: 0;
+		}
+
+		.finish-wrap {
+			position: relative;
+			width: 100%;
+			min-height: 220px;
+			margin: 0;
+			padding-top: 52px;
+		}
+
+		.finish-action {
+			position: relative;
+			display: block;
+			width: 100%;
+			height: 100%;
+			padding: 0;
+			background: transparent;
+			color: var(--text);
+		}
+
+		.finish-arrow {
+			position: absolute;
+			top: 42px;
+			left: 50%;
+			width: 34px;
+			height: 34px;
+			display: inline-block;
+			transform: translateX(-50%);
+			transition: transform 120ms ease, opacity 120ms ease;
+		}
+
+		.finish-action:hover .finish-arrow {
+			transform: translateX(calc(-50% + 3px));
+			opacity: 0.9;
+		}
+
+		.finish-hint {
+			position: absolute;
+			top: 86px;
+			left: 50%;
+			transform: translateX(-50%);
+			white-space: nowrap;
+			font-size: 12px;
+			color: var(--text);
+			font-weight: 600;
+			text-align: center;
+		}
+
+		.finish-guide-link {
+			display: none;
+		}
+
+		.finish-note {
+			position: absolute;
+			top: 110px;
+			left: 50%;
+			transform: translateX(-50%);
+			white-space: nowrap;
+			font-size: 11px;
+			line-height: 1.4;
+			color: #8a8a84;
+			text-align: center;
+		}
+	]]></style>
+</head>
+<body onload="initWelcomeGuide();">
+	<div class="guide-shell">
+		<section class="steps-panel">
+			<div class="hero-brand">
+				<img class="hero-logo" src="chrome://zotero/skin/Vibero.png" alt="Vibero"/>
+				<h1 id="welcome-guide-title" class="title">欢迎来到 Vibero</h1>
+			</div>
+			<div class="steps-main">
+				<div class="steps-header">
+					<div id="welcome-guide-subtitle" class="steps-title">首次配置指引</div>
+				</div>
+
+				<div class="steps-list">
+					<div class="steps-grid">
+						<article class="step-card step-card--language">
+							<div class="step-index">1</div>
+							<div>
+								<div id="step-language-title" class="step-title">语言设置</div>
+								<div class="step-copy">
+									<span id="step-language-copy">
+									系统语言用于软件界面显示，VIBE 解析语言用于 AI 总结与翻译输出。
+									</span>
+								</div>
+								<div class="language-form">
+									<label class="language-row">
+										<span id="system-language-label" class="language-label">系统语言</span>
+										<select id="system-language-select" class="language-select"></select>
+									</label>
+									<label class="language-row">
+										<span id="parse-language-label" class="language-label">VIBE 解析语言</span>
+										<select id="vibe-parse-language-select" class="language-select"></select>
+									</label>
+								</div>
+								<div id="language-status" class="language-status" data-state="idle" hidden="hidden"></div>
+							</div>
+						</article>
+
+						<article class="step-card step-card--action step-card--data-dir">
+							<div class="step-index">2</div>
+							<div>
+								<div id="step-data-dir-title" class="step-title">配置文献库数据目录</div>
+								<div class="step-copy">
+									<span id="step-data-dir-copy">与Zotero的数据目录设置为同一路径，以同步文献库。</span>
+								</div>
+								<button id="step-data-dir-btn" class="step-button step-action" onclick="openDataDirectorySettings()">打开系统设置</button>
+								<div id="step-data-dir-note" class="step-note step-action-note">点击按钮设置</div>
+							</div>
+						</article>
+
+						<article class="step-card step-card--action">
+							<div class="step-index">3</div>
+							<div>
+								<div id="step-plugin-title" class="step-title">导入 Zotero 插件</div>
+								<div class="step-copy">
+									<span id="step-plugin-copy">迁移Zotero已有插件。</span>
+								</div>
+								<button id="step-plugin-btn" class="step-button step-action" onclick="openPluginImport()">导入插件</button>
+								<div id="step-plugin-note" class="step-note step-action-note">点击按钮导入</div>
+							</div>
+						</article>
+
+						<article class="step-card step-card--action">
+							<div class="step-index">4</div>
+							<div>
+								<div id="step-login-title" class="step-title">登录 Vibero 账户</div>
+								<div class="step-copy">
+									<span id="step-login-copy">登录后Vibero账号。</span>
+								</div>
+								<button id="step-login-btn" class="step-button step-action" onclick="openAccountLogin()">打开登录面板</button>
+								<div id="step-login-note" class="step-note step-action-note">点击按钮登录</div>
+							</div>
+						</article>
+					</div>
+
+					<div class="finish-wrap">
+						<button class="finish-action" onclick="finishWelcomeGuide()">
+							<img class="finish-arrow" src="chrome://zotero/skin/itempane/20/right-arrow.svg" alt="→"/>
+							<span id="finish-hint" class="finish-hint">开始Vibero！</span>
+							<span id="finish-note" class="finish-note">（重启生效）</span>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<div id="welcome-guide-footer" class="footer-note">
+				关闭引导后，以上入口仍可在菜单栏中随时访问。
+			</div>
+		</section>
+	</div>
+</body>
+</html>

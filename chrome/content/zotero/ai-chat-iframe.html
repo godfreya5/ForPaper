@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat</title>
+    <script>
+        // 提供全局的 Zotero 辅助函数，供 ai-chat bundle 使用
+        window.ZoteroHelper = {
+            // 检查登录状态
+            checkLoginStatus: function () {
+                try {
+                    const Zotero = window.parent?.Zotero || window.top?.Zotero;
+                    return Zotero && Zotero.VibeDBSync && Zotero.VibeDBSync.isLoggedIn ? Zotero.VibeDBSync.isLoggedIn() : false;
+                } catch (e) {
+                    console.error('[ZoteroHelper] 检查登录状态失败:', e);
+                    return false;
+                }
+            },
+
+            // 获取用户余额
+            getUserBalance: async function () {
+                try {
+                    const Zotero = window.parent?.Zotero || window.top?.Zotero;
+                    if (!Zotero || !Zotero.VibeDBSync || !Zotero.VibeDBSync.getUserBalance) {
+                        return null;
+                    }
+                    return await Zotero.VibeDBSync.getUserBalance();
+                } catch (e) {
+                    console.error('[ZoteroHelper] 获取余额失败:', e);
+                    return null;
+                }
+            },
+
+            // 打开登录面板
+            openLoginPanel: function () {
+                try {
+                    const Zotero = window.parent?.Zotero || window.top?.Zotero;
+                    if (!Zotero) {
+                        console.error('[ZoteroHelper] 无法访问 Zotero 对象');
+                        return false;
+                    }
+
+                    const win = Zotero.getMainWindow();
+                    if (win && win.ZoteroPane && win.ZoteroPane.toggleCloudSyncPanel) {
+                        const cloudSyncButton = win.document.getElementById('zotero-tb-cloud-sync');
+                        if (cloudSyncButton) {
+                            win.ZoteroPane.toggleCloudSyncPanel(cloudSyncButton);
+                            return true;
+                        }
+                    }
+                    return false;
+                } catch (e) {
+                    console.error('[ZoteroHelper] 打开登录面板失败:', e);
+                    return false;
+                }
+            },
+
+            // 获取 Supabase 配置
+            getSupabaseConfig: function () {
+                try {
+                    const Zotero = window.parent?.Zotero || window.top?.Zotero;
+                    if (Zotero && Zotero.VibeDBSync && Zotero.VibeDBSync.getSupabaseConfig) {
+                        const cfg = Zotero.VibeDBSync.getSupabaseConfig();
+                        if (cfg && typeof cfg === 'object') {
+                            return cfg; // 返回深圳主仓库配置，国内模型走深圳
+                        }
+                    }
+                } catch (e) {
+                    console.error('[ZoteroHelper] 获取配置失败:', e);
+                }
+                return null;
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            /* 浅色模式背景 - 与 Zotero 主题保持一致 */
+            background: #f2f2f2;
+            color: #000000d9;
+        }
+
+        /* 全局 Message 提示条：显式亮底深字，避免与 Ant 默认样式在 iframe 里混用出错 */
+        .ant-message .ant-message-notice-content {
+            background: #ffffff !important;
+            color: rgba(0, 0, 0, 0.88) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+        }
+
+        .ant-message .ant-message-notice-content .anticon {
+            color: rgba(0, 0, 0, 0.65) !important;
+        }
+
+        .ant-message-error .ant-message-notice-content .anticon {
+            color: #ff4d4f !important;
+        }
+
+        .ant-message-success .ant-message-notice-content .anticon {
+            color: #52c41a !important;
+        }
+
+        .ant-message-warning .ant-message-notice-content .anticon {
+            color: #faad14 !important;
+        }
+
+        .ant-message-info .ant-message-notice-content .anticon {
+            color: #1890ff !important;
+        }
+
+        /* 暗夜模式 - 跟随系统主题 */
+        @media (prefers-color-scheme: dark) {
+
+            html,
+            body {
+                background: #303030;
+                color: #ffffffe5;
+            }
+
+            .loading {
+                color: #ffffff8c;
+            }
+
+            /* 强制覆盖所有 Ant Design 组件的文字颜色 */
+            * {
+                color: #ffffffe5 !important;
+            }
+
+            /* 保持用户消息气泡的白色文字 */
+            .ant-bubble[data-placement="end"] .ant-bubble-content,
+            .ant-bubble[data-placement="end"] .ant-bubble-content * {
+                color: white !important;
+            }
+
+            /* 保持错误消息的红色 */
+            .error-message .ant-bubble-content,
+            .error-message .ant-bubble-content * {
+                color: #cf1322 !important;
+            }
+
+            /* 图标颜色 */
+            .anticon,
+            svg {
+                color: #ffffffe5 !important;
+            }
+
+            /* 输入框 placeholder */
+            input::placeholder,
+            textarea::placeholder,
+            [data-slate-placeholder] {
+                color: #ffffff4d !important;
+            }
+
+            /* 按钮 */
+            .ant-btn {
+                color: #ffffffe5 !important;
+            }
+
+            /* 下拉菜单 */
+            .ant-dropdown-menu {
+                background: #1e1e1e !important;
+            }
+
+            .ant-dropdown-menu-item {
+                color: #ffffffe5 !important;
+            }
+
+            .ant-dropdown-menu-item:hover {
+                background: #303030 !important;
+            }
+
+            /* Prompts 提示卡片 */
+            .ant-prompts-item {
+                background: #1e1e1e !important;
+                border-color: #ffffff0f !important;
+            }
+
+            .ant-prompts-item:hover {
+                background: #303030 !important;
+            }
+
+            /* 消息气泡 */
+            .ant-bubble[data-placement="start"] .ant-bubble-content {
+                background: #ffffff0f !important;
+            }
+
+            /* 输入框 */
+            .ant-sender,
+            .slate-sender-container {
+                background: #1e1e1e !important;
+                border-color: #ffffff0f !important;
+            }
+
+            /* Modal 弹窗 */
+            .ant-modal-content {
+                background: #1e1e1e !important;
+            }
+
+            .ant-modal-mask {
+                background: rgba(0, 0, 0, 0.65) !important;
+            }
+
+            /*
+             * 暗色下全局 * { color: #fff } 会让 message 仍是白底时出现「白字看不见」。
+             * 这里强制暗底浅字，与侧栏变量一致。
+             */
+            .ant-message .ant-message-notice-content {
+                background: #2d2d2d !important;
+                color: rgba(255, 255, 255, 0.92) !important;
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
+            }
+
+            .ant-message .ant-message-notice-content .anticon {
+                color: rgba(255, 255, 255, 0.85) !important;
+            }
+
+            .ant-message-error .ant-message-notice-content .anticon {
+                color: #ff7875 !important;
+            }
+
+            .ant-message-success .ant-message-notice-content .anticon {
+                color: #73d13d !important;
+            }
+
+            .ant-message-warning .ant-message-notice-content .anticon {
+                color: #ffc53d !important;
+            }
+
+            .ant-message-info .ant-message-notice-content .anticon {
+                color: #69b1ff !important;
+            }
+        }
+
+        #root {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+
+            0%,
+            20% {
+                content: '.';
+            }
+
+            40% {
+                content: '..';
+            }
+
+            60%,
+            100% {
+                content: '...';
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root">
+        <div class="loading">Loading AI Chat</div>
+    </div>
+
+    <!-- Webpack 构建后的 JS -->
+    <script src="ai-chat/ai-chat-bundle.js"
+        onerror="console.error('[AIChatHTML] ❌ Failed to load ai-chat-bundle.js')"></script>
+
+    <script>
+        window.addEventListener('error', (e) => {
+            console.error('='.repeat(80));
+            console.error('[AIChatHTML] ❌ Global error:', e.message);
+            console.error('[AIChatHTML] Error source:', e.filename);
+            console.error('[AIChatHTML] Error line:', e.lineno);
+            console.error('='.repeat(80));
+        });
+    </script>
+</body>
+
+</html>
