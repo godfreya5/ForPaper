@@ -57,308 +57,319 @@ const Icons = require('components/icons');
  * @constant
  */
 const COLUMNS = [
-	{
-		dataKey: "title",
-		primary: true,
-		defaultIn: ["default", "feeds", "feed"],
-		label: "itemFields.title",
-		showInColumnPicker: false,
-		flex: 4,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "firstCreator",
-		defaultIn: ["default", "feeds", "feed"],
-		label: "zotero.items.creator_column",
-		showInColumnPicker: true,
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "itemType",
-		label: "zotero.items.itemType",
-		showInColumnPicker: true,
-		width: "40",
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "date",
-		defaultIn: ["feeds", "feed"],
-		sortReverse: true,
-		label: "itemFields.date",
-		showInColumnPicker: true,
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "year",
-		disabledIn: ["feeds", "feed"],
-		sortReverse: true,
-		label: "zotero.items.year_column",
-		showInColumnPicker: true,
-		flex: 1,
-		staticWidth: true,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "publisher",
-		label: "itemFields.publisher",
-		showInColumnPicker: true,
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "publicationTitle",
-		label: "itemFields.publicationTitle",
-		showInColumnPicker: true,
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "journalAbbreviation",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.journalAbbreviation",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "language",
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.language",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "accessDate",
-		disabledIn: ["feeds", "feed"],
-		sortReverse: true,
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.accessDate",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "libraryCatalog",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.libraryCatalog",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "callNumber",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.callNumber",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "rights",
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.rights",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "dateAdded",
-		sortReverse: true,
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		label: "itemFields.dateAdded",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "dateModified",
-		sortReverse: true,
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		label: "zotero.items.dateModified_column",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "archive",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.archive",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "archiveLocation",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.archiveLocation",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "place",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.place",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "volume",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.volume",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "edition",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.edition",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "number",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.number",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "pages",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.pages",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "issue",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.issue",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "series",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.series",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "seriesTitle",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.seriesTitle",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "court",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.court",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "medium",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.medium",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "type",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.type",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "system",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.system",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "shortTitle",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		columnPickerSubMenu: true,
-		label: "itemFields.shortTitle",
-		flex: 2,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "extra",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		label: "itemFields.extra",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "hasAttachment",
-		defaultIn: ["default"],
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		label: "zotero.tabs.attachments.label",
-		iconLabel: <Icons.IconAttachSmall />,
-		fixedWidth: true,
-		width: "32",
-		zoteroPersist: ["hidden", "sortDirection"]
-	},
-	{
-		dataKey: "numNotes",
-		disabledIn: ["feeds", "feed"],
-		showInColumnPicker: true,
-		label: "zotero.tabs.notes.label",
-		iconLabel: <Icons.IconTreeitemNoteSmall />,
-		width: "26",
-		minWidth: 26,
-		staticWidth: true,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	},
-	{
-		dataKey: "feed",
-		disabledIn: ["default", "feed"],
-		showInColumnPicker: true,
-		label: "itemFields.feed",
-		flex: 1,
-		zoteroPersist: ["width", "hidden", "sortDirection"]
-	}
-];
+{
+  dataKey: "vibeParsed",
+  defaultIn: ["default"],
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  label: "VIBE",
+  iconLabel: /*#__PURE__*/React.createElement("img", { src: "chrome://zotero/skin/20/universal/vibe-paper.png", width: "16", height: "16", alt: "VIBE" }),
+  fixedWidth: true,
+  width: "32",
+  zoteroPersist: ["hidden", "sortDirection"]
+},
+{
+  dataKey: "title",
+  primary: true,
+  defaultIn: ["default", "feeds", "feed"],
+  label: "itemFields.title",
+  showInColumnPicker: false,
+  flex: 4,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "firstCreator",
+  defaultIn: ["default", "feeds", "feed"],
+  label: "zotero.items.creator_column",
+  showInColumnPicker: true,
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "itemType",
+  label: "zotero.items.itemType",
+  showInColumnPicker: true,
+  width: "40",
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "date",
+  defaultIn: ["feeds", "feed"],
+  sortReverse: true,
+  label: "itemFields.date",
+  showInColumnPicker: true,
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "year",
+  disabledIn: ["feeds", "feed"],
+  sortReverse: true,
+  label: "zotero.items.year_column",
+  showInColumnPicker: true,
+  flex: 1,
+  staticWidth: true,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "publisher",
+  label: "itemFields.publisher",
+  showInColumnPicker: true,
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "publicationTitle",
+  label: "itemFields.publicationTitle",
+  showInColumnPicker: true,
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "journalAbbreviation",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.journalAbbreviation",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "language",
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.language",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "accessDate",
+  disabledIn: ["feeds", "feed"],
+  sortReverse: true,
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.accessDate",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "libraryCatalog",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.libraryCatalog",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "callNumber",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.callNumber",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "rights",
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.rights",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "dateAdded",
+  sortReverse: true,
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  label: "itemFields.dateAdded",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "dateModified",
+  sortReverse: true,
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  label: "zotero.items.dateModified_column",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "archive",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.archive",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "archiveLocation",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.archiveLocation",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "place",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.place",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "volume",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.volume",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "edition",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.edition",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "number",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.number",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "pages",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.pages",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "issue",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.issue",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "series",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.series",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "seriesTitle",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.seriesTitle",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "court",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.court",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "medium",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.medium",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "type",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.type",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "system",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.system",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "shortTitle",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  columnPickerSubMenu: true,
+  label: "itemFields.shortTitle",
+  flex: 2,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "extra",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  label: "itemFields.extra",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "hasAttachment",
+  defaultIn: ["default"],
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  label: "zotero.tabs.attachments.label",
+  iconLabel: /*#__PURE__*/React.createElement(Icons.IconAttachSmall, null),
+  fixedWidth: true,
+  width: "32",
+  zoteroPersist: ["hidden", "sortDirection"]
+},
+{
+  dataKey: "numNotes",
+  disabledIn: ["feeds", "feed"],
+  showInColumnPicker: true,
+  label: "zotero.tabs.notes.label",
+  iconLabel: /*#__PURE__*/React.createElement(Icons.IconTreeitemNoteSmall, null),
+  width: "26",
+  minWidth: 26,
+  staticWidth: true,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+},
+{
+  dataKey: "feed",
+  disabledIn: ["default", "feed"],
+  showInColumnPicker: true,
+  label: "itemFields.feed",
+  flex: 1,
+  zoteroPersist: ["width", "hidden", "sortDirection"]
+}];
+
 
 /**
  * Returns the columns that match the given data keys from the COLUMNS constant.
@@ -366,15 +377,15 @@ const COLUMNS = [
  * @returns {ItemTreeColumnOptions | ItemTreeColumnOptions[]} - The matching columns.
  */
 function getColumnDefinitionsByDataKey(dataKeys) {
-	const isSingle = !Array.isArray(dataKeys);
-	if (isSingle) {
-		dataKeys = [dataKeys];
-	}
-	const matches = COLUMNS.filter(column => dataKeys.includes(column.dataKey)).map(column => Object.assign({}, column, { hidden: false }));
-	return isSingle ? matches[0] : matches;
+  const isSingle = !Array.isArray(dataKeys);
+  if (isSingle) {
+    dataKeys = [dataKeys];
+  }
+  const matches = COLUMNS.filter((column) => dataKeys.includes(column.dataKey)).map((column) => Object.assign({}, column, { hidden: false }));
+  return isSingle ? matches[0] : matches;
 }
 
 module.exports = {
-	COLUMNS,
-	getColumnDefinitionsByDataKey,
+  COLUMNS,
+  getColumnDefinitionsByDataKey
 };
