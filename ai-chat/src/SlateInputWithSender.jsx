@@ -18,6 +18,53 @@ const MENU_SLOT_PX = 20;
 const TOOLBAR_ICON_PX = 18;
 
 /**
+ * 测试模型连接（参考 WorkBuddy 自定义模型的「配完即可测」）：
+ * 按所选接口格式发一条最小请求（max_tokens=1，非流式），20 秒超时。
+ * 只验证 网络可达 + 鉴权通过 + 模型名有效，不污染会话历史。
+ * @returns {Promise<{ok: boolean, msg?: string}>}
+ */
+async function testModelConnectionRequest({ baseUrl, apiKey, modelName, apiFormat }) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 20000);
+    try {
+        let url = String(baseUrl || '').trim().replace(/\/+$/, '');
+        const headers = { 'Content-Type': 'application/json' };
+        let body;
+        if (apiFormat === 'anthropic') {
+            if (!url.endsWith('/messages')) {
+                url += /\/v\d+$/.test(url) ? '/messages' : '/v1/messages';
+            }
+            headers['x-api-key'] = apiKey;
+            headers['anthropic-version'] = '2023-06-01';
+            headers['anthropic-dangerous-direct-browser-access'] = 'true';
+            body = { model: modelName, max_tokens: 1, messages: [{ role: 'user', content: 'ping' }] };
+        } else {
+            if (!url.endsWith('/chat/completions')) {
+                if (/\/v\d+$/.test(url)) url += '/chat/completions';
+                else if (/\/v\d+\//.test(url)) url = url.replace(/(\/v\d+\/).*$/, '$1chat/completions');
+                else url += '/v1/chat/completions';
+            }
+            headers['Authorization'] = `Bearer ${apiKey}`;
+            body = { model: modelName, messages: [{ role: 'user', content: 'ping' }], max_tokens: 1, stream: false };
+        }
+        const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: ctrl.signal });
+        const text = await resp.text();
+        if (resp.ok) return { ok: true };
+        let detail = text;
+        try {
+            const j = JSON.parse(text);
+            detail = j.error?.message || j.message || text;
+        } catch (_) { /* 保留原文 */ }
+        return { ok: false, msg: `HTTP ${resp.status}: ${String(detail).slice(0, 200)}` };
+    } catch (e) {
+        const msg = e?.name === 'AbortError' ? '请求超时（20 秒）' : (e?.message || String(e));
+        return { ok: false, msg };
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+/**
  * 供应商快捷预设（参考 epsilon/Mrite 的设置面板）：
  * 点一下自动填入 Base URL + 接口格式 + 常用模型下拉，用户只需再粘贴 API Key。
  * baseUrl 命中前缀时用于反向识别已保存配置属于哪个供应商。
@@ -262,6 +309,9 @@ const SlateInputWithSender = ({
     // 供应商快捷预设：当前高亮的供应商 + 模型名下的联想选项
     const [activeProviderKey, setActiveProviderKey] = useState(null);
     const [providerModelOptions, setProviderModelOptions] = useState([]);
+    // 测试连接：testing=请求中；testResult={ok,msg} 展示在表单下方
+    const [testingConnection, setTestingConnection] = useState(false);
+    const [testResult, setTestResult] = useState(null);
     const apiFormatWatched = Form.useWatch('apiFormat', form);
     const apiFormatForUrlPlaceholder = apiFormatWatched ?? 'openai';
     const [isExtraPaperPickerOpen, setIsExtraPaperPickerOpen] = useState(false);
@@ -483,11 +533,32 @@ const SlateInputWithSender = ({
     const applyProviderPreset = (p) => {
         setActiveProviderKey(p.key);
         setProviderModelOptions(p.models || []);
+        setTestResult(null);
         form.setFieldsValue({
             apiFormat: p.apiFormat,
             baseUrl: p.baseUrl || '',
             modelName: p.defaultModel || '',
         });
+    };
+
+    // 测试连接：直接校验当前表单里的值（无需先保存）
+    const handleTestConnection = async () => {
+        let values;
+        try {
+            values = await form.validateFields();
+        } catch (_) {
+            return; // 校验失败，antd 已有红字提示
+        }
+        setTestingConnection(true);
+        setTestResult(null);
+        try {
+            const r = await testModelConnectionRequest(values);
+            setTestResult(r.ok
+                ? { ok: true, msg: zoteroL10n('vibe-ai-chat-test-success') }
+                : { ok: false, msg: zoteroL10n('vibe-ai-chat-test-failed', { error: r.msg }) });
+        } finally {
+            setTestingConnection(false);
+        }
     };
 
     // 编辑已有配置 / 新建时同步供应商高亮与模型联想
@@ -503,6 +574,7 @@ const SlateInputWithSender = ({
         form.resetFields();
         form.setFieldsValue({ apiFormat: 'openai' });
         syncProviderFromConfig(null);
+        setTestResult(null);
         if (alreadyOnAddPage) {
             setAddFormFlash(false);
             requestAnimationFrame(() => {
@@ -521,6 +593,7 @@ const SlateInputWithSender = ({
             apiFormat: config.apiFormat || 'openai'
         });
         syncProviderFromConfig(config);
+        setTestResult(null);
     };
 
     const getConfigDisplayName = (c) => c.modelName || c.name || zoteroL10n('vibe-ai-chat-unnamed');
@@ -1303,10 +1376,20 @@ const SlateInputWithSender = ({
             <Modal
                 title={zoteroL10n('vibe-ai-chat-custom-model-settings-title')}
                 open={isConfigModalOpen}
-                onOk={handleSaveConfig}
-                onCancel={() => { setIsConfigModalOpen(false); setEditingConfigId(null); form.resetFields(); }}
-                okText={editingConfigId ? zoteroL10n('vibe-ai-chat-button-update') : zoteroL10n('vibe-ai-chat-button-add')}
-                cancelText={zoteroL10n('vibe-ai-chat-button-close')}
+                onCancel={() => { setIsConfigModalOpen(false); setEditingConfigId(null); setTestResult(null); form.resetFields(); }}
+                footer={[
+                    <Button key="test" onClick={handleTestConnection} loading={testingConnection}>
+                        {testingConnection
+                            ? zoteroL10n('vibe-ai-chat-testing')
+                            : zoteroL10n('vibe-ai-chat-test-connection')}
+                    </Button>,
+                    <Button key="close" onClick={() => { setIsConfigModalOpen(false); setEditingConfigId(null); setTestResult(null); form.resetFields(); }}>
+                        {zoteroL10n('vibe-ai-chat-button-close')}
+                    </Button>,
+                    <Button key="ok" type="primary" onClick={handleSaveConfig}>
+                        {editingConfigId ? zoteroL10n('vibe-ai-chat-button-update') : zoteroL10n('vibe-ai-chat-button-add')}
+                    </Button>,
+                ]}
                 destroyOnClose
                 zIndex={10001}
                 centered
@@ -1424,6 +1507,24 @@ const SlateInputWithSender = ({
                                 />
                             </Form.Item>
                         </Form>
+                        {/* 测试连接结果（成功绿 / 失败红，深字适配暗色弹窗） */}
+                        {testResult && (
+                            <div
+                                style={{
+                                    marginTop: 8,
+                                    padding: '6px 10px',
+                                    borderRadius: 6,
+                                    fontSize: 12,
+                                    lineHeight: 1.5,
+                                    wordBreak: 'break-all',
+                                    color: testResult.ok ? '#237804' : '#a8071a',
+                                    background: testResult.ok ? '#f6ffed' : '#fff1f0',
+                                    border: `1px solid ${testResult.ok ? '#b7eb8f' : '#ffa39e'}`,
+                                }}
+                            >
+                                {testResult.ok ? '✅ ' : '❌ '}{testResult.msg}
+                            </div>
+                        )}
                     </div>
                 </Flex>
             </Modal>

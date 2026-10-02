@@ -1253,6 +1253,25 @@
     color: #999999 !important;
 }
 
+/* 弹窗内白底按钮（页脚 测试连接/关闭、供应商 chips、添加配置 等 default/dashed）：
+   暗色主题全局把 .ant-btn-default 文字刷成近白色，而按钮底色仍是白色 → 白底白字；
+   主按钮走下面 .ant-btn-primary 自己的配色不受影响 */
+.ai-chat-modal .ant-btn-default,
+.ai-chat-modal .ant-btn-default:hover,
+.ai-chat-modal .ant-btn-default:active,
+.ai-chat-modal .ant-btn-dashed,
+.ai-chat-modal .ant-btn-dashed:hover,
+.ai-chat-modal .ant-btn-dashed:active {
+    color: #333333 !important;
+}
+
+/* 弹窗内所有按钮的文字 span 直接继承按钮颜色：
+   实测 antd v5 按钮文字在 <span> 上另有白色规则（rgba(255,255,255,.898)），
+   只改按钮自身 color 不够，span 会保持白字 → 白底白字 */
+.ai-chat-modal .ant-btn > span {
+    color: inherit !important;
+}
+
 .ai-chat-modal .ant-modal-header {
     display: none;
 }

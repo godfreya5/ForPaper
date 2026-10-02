@@ -20,14 +20,14 @@ const MINERU_WORKER_URL = () => `${_getMinerUBase()}/functions/v1/mineru`;
 const R2_UPLOAD_WORKER_URL = () => `${_getMinerUBase()}/functions/v1/r2-upload`;
 const DOWNLOAD_WORKER_URL = () => `${_getMinerUBase()}/functions/v1/mineru`;
 
-// 本地 MinerU API 配置：默认本机 FastAPI 端口，可通过 pref 覆盖
+// 本地 MinerU API 配置：默认本机适配层端口（与安装包内「一键部署AI解析.command」一致），可通过 pref 覆盖
 // extensions.zotero.vibeProxy.mineruLocalUrl
 const LOCAL_MINERU_API_URL = (() => {
   try {
-    return String(Zotero.Prefs.get('vibeProxy.mineruLocalUrl') || 'http://127.0.0.1:8000/file_parse');
+    return String(Zotero.Prefs.get('vibeProxy.mineruLocalUrl') || 'http://127.0.0.1:8004/file_parse');
   }
   catch (e) {
-    return 'http://127.0.0.1:8000/file_parse';
+    return 'http://127.0.0.1:8004/file_parse';
   }
 })();
 
