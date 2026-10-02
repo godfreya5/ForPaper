@@ -94,20 +94,25 @@ This tree is the **open-source edition** of ForPaper: it contains **no account s
 Two commercial-only pieces were removed:
 
 - **Cloud item sync** (`vibeDBCloudSync.js`, Supabase-backed) — removed along with its account panel
-- **Managed AI gateway** — the hardcoded proxy endpoints and bundled API keys are gone; preset models now expect **your own gateway** (see below), while custom models work with direct API keys out of the box
+- **Managed AI gateway & preset models** — the hardcoded proxy endpoints, bundled API keys, and all built-in preset models are gone. AI chat works exclusively with **your own model API** (see below)
 
-### Bring-your-own AI gateway (optional)
+### Bring-your-own model API
 
-Preset chat models route through a configurable OpenAI-compatible gateway. Configure via Zotero prefs (`about:config`, or programmatically):
+The chat panel has **no preset models**. You configure your own provider — OpenAI-compatible or Anthropic format — directly in the UI:
+
+1. Open any PDF → **AI 聊天** panel
+2. Click the model menu (bottom-left of the input box) → **管理自定义模型**
+3. Fill in **Base URL** (e.g. `https://api.openai.com/v1`, or any compatible endpoint — DeepSeek, Kimi, Qwen, OpenRouter, a local Ollama, …), your **API Key**, and the **model name**
+4. Save and select the configuration — done
+
+Keys are stored locally in Zotero prefs and are never sent anywhere except the endpoint you configured.
+
+Other self-hostable endpoints (Zotero prefs via `about:config`):
 
 | Pref | Purpose | Default |
 |---|---|---|
-| `extensions.zotero.vibeProxy.baseUrl` | Gateway base URL for preset models (e.g. your own `new-api` / `one-api` / Cloudflare Worker deployment) | *(empty — preset models unavailable until set)* |
-| `extensions.zotero.vibeProxy.anonKey` | Optional bearer token for the gateway | *(empty)* |
 | `extensions.zotero.vibeProxy.mineruLocalUrl` | Local MinerU FastAPI endpoint for PDF parsing | `http://127.0.0.1:8000/file_parse` |
 | `extensions.zotero.vibeProxy.deepwikiUrl` | Your DeepWiki proxy (Cloudflare Worker or compatible) | *(empty)* |
-
-Without a gateway, use **custom models** (chat panel → model menu → add custom OpenAI/Anthropic-compatible model with its own key) — they call provider APIs directly and need no gateway at all.
 
 ### Local PDF parsing (MinerU)
 

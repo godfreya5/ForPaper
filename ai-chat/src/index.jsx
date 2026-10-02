@@ -33,10 +33,24 @@ import MarkdownRenderer from './MarkdownRenderer';
 import ChatImageLightbox from './ChatImageLightbox';
 import './styles.css';
 
-const defaultGeminiModel = () => ({
-    key: 'gemini',
-    label: zoteroL10n('vibe-ai-chat-model-gemini')
-});
+// 开源版：仅支持自定义模型（用户自行配置 API）。默认读取用户已保存的自定义模型选择
+const defaultCustomModel = () => {
+    try {
+        const Zotero = window.parent?.Zotero || window.Zotero;
+        const savedId = Zotero?.Prefs?.get('aiChat.customModelConfigId', true) || null;
+        const saved = Zotero?.Prefs?.get('aiChat.customModelConfigs', true);
+        const arr = saved ? JSON.parse(saved) : [];
+        const cfg = (Array.isArray(arr) && (arr.find(c => c.id === savedId) || arr[0])) || null;
+        if (cfg) {
+            return {
+                key: 'custom',
+                label: formatCustomModelLabel(cfg.modelName || cfg.name),
+                configId: cfg.id,
+            };
+        }
+    } catch (_) { /* ignore */ }
+    return { key: 'custom', label: zoteroL10n('vibe-ai-chat-custom-model-fallback') };
+};
 
 // 模型名称映射：菜单 key -> 上游模型名（百炼 OpenAI 兼容 / 火山 endpoint / Gemini）
 // 百炼侧具体 model 以控制台为准；若报错可改此处或换自定义模型
@@ -92,19 +106,7 @@ Formatting requirements:
 4. Markdown syntax must be valid CommonMark, for example **bold text**, not **bold text **.
 5. Use fenced code blocks with a language tag, like \`\`\`python.`;
 
-/** cn: 国外模型走 OpenRouter；global: 除 Doubao 外全部走 OpenRouter */
-const CN_OPENROUTER_MODEL_KEYS = new Set(['chatgpt', 'grok', 'gemini']);
-const GLOBAL_OPENROUTER_MODEL_KEYS = new Set([
-    'chatgpt', 'grok', 'gemini',
-    'kimi', 'minimax', 'qwen', 'deepseek', 'zhipu',
-    'qwen3.5-plus', 'minimax-2.5', 'GLM-4.7'
-]);
-
-/** 走 Supabase `ai-summary-proxy-bailian` 的预设模型 */
-const BAILIAN_MODEL_KEYS = new Set([
-    'kimi', 'minimax', 'qwen', 'deepseek', 'zhipu',
-    'qwen3.5-plus', 'minimax-2.5', 'GLM-4.7'
-]);
+// 开源版：预设模型路由（OpenRouter / 百炼 / 火山）已移除，仅保留自定义模型链路
 
 /**
  * 解析当前文献 PDF 总页数（Zotero fulltextItems.totalPages），供对话阶梯计价
@@ -287,8 +289,8 @@ function AIChatApp() {
 
     // API Key 配置
     const [apiKey, setApiKey] = useState('');
-    // 默认使用 Gemini
-    const [selectedModel, setSelectedModel] = useState(defaultGeminiModel);
+    // 开源版：默认使用自定义模型（读取用户已保存的配置）
+    const [selectedModel, setSelectedModel] = useState(defaultCustomModel);
     /** 高级预设模型需 PRO / ULTIMATE 活跃订阅 */
     const [canUseAdvancedModels, setCanUseAdvancedModels] = useState(true); // 开源版：无订阅门槛
     /** 避免余额接口返回前误判无权限、把 PRO 用户从 Gemini 误切走 */
@@ -341,11 +343,12 @@ function AIChatApp() {
         return selectedModel;
     }, [selectedModel, getCustomModelConfig]);
 
+    // 旧版本可能残留预设模型选择（如 gemini/doubao），统一迁移到自定义模型
     useEffect(() => {
-        if (openRouterOnlyRegion && selectedModel.key === 'doubao') {
-            setSelectedModel(defaultGeminiModel());
+        if (selectedModel.key !== 'custom') {
+            setSelectedModel(defaultCustomModel());
         }
-    }, [openRouterOnlyRegion, selectedModel.key]);
+    }, [selectedModel.key]);
 
     // 获取当前论文的 itemID
     const getItemID = useCallback(() => {
@@ -819,17 +822,12 @@ function AIChatApp() {
                 setLoading(false);
                 return false;
             }
-        } else if (
-            (openRouterOnlyRegion && GLOBAL_OPENROUTER_MODEL_KEYS.has(selectedModel.key)) ||
-            (!openRouterOnlyRegion && CN_OPENROUTER_MODEL_KEYS.has(selectedModel.key))
-        ) {
-            currentService = openrouterChatService;
-        } else if (BAILIAN_MODEL_KEYS.has(selectedModel.key)) {
-            currentService = bailianService;
-        } else if (selectedModel.key === 'doubao') {
-            currentService = huoshanService;
         } else {
-            currentService = huoshanService;
+            // 开源版：仅支持自定义模型。非 custom 选择会被上方迁移逻辑拦截，
+            // 理论上不会走到这里；兜底提示用户先去配置自定义模型
+            antMessage.error(zoteroL10n('vibe-ai-chat-prompt-configure-custom-first'));
+            setLoading(false);
+            return false;
         }
         // 每次发送前重建上下文：主论文 + 附加论文
         if (itemID) {

@@ -6,136 +6,16 @@ import { SendOutlined, DownOutlined, SettingOutlined, PlusOutlined, DeleteOutlin
 import { Button, Flex, theme, Dropdown, message as antMessage, Modal, Form, Input, Select, Badge, Checkbox } from 'antd';
 import { formatCustomModelLabel, zoteroL10n } from './zoteroL10n';
 import modelIcon from '../icons/model.svg';
-import doubaoLogo from '../icons/llm_logo/doubao.png';
-import geminiStarLogo from '../icons/llm_logo/gemini.svg';
-import wenTextOnlyMark from '../icons/llm_logo/wen.svg';
-// 禁止从 '@lobehub/icons' 主入口导入（会连带 features → antd-style / react-layout-kit 等缺失依赖）
-// OpenAI 默认导出即 Mono，与 `import { OpenAI } from '@lobehub/icons'` 的默认图标一致
-import OpenAI from '@lobehub/icons/es/OpenAI/components/Mono';
-import GrokMono from '@lobehub/icons/es/Grok/components/Mono';
-import KimiColor from '@lobehub/icons/es/Kimi/components/Color';
-import MinimaxColor from '@lobehub/icons/es/Minimax/components/Color';
-import QwenColor from '@lobehub/icons/es/Qwen/components/Color';
-import DeepSeekColor from '@lobehub/icons/es/DeepSeek/components/Color';
-import ZhipuColor from '@lobehub/icons/es/Zhipu/components/Color';
 import ImageUploader from './ImageUploader';
 import ImagePreview from './ImagePreview';
 import { uploadImageToOss } from './imageR2Uploader';
-import {
-    getChatCreditsForPresetKey,
-    getPageSurchargeCredits,
-    getPresetTierBaseCredits,
-} from './chatModelPricing';
-import { presetSupportsVision } from './chatModelVision';
-import { getVibeRegion } from './chatRuntimeConfig';
 
-/** 同档内按 credits 从高到低，同价按标签排序（含页数阶梯） */
-function sortPresetRowsByCreditsDesc(rows, pdfPageCount) {
-    return [...rows].sort((a, b) => {
-        const ca = getChatCreditsForPresetKey(a.key, pdfPageCount);
-        const cb = getChatCreditsForPresetKey(b.key, pdfPageCount);
-        if (cb !== ca) return cb - ca;
-        return String(a.label).localeCompare(String(b.label), 'zh-Hans-CN');
-    });
-}
+// 开源版：不内置任何预设模型，仅支持用户自定义模型（自行配置 API），
+// 因此预设品牌图标 / 计价排序等代码已全部移除。
 
 /** 下拉项更紧凑；工具栏略大 */
-const MENU_ICON_PX = 16;
 const MENU_SLOT_PX = 20;
-const DOUBAO_MENU_IMG_PX = 20;
 const TOOLBAR_ICON_PX = 18;
-const TOOLBAR_DOUBAO_PX = 20;
-
-const MONO_BRAND_COLOR = { chatgpt: '#000000', grok: '#1a1a1a' };
-
-function normalizePresetLogoKey(menuKey) {
-    if (menuKey === 'qwen3.5-plus') return 'qwen';
-    if (menuKey === 'minimax-2.5') return 'minimax';
-    if (menuKey === 'GLM-4.7') return 'zhipu';
-    return menuKey;
-}
-
-/** 内置模型角标（菜单 / 工具栏共用） */
-function renderPresetBrandLogo(menuKey, sizePx) {
-    const k = normalizePresetLogoKey(menuKey);
-    if (k === 'doubao') {
-        const imgPx = sizePx >= TOOLBAR_ICON_PX ? TOOLBAR_DOUBAO_PX : DOUBAO_MENU_IMG_PX;
-        return (
-            <img
-                src={doubaoLogo}
-                alt=""
-                style={{
-                    width: imgPx,
-                    height: imgPx,
-                    objectFit: 'cover',
-                    borderRadius: '50%',
-                    display: 'block',
-                }}
-            />
-        );
-    }
-    if (k === 'chatgpt') {
-        return (
-            <span style={{ color: MONO_BRAND_COLOR.chatgpt, display: 'inline-flex', lineHeight: 0 }}>
-                <OpenAI size={sizePx} />
-            </span>
-        );
-    }
-    if (k === 'grok') {
-        return (
-            <span style={{ color: MONO_BRAND_COLOR.grok, display: 'inline-flex', lineHeight: 0 }}>
-                <GrokMono size={sizePx} />
-            </span>
-        );
-    }
-    if (k === 'gemini') {
-        // 本地 SVG 为四色渐变星标；Lobe 的 BrandColor 是横排「GEMINI」字标，缩略后易被裁成「星+emi」
-        return (
-            <img
-                src={geminiStarLogo}
-                alt=""
-                style={{
-                    width: sizePx,
-                    height: sizePx,
-                    objectFit: 'contain',
-                    display: 'block',
-                    flexShrink: 0,
-                }}
-            />
-        );
-    }
-    const ColorIcon = {
-        kimi: KimiColor,
-        minimax: MinimaxColor,
-        qwen: QwenColor,
-        deepseek: DeepSeekColor,
-        zhipu: ZhipuColor,
-    }[k];
-    return ColorIcon ? <ColorIcon size={sizePx} /> : null;
-}
-
-function renderMenuBrandIcon(menuKey) {
-    return renderPresetBrandLogo(menuKey, MENU_ICON_PX);
-}
-
-function renderToolbarBrandIcon(menuKey) {
-    if (normalizePresetLogoKey(menuKey) === 'doubao') {
-        return (
-            <span style={{ marginRight: 4, display: 'inline-flex', alignItems: 'center', lineHeight: 0 }}>
-                {renderPresetBrandLogo(menuKey, TOOLBAR_ICON_PX)}
-            </span>
-        );
-    }
-    const node = renderPresetBrandLogo(menuKey, TOOLBAR_ICON_PX);
-    if (node) {
-        return (
-            <span style={{ marginRight: 4, display: 'inline-flex', alignItems: 'center', lineHeight: 0 }}>
-                {node}
-            </span>
-        );
-    }
-    return <img src={modelIcon} alt="" style={{ width: TOOLBAR_ICON_PX, height: TOOLBAR_ICON_PX, marginRight: 4, objectFit: 'contain' }} />;
-}
 
 // VibeCard Mention 组件
 const BaseMention = ({ attributes, children, element, label }) => {
@@ -976,28 +856,8 @@ const SlateInputWithSender = ({
         fontSize: 18,
         color: token.colorText,
     };
-    const vibeRegion = getVibeRegion();
-    const showDoubao = vibeRegion !== 'global';
-
-    // 模型选择菜单（高级 / 标准分组；勾选在标签行右侧，不占左侧 icon 位）
+    // 模型选择菜单（开源版：仅自定义模型；勾选在标签行右侧，不占左侧 icon 位）
     const customConfigsList = getCustomModelConfigs();
-    const advancedModels = sortPresetRowsByCreditsDesc([
-        { key: 'chatgpt', label: zoteroL10n('vibe-ai-chat-model-chatgpt') },
-        { key: 'grok', label: zoteroL10n('vibe-ai-chat-model-grok') },
-        { key: 'gemini', label: zoteroL10n('vibe-ai-chat-model-gemini') },
-        { key: 'kimi', label: zoteroL10n('vibe-ai-chat-model-kimi') },
-    ], pdfPageCount);
-    // 标准组：多模态在前；纯文本（MiniMax-M2.5 / DeepSeek-V4-Flash / GLM-4.7）置底
-    const standardModels = [
-        ...sortPresetRowsByCreditsDesc([
-            { key: 'qwen', label: zoteroL10n('vibe-ai-chat-model-qwen') },
-            ...(showDoubao ? [{ key: 'doubao', label: zoteroL10n('vibe-ai-chat-model-doubao') }] : []),
-        ], pdfPageCount),
-        { key: 'minimax', label: zoteroL10n('vibe-ai-chat-model-minimax') },
-        { key: 'deepseek', label: zoteroL10n('vibe-ai-chat-model-deepseek') },
-        { key: 'zhipu', label: zoteroL10n('vibe-ai-chat-model-zhipu') },
-    ];
-    const presetModelsFlat = [...advancedModels, ...standardModels];
 
     const handleModelSelect = ({ key }) => {
         if (key === '__custom_manage__') {
@@ -1015,11 +875,6 @@ const SlateInputWithSender = ({
                     config
                 });
             }
-            return;
-        }
-        const preset = presetModelsFlat.find(r => r.key === key);
-        if (preset && onModelChange) {
-            onModelChange({ key: preset.key, label: preset.label });
         }
     };
 
@@ -1030,135 +885,23 @@ const SlateInputWithSender = ({
                 ? formatCustomModelLabel(cfg.modelName || cfg.name)
                 : (currentModel?.label || zoteroL10n('vibe-ai-chat-custom-model-fallback'));
         }
-        return currentModel?.label || zoteroL10n('vibe-ai-chat-model-gemini');
+        return currentModel?.label || zoteroL10n('vibe-ai-chat-custom-model-fallback');
     })();
 
     const selectedMenuKey = currentModel?.key === 'custom'
         ? (currentModel.configId || getSelectedConfigId() || customConfigsList[0]?.id || '__custom_manage__')
-        : (currentModel?.key || 'gemini');
+        : (customConfigsList[0]?.id || '__custom_manage__');
 
-    const toolbarBrandIcon =
-        currentModel?.key === 'custom' && currentModel?.configId
-            ? <img src={modelIcon} alt="" style={{ width: TOOLBAR_ICON_PX, height: TOOLBAR_ICON_PX, marginRight: 4, objectFit: 'contain' }} />
-            : renderToolbarBrandIcon(currentModel?.key || 'gemini');
+    const toolbarBrandIcon = (
+        <img src={modelIcon} alt="" style={{ width: TOOLBAR_ICON_PX, height: TOOLBAR_ICON_PX, marginRight: 4, objectFit: 'contain' }} />
+    );
 
-    // 仅当选中项 key 确实在菜单中存在时交给 antd，避免预设与自定义切换后出现「双高亮」
-    const selectableMenuKeysSet = new Set([
-        ...presetModelsFlat.map((r) => r.key),
-        ...customConfigsList.map((c) => c.id),
-    ]);
+    // 仅当选中项 key 确实在菜单中存在时交给 antd，避免出现「双高亮」
+    const selectableMenuKeysSet = new Set(customConfigsList.map((c) => c.id));
     const menuSelectedKeys =
         selectedMenuKey && selectableMenuKeysSet.has(selectedMenuKey) ? [selectedMenuKey] : [];
 
-    const presetRowMenuItem = (row, { disabled: rowDisabled = false } = {}) => {
-        const base = getPresetTierBaseCredits(row.key);
-        const surcharge = getPageSurchargeCredits(pdfPageCount);
-        const credits = base + surcharge;
-        const creditsLabel =
-            surcharge > 0 ? `${credits} (${base}+${surcharge})` : String(credits);
-        return {
-            key: row.key,
-            disabled: rowDisabled,
-            label: (
-                <Flex align="center" gap={6} style={{ minWidth: 0, width: '100%' }}>
-                    <span
-                        style={{
-                            width: MENU_SLOT_PX,
-                            height: MENU_SLOT_PX,
-                            flexShrink: 0,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        {renderMenuBrandIcon(row.key)}
-                    </span>
-                    <span
-                        style={{
-                            flex: 1,
-                            minWidth: 0,
-                            fontSize: 12,
-                            lineHeight: 1.25,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 4,
-                            overflow: 'hidden',
-                        }}
-                    >
-                        <span
-                            style={{
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                minWidth: 0,
-                            }}
-                        >
-                            {row.label}
-                        </span>
-                        {!presetSupportsVision(row.key) ? (
-                            <img
-                                src={wenTextOnlyMark}
-                                alt=""
-                                aria-hidden
-                                title={zoteroL10n('vibe-ai-chat-text-only-model-badge')}
-                                style={{
-                                    width: 13,
-                                    height: 13,
-                                    flexShrink: 0,
-                                    objectFit: 'contain',
-                                    opacity: 0.45,
-                                    filter: 'grayscale(1)',
-                                }}
-                            />
-                        ) : null}
-                    </span>
-                    <span
-                        style={{
-                            flexShrink: 0,
-                            fontSize: 10,
-                            lineHeight: 1.2,
-                            color: token.colorTextQuaternary,
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        {creditsLabel} credits
-                    </span>
-                    <span
-                        style={{
-                            width: 18,
-                            flexShrink: 0,
-                            textAlign: 'right',
-                            fontSize: 12,
-                            color: token.colorPrimary,
-                        }}
-                    >
-                        {selectedMenuKey === row.key ? '✓' : ''}
-                    </span>
-                </Flex>
-            ),
-        };
-    };
-
     const dropdownModelItems = [
-        {
-            type: 'group',
-            label: (
-                <span style={{ fontSize: 11, color: token.colorTextSecondary, fontWeight: 600 }}>
-                    {zoteroL10n('vibe-ai-chat-model-tier-advanced')}
-                </span>
-            ),
-            children: advancedModels.map((row) => presetRowMenuItem(row)),
-        },
-        {
-            type: 'group',
-            label: (
-                <span style={{ fontSize: 11, color: token.colorTextSecondary, fontWeight: 600 }}>
-                    {zoteroL10n('vibe-ai-chat-model-tier-standard')}
-                </span>
-            ),
-            children: standardModels.map(presetRowMenuItem),
-        },
-        { type: 'divider' },
         ...customConfigsList.map((c) => {
             const customLabel = formatCustomModelLabel(c.modelName || c.name);
             return {
@@ -1206,6 +949,7 @@ const SlateInputWithSender = ({
                 disabled: false,
             };
         }),
+        ...(customConfigsList.length > 0 ? [{ type: 'divider' }] : []),
         {
             key: '__custom_manage__',
             label: (
