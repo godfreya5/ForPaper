@@ -3,7 +3,7 @@ import { createEditor, Editor, Range, Transforms } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, Slate, useFocused, useSelected, withReact } from 'slate-react';
 import { SendOutlined, DownOutlined, SettingOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Button, Flex, theme, Dropdown, message as antMessage, Modal, Form, Input, Select, Badge, Checkbox } from 'antd';
+import { Button, Flex, theme, Dropdown, message as antMessage, Modal, Form, Input, Select, Badge, Checkbox, AutoComplete } from 'antd';
 import { formatCustomModelLabel, zoteroL10n } from './zoteroL10n';
 import modelIcon from '../icons/model.svg';
 import ImageUploader from './ImageUploader';
@@ -16,6 +16,62 @@ import { uploadImageToOss } from './imageR2Uploader';
 /** 下拉项更紧凑；工具栏略大 */
 const MENU_SLOT_PX = 20;
 const TOOLBAR_ICON_PX = 18;
+
+/**
+ * 供应商快捷预设（参考 epsilon/Mrite 的设置面板）：
+ * 点一下自动填入 Base URL + 接口格式 + 常用模型下拉，用户只需再粘贴 API Key。
+ * baseUrl 命中前缀时用于反向识别已保存配置属于哪个供应商。
+ */
+const MODEL_PROVIDERS = [
+    {
+        key: 'deepseek', name: 'DeepSeek',
+        baseUrl: 'https://api.deepseek.com', apiFormat: 'openai',
+        defaultModel: 'deepseek-chat',
+        models: ['deepseek-chat', 'deepseek-reasoner'],
+    },
+    {
+        key: 'kimi', name: 'Kimi',
+        baseUrl: 'https://api.moonshot.cn/v1', apiFormat: 'openai',
+        defaultModel: 'kimi-k2',
+        models: ['kimi-k2', 'kimi-latest', 'moonshot-v1-128k', 'moonshot-v1-32k'],
+    },
+    {
+        key: 'glm', name: '智谱 GLM',
+        baseUrl: 'https://open.bigmodel.cn/api/paas/v4', apiFormat: 'openai',
+        defaultModel: 'glm-4-plus',
+        models: ['glm-4-plus', 'glm-4-flash', 'glm-4-long'],
+    },
+    {
+        key: 'qwen', name: '阿里千问',
+        baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', apiFormat: 'openai',
+        defaultModel: 'qwen-plus',
+        models: ['qwen-max', 'qwen-plus', 'qwen-turbo'],
+    },
+    {
+        key: 'openai', name: 'OpenAI',
+        baseUrl: 'https://api.openai.com/v1', apiFormat: 'openai',
+        defaultModel: 'gpt-4.1-mini',
+        models: ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4o', 'o4-mini'],
+    },
+    {
+        key: 'gemini', name: 'Gemini',
+        baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', apiFormat: 'openai',
+        defaultModel: 'gemini-2.5-flash',
+        models: ['gemini-2.5-flash', 'gemini-2.5-pro'],
+    },
+    {
+        key: 'grok', name: 'Grok',
+        baseUrl: 'https://api.x.ai/v1', apiFormat: 'openai',
+        defaultModel: 'grok-3-mini',
+        models: ['grok-3', 'grok-3-mini'],
+    },
+    {
+        key: 'custom', name: '自定义',
+        baseUrl: '', apiFormat: 'openai',
+        defaultModel: '',
+        models: [],
+    },
+];
 
 // VibeCard Mention 组件
 const BaseMention = ({ attributes, children, element, label }) => {
@@ -203,6 +259,9 @@ const SlateInputWithSender = ({
     const [customConfigs, setCustomConfigs] = useState([]);
     const [editingConfigId, setEditingConfigId] = useState(null);
     const [addFormFlash, setAddFormFlash] = useState(false);
+    // 供应商快捷预设：当前高亮的供应商 + 模型名下的联想选项
+    const [activeProviderKey, setActiveProviderKey] = useState(null);
+    const [providerModelOptions, setProviderModelOptions] = useState([]);
     const apiFormatWatched = Form.useWatch('apiFormat', form);
     const apiFormatForUrlPlaceholder = apiFormatWatched ?? 'openai';
     const [isExtraPaperPickerOpen, setIsExtraPaperPickerOpen] = useState(false);
@@ -298,6 +357,7 @@ const SlateInputWithSender = ({
             setEditingConfigId(null);
             form.resetFields();
             form.setFieldsValue({ apiFormat: 'openai' });
+            syncProviderFromConfig(null);
             return;
         }
         const prefId = getSelectedConfigId();
@@ -309,6 +369,7 @@ const SlateInputWithSender = ({
             modelName: pick.modelName,
             apiFormat: pick.apiFormat || 'openai'
         });
+        syncProviderFromConfig(pick);
     }, [isConfigModalOpen, getCustomModelConfigs, getSelectedConfigId, form]);
 
     const handleSaveConfig = () => {
@@ -349,10 +410,12 @@ const SlateInputWithSender = ({
                         modelName: target.modelName,
                         apiFormat: target.apiFormat || 'openai'
                     });
+                    syncProviderFromConfig(target);
                 } else {
                     setEditingConfigId(null);
                     form.resetFields();
                     form.setFieldsValue({ apiFormat: 'openai' });
+                    syncProviderFromConfig(null);
                 }
                 antMessage.success(zoteroL10n(wasEditing ? 'vibe-ai-chat-config-updated' : 'vibe-ai-chat-config-added'));
                 if (onModelChange && configs.length > 0 && target) {
@@ -393,6 +456,7 @@ const SlateInputWithSender = ({
                             setEditingConfigId(null);
                             form.resetFields();
                             form.setFieldsValue({ apiFormat: 'openai' });
+                            syncProviderFromConfig(null);
                         } else {
                             const next = configs[0];
                             setEditingConfigId(next.id);
@@ -402,6 +466,7 @@ const SlateInputWithSender = ({
                                 modelName: next.modelName,
                                 apiFormat: next.apiFormat || 'openai'
                             });
+                            syncProviderFromConfig(next);
                         }
                     }
                     antMessage.success(zoteroL10n('vibe-ai-chat-config-deleted'));
@@ -410,11 +475,34 @@ const SlateInputWithSender = ({
         });
     };
 
+    // 按 Base URL 前缀反向识别已保存配置属于哪个供应商（用于高亮卡片 + 模型联想）
+    const detectProviderByBaseUrl = (baseUrl) =>
+        MODEL_PROVIDERS.find(p => p.baseUrl && baseUrl && String(baseUrl).startsWith(p.baseUrl)) || null;
+
+    // 点供应商卡片：自动填入接口格式 + Base URL + 默认模型，用户只需再填 API Key
+    const applyProviderPreset = (p) => {
+        setActiveProviderKey(p.key);
+        setProviderModelOptions(p.models || []);
+        form.setFieldsValue({
+            apiFormat: p.apiFormat,
+            baseUrl: p.baseUrl || '',
+            modelName: p.defaultModel || '',
+        });
+    };
+
+    // 编辑已有配置 / 新建时同步供应商高亮与模型联想
+    const syncProviderFromConfig = (config) => {
+        const p = config ? detectProviderByBaseUrl(config.baseUrl) : null;
+        setActiveProviderKey(p ? p.key : null);
+        setProviderModelOptions(p ? p.models : []);
+    };
+
     const handleAddConfig = () => {
         const alreadyOnAddPage = editingConfigId === null;
         setEditingConfigId(null);
         form.resetFields();
         form.setFieldsValue({ apiFormat: 'openai' });
+        syncProviderFromConfig(null);
         if (alreadyOnAddPage) {
             setAddFormFlash(false);
             requestAnimationFrame(() => {
@@ -432,6 +520,7 @@ const SlateInputWithSender = ({
             modelName: config.modelName,
             apiFormat: config.apiFormat || 'openai'
         });
+        syncProviderFromConfig(config);
     };
 
     const getConfigDisplayName = (c) => c.modelName || c.name || zoteroL10n('vibe-ai-chat-unnamed');
@@ -1238,6 +1327,7 @@ const SlateInputWithSender = ({
                             {customConfigs.map((c) => (
                                 <div
                                     key={c.id}
+                                    className="custom-config-row"
                                     onClick={() => handleSelectConfigToEdit(c)}
                                     style={{
                                         display: 'flex',
@@ -1265,6 +1355,24 @@ const SlateInputWithSender = ({
                         style={{ flex: 1.2, minWidth: 0 }}
                     >
                         <Form form={form} layout="vertical" preserve={false} initialValues={{ apiFormat: 'openai' }}>
+                            {/* 供应商快捷选择（参考 epsilon/Mrite）：一键填入地址与模型，只需再填 Key */}
+                            <div style={{ marginBottom: 12 }}>
+                                <div style={{ marginBottom: 6, fontSize: 12, color: token.colorTextSecondary }}>
+                                    {zoteroL10n('vibe-ai-chat-provider-quick-pick')}
+                                </div>
+                                <Flex wrap="wrap" gap={6}>
+                                    {MODEL_PROVIDERS.map((p) => (
+                                        <Button
+                                            key={p.key}
+                                            size="small"
+                                            type={activeProviderKey === p.key ? 'primary' : 'default'}
+                                            onClick={() => applyProviderPreset(p)}
+                                        >
+                                            {p.name}
+                                        </Button>
+                                    ))}
+                                </Flex>
+                            </div>
                             <Form.Item
                                 label={zoteroL10n('vibe-ai-chat-api-base-url')}
                                 required
@@ -1306,7 +1414,14 @@ const SlateInputWithSender = ({
                                 rules={[{ required: true }]}
                                 tooltip={zoteroL10n('vibe-ai-chat-model-name-tooltip')}
                             >
-                                <Input placeholder={zoteroL10n('vibe-ai-chat-model-name-placeholder')} />
+                                <AutoComplete
+                                    options={providerModelOptions.map((m) => ({ value: m }))}
+                                    placeholder={zoteroL10n('vibe-ai-chat-model-name-placeholder')}
+                                    allowClear
+                                    filterOption={(input, option) =>
+                                        String(option?.value || '').toLowerCase().includes(String(input).toLowerCase())
+                                    }
+                                />
                             </Form.Item>
                         </Form>
                     </div>

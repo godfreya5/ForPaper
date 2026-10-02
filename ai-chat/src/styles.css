@@ -1233,6 +1233,26 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
+/* 配置弹窗内的白底控件统一深色文字：
+   暗色主题下弹窗 body 文字被强制为近白色，会继承进白色输入框导致「白底白字」看不见 */
+.ai-chat-modal .ant-input,
+.ai-chat-modal .ant-input-affix-wrapper,
+.ai-chat-modal .ant-input-affix-wrapper input,
+.ai-chat-modal .ant-select .ant-select-selection-item,
+.ai-chat-modal .ant-select .ant-select-selection-search-input,
+.ai-chat-modal .custom-config-row {
+    color: #333333 !important;
+}
+
+.ai-chat-modal .ant-input::placeholder,
+.ai-chat-modal .ant-select .ant-select-selection-placeholder {
+    color: #999999 !important;
+}
+
+.ai-chat-modal .ant-input-affix-wrapper .anticon {
+    color: #999999 !important;
+}
+
 .ai-chat-modal .ant-modal-header {
     display: none;
 }
