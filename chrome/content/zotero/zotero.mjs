@@ -68,9 +68,9 @@ const xpcomFilesAll = [
 const xpcomFilesLocal = [
 	'collectionTreeRow',
 	'annotations',
-	'vibeDB',  // VibeDB 数据库管理
-	'vibeDBSync',  // VibeDB 同步状态管理（登录/登出）
-	'vibeDBCloudSync',  // VibeDB 云同步（数据上传下载）
+	'vibeDB',  // VibeDB 数据库管理（本地 SQLite）
+	'vibeDBSync',  // VibeDB 同步外观层（开源版：无账号 / 无扣费，见 xpcom/vibeDBSync.js）
+	// 'vibeDBCloudSync' 已移除：开源版不含云端数据同步（依赖自建 Supabase 账号体系）
 'api',
 	'attachments',
 	'browserDownload',

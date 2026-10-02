@@ -10,7 +10,8 @@ const DEFAULT_MODEL = 'deepseek-v4-flash';
  * DeepSeek AI 服务类
  */
 class DeepSeekService {
-    constructor(apiKey = 'sk-a30a082828bd4cb4bed7ed017e390e97') {
+    constructor(apiKey = '') {
+        // 开源版：不再内置任何 API Key；预设模型需自建网关或改用「自定义模型」
         this.apiKey = apiKey;
         this.conversationHistory = []; // 存储对话历史
         this.paperContext = null; // 存储论文上下文内容

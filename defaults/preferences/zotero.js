@@ -240,9 +240,16 @@ pref("browser.theme.toolbar-theme", 2);
 // Need to enable -moz-context-properties for SVG context properties to work
 pref("svg.context-properties.content.enabled", true);
 
-// Vibero-specific prefs (recovered from 2026-05-25 build)
-pref("extensions.zotero.vibeZotero.updateUrl", "https://vibero-update-package.oss-cn-guangzhou.aliyuncs.com/updates-8.0.CN.json");
+// Vibero-specific prefs (open-source edition)
+// 开源版默认不指向任何远程更新/网关服务；如需自建，请按 README 配置
+pref("extensions.zotero.vibeZotero.updateUrl", ""); // 官方 OTA 已随云端服务一并移除；自行分发请改为自己的更新清单地址
 pref("extensions.zotero.vibeZotero.version", "1.5.5");
 pref("extensions.zotero.vibeParseLanguage", "zh");
 pref("extensions.zotero.vibeRegion", "cn");
 pref("extensions.zotero.mineru.maxPollAttempts", 0);
+
+// 自建网关（可选）：AI Chat 预设模型 / LLM 后处理 / 云端解析的统一入口
+pref("extensions.zotero.vibeProxy.baseUrl", ""); // 例：https://your-gateway.example.com（留空=不使用网关）
+pref("extensions.zotero.vibeProxy.anonKey", "");
+pref("extensions.zotero.vibeProxy.mineruLocalUrl", "http://127.0.0.1:8000/file_parse"); // 本地 MinerU FastAPI
+pref("extensions.zotero.vibeProxy.deepwikiUrl", ""); // DeepWiki 问答代理（可选）

@@ -8,21 +8,32 @@
  */
 
 // ==================== API 配置 ====================
-// 从 vibeDBSync 动态读取 Supabase base URL，支持构建时区域切换（cn/global）
+// 开源版：
+// - 默认本地模式（LOCAL），需要自建 MinerU FastAPI 服务（见 README「本地解析」章节）
+// - 云端模式（CLOUD）端点由 prefs 配置，默认为空，不再内置任何远程地址
+//   extensions.zotero.vibeProxy.baseUrl  自建网关根地址（如 https://your-gateway.example.com）
 const _getMinerUBase = () => {
-  return typeof Zotero !== 'undefined' && Zotero.VibeDBSync?.getSupabaseConfig()?.url ||
-  'https://spb-wz98bgf6x7f3zs9b.supabase.opentrust.net';
+  const configured = typeof Zotero !== 'undefined' && Zotero.VibeDBSync?.getSupabaseConfig()?.url;
+  return String(configured || '');
 };
 const MINERU_WORKER_URL = () => `${_getMinerUBase()}/functions/v1/mineru`;
 const R2_UPLOAD_WORKER_URL = () => `${_getMinerUBase()}/functions/v1/r2-upload`;
 const DOWNLOAD_WORKER_URL = () => `${_getMinerUBase()}/functions/v1/mineru`;
 
-// // 本地 MinerU API 配置
-// const LOCAL_MINERU_API_URL = "http://localhost:8000/file_parse";
+// 本地 MinerU API 配置：默认本机 FastAPI 端口，可通过 pref 覆盖
+// extensions.zotero.vibeProxy.mineruLocalUrl
+const LOCAL_MINERU_API_URL = (() => {
+  try {
+    return String(Zotero.Prefs.get('vibeProxy.mineruLocalUrl') || 'http://127.0.0.1:8000/file_parse');
+  }
+  catch (e) {
+    return 'http://127.0.0.1:8000/file_parse';
+  }
+})();
 
 // API 模式配置：'cloud' 或 'local'
-// 可通过 Zotero.Prefs 动态切换，默认使用云端 API (Cloudflare Worker)
-const DEFAULT_API_MODE = 'cloud';
+// 开源版默认本地模式；可通过 Zotero.Prefs 动态切换
+const DEFAULT_API_MODE = 'local';
 // 导入必要的组件
 const { FileUtils } = ChromeUtils.importESModule("resource://gre/modules/FileUtils.sys.mjs");
 const { OS } = ChromeUtils.importESModule("chrome://zotero/content/osfile.mjs");

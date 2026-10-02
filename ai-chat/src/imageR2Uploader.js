@@ -1,27 +1,20 @@
 /**
- * AI Chat 附图上传：经阿里云托管的 Edge Function `oss-image-upload` 签名后 PUT 到
- * 阿里云 OSS（bucket: vibero-images-bed，见 edge-function/oss-image-upload/index.ts）。
- * 入口域名带 supabase.opentrust.net 仅为网关；落库不是 Supabase Storage。
- *
- * PDF / MinerU 另走 `r2-upload` → Supabase Storage `pdf_uploads`，与附图 OSS 路径不同。
+ * AI Chat 附图上传（开源版）：
+ * - 未配置自建网关（prefs vibeProxy.baseUrl）时，直接返回 Data URI（base64 内联），
+ *   不经任何远程服务；多模态 API 会收到内联图片（多数 OpenAI 兼容端点均支持）。
+ * - 配置了网关时，走 `oss-image-upload` Edge Function（自建，见 README「自建后端」章节）。
  */
-import { getVibeRegion, getCurrentSupabaseConfig } from './chatRuntimeConfig';
-
-const CN_OSS_IMAGE_UPLOAD_ENDPOINT =
-    'https://spb-wz98bgf6x7f3zs9b.supabase.opentrust.net/functions/v1/oss-image-upload';
+import { getCurrentSupabaseConfig } from './chatRuntimeConfig';
 
 function getOssImageUploadConfig() {
-    const region = getVibeRegion();
-    if (region === 'global') {
-        const config = getCurrentSupabaseConfig();
-        if (config?.url && config?.anonKey) {
-            return {
-                endpoint: `${config.url.replace(/\/$/, '')}/functions/v1/oss-image-upload`,
-                anonKey: config.anonKey,
-            };
-        }
+    const config = getCurrentSupabaseConfig();
+    if (config?.url) {
+        return {
+            endpoint: `${config.url.replace(/\/$/, '')}/functions/v1/oss-image-upload`,
+            anonKey: config.anonKey || null,
+        };
     }
-    return { endpoint: CN_OSS_IMAGE_UPLOAD_ENDPOINT, anonKey: null };
+    return { endpoint: null, anonKey: null };
 }
 
 /**
@@ -31,7 +24,13 @@ function getOssImageUploadConfig() {
  * @returns {Promise<{url: string, key: string}>} 上传结果，包含公开 URL
  */
 export async function uploadImageToOss(base64DataURI, fileName = 'image.png') {
-    console.log('[ImageUploader] 开始上传图片到阿里云 OSS（oss-image-upload）');
+    // 开源版无网关：直接内联 base64，不上传任何远端
+    const { endpoint } = getOssImageUploadConfig();
+    if (!endpoint) {
+        console.log('[ImageUploader] OSS build: no gateway configured, using inline data URI');
+        return { url: base64DataURI, key: null, inline: true };
+    }
+    console.log('[ImageUploader] 开始上传图片（oss-image-upload）');
     console.log('[ImageR2] 文件名:', fileName);
     console.log('[ImageR2] Data URI 前缀:', base64DataURI.substring(0, 50));
 

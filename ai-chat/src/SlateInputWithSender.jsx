@@ -294,7 +294,7 @@ const SlateInputWithSender = ({
     onVibeCardInsert,
     onModelChange,
     currentModel, // 接收父组件传入的当前模型
-    canUseAdvancedModels = false,
+    canUseAdvancedModels = true, // 开源版：无订阅门槛
     visionCapable = true,
     /** 当前 PDF 总页数；未知时不加页数加价（菜单与排序按基准档） */
     pdfPageCount = null,
@@ -1145,14 +1145,9 @@ const SlateInputWithSender = ({
             label: (
                 <span style={{ fontSize: 11, color: token.colorTextSecondary, fontWeight: 600 }}>
                     {zoteroL10n('vibe-ai-chat-model-tier-advanced')}
-                    <span style={{ fontWeight: 400, color: token.colorTextQuaternary, marginLeft: 4 }}>
-                        {zoteroL10n('vibe-ai-chat-model-tier-advanced-pro-only-suffix')}
-                    </span>
                 </span>
             ),
-            children: advancedModels.map((row) =>
-                presetRowMenuItem(row, { disabled: !canUseAdvancedModels })
-            ),
+            children: advancedModels.map((row) => presetRowMenuItem(row)),
         },
         {
             type: 'group',

@@ -4,8 +4,17 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './styles.css';
 
-// DeepWiki Proxy 服务地址 (Cloudflare Worker)
-const DEEPWIKI_PROXY_URL = 'https://deepwiki-proxy.yuc430060.workers.dev';
+// DeepWiki Proxy 服务地址（开源版）：从 prefs（vibeProxy.deepwikiUrl）读取，默认空
+// 需要自建 Cloudflare Worker 或兼容代理（见 README「自建后端」章节）
+const getDeepWikiProxyUrl = () => {
+    const Zotero = (typeof window !== 'undefined' && (window.Zotero || window.parent?.Zotero || window.top?.Zotero)) || null;
+    let url = '';
+    try {
+        url = String(Zotero?.Prefs?.get?.('vibeProxy.deepwikiUrl') || '');
+    } catch (_) {}
+    return url;
+};
+const DEEPWIKI_PROXY_URL = getDeepWikiProxyUrl();
 
 // GitHub 图标 SVG
 const GitHubIcon = ({ size = 48 }) => (

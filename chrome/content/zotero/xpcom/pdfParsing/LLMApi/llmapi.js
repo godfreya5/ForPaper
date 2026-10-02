@@ -4,11 +4,11 @@
  * 注意：API Key 已迁移到 Cloudflare Worker，客户端不再直接调用
  */
 
-// proxyUrl 从 vibeDBSync 动态读取 Supabase base URL，支持构建时区域切换（cn/global）
+// 开源版：代理端点从 vibeDBSync（prefs vibeProxy.baseUrl）读取，默认为空。
+// 需要全文总结/大纲等 LLM 后处理时，请先在 prefs 中配置自建网关地址（见 README「自建后端」章节）。
 const API_CONFIG = {
   get proxyUrl() {
-    const base = typeof Zotero !== 'undefined' && Zotero.VibeDBSync?.getSupabaseConfig()?.url ||
-    'https://spb-wz98bgf6x7f3zs9b.supabase.opentrust.net';
+    const base = typeof Zotero !== 'undefined' && Zotero.VibeDBSync?.getSupabaseConfig()?.url || '';
     return `${base}/functions/v1/ai-summary-proxy-bailian`;
   }
 };

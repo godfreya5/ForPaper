@@ -967,11 +967,14 @@ class ReaderInstance {
     }, contentWin, { allowCrossOriginArguments: true });
 
     // Export Gemini API callback（英文版 LLM 调用）
-    // 已切换为通过阿里云 Supabase 调用火山引擎
+    // 开源版：端点从 prefs（vibeProxy.baseUrl）读取；未配置时直接给出可操作错误
     async function _callGeminiAPIPrivileged(prompt) {
       try {
-        // ========== 阿里云 Supabase 火山引擎代理 (当前使用) ==========
-        const _huoshanBase = Zotero.VibeDBSync?.getSupabaseConfig()?.url || 'https://spb-wz98bgf6x7f3zs9b.supabase.opentrust.net';
+        // ========== 自建网关代理（开源版，见 README「自建后端」） ==========
+        const _huoshanBase = Zotero.VibeDBSync?.getSupabaseConfig()?.url || '';
+        if (!_huoshanBase) {
+          throw new Error('未配置自建网关（extensions.zotero.vibeProxy.baseUrl），无法调用 LLM。请配置网关或使用 AI Chat 自定义模型。');
+        }
         const HUOSHAN_PROXY_URL = `${_huoshanBase}/functions/v1/ai-summary-proxy-huoshan`;
         const HUOSHAN_MODEL = 'ep-20260119112406-4c4rb'; // 火山引擎 DeepSeek endpoint ID
 
@@ -1043,7 +1046,7 @@ class ReaderInstance {
         return fullContent;
 
         // ========== 原 Gemini 实现 (已注释) ==========
-        // const GEMINI_PROXY_URL = 'https://ai-summary-proxy.yuc430060.workers.dev';
+        // (历史上的 Cloudflare 代理已移除，开源版使用自建网关，见 vibeProxy.baseUrl)
         // const GEMINI_MODEL = 'gemini-2.5-flash';
         // const requestBody = { model: GEMINI_MODEL, prompt: prompt, temperature: 0.7 };
         // const response = await fetch(GEMINI_PROXY_URL, {

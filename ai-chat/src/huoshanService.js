@@ -5,7 +5,7 @@
 
 // 使用 Cloudflare Worker 代理（隐藏 API Key）
 // 使用 Cloudflare Worker 代理（隐藏 API Key）
-// const HUOSHAN_API_BASE_URL = 'https://ai-chat-proxy.yuc430060.workers.dev';
+// (历史 Cloudflare 代理已移除，开源版经自建网关，见 vibeProxy.baseUrl)
 // Aliyun Supabase (Old)
 // 硬编码 URL 已移除，改为动态获取
 // const HUOSHAN_API_BASE_URL = ...;
@@ -14,19 +14,14 @@
  * 动态获取 API Base URL
  */
 const getApiBaseUrl = () => {
-    // 1. 尝试从 ZoteroHelper 获取配置 (Vibero 方式)
-    if (typeof window !== 'undefined' && window.ZoteroHelper && window.ZoteroHelper.getSupabaseConfig) {
-        const config = window.ZoteroHelper.getSupabaseConfig();
-        if (config && config.url) {
-            // 移除末尾的斜杠（如果有）
-            const baseUrl = config.url.replace(/\/$/, '');
-            return `${baseUrl}/functions/v1/ai-chat-proxy`;
-        }
+    // 开源版：网关地址从 prefs（vibeProxy.baseUrl）读取；未配置返回 null
+    const Zotero = (typeof window !== 'undefined' && (window.Zotero || window.parent?.Zotero || window.top?.Zotero)) || null;
+    const config = Zotero?.VibeDBSync?.getSupabaseConfig?.() || null;
+    if (config && config.url) {
+        const baseUrl = config.url.replace(/\/$/, '');
+        return `${baseUrl}/functions/v1/ai-chat-proxy`;
     }
-
-    // 2. 兜底默认值 (旧的 Aliyun Supabase，或者作为最后的 Fallback)
-    // 如果 ZoteroHelper 不可用（例如在纯 Web 环境开发时），这里可以配置一个默认值
-    return 'https://spb-wz98bgf6x7f3zs9b.supabase.opentrust.net/functions/v1/ai-chat-proxy';
+    return null;
 };
 
 // 从火山引擎控制台获取具体的 endpoint ID

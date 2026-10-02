@@ -503,8 +503,13 @@
             }, 3000);
         }
 
-        // Cloudflare Worker API 地址
-        const DEEPWIKI_WORKER_URL = 'https://deepwiki-proxy.yuc430060.workers.dev';
+        // DeepWiki 代理地址（开源版）：从 Zotero prefs（vibeProxy.deepwikiUrl）读取，默认空
+        // 需要自建代理（见 README「自建后端」章节）
+        let DEEPWIKI_WORKER_URL = '';
+        try {
+            DEEPWIKI_WORKER_URL = String(window.Zotero?.Prefs?.get?.('vibeProxy.deepwikiUrl')
+                || window.parent?.Zotero?.Prefs?.get?.('vibeProxy.deepwikiUrl') || '');
+        } catch (_) {}
 
         // 提问
         async function askQuestion() {

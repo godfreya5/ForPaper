@@ -3001,37 +3001,12 @@ var ZoteroPane = new function () {
 
   /**
    * 切换云同步面板显示/隐藏
+   * 开源版：云端账号体系已移除，按钮已隐藏，此入口仅为兜底
    * @param {Element} button - 触发按钮元素
    */
   this.toggleCloudSyncPanel = async function (button) {
-    const panel = document.getElementById('zotero-cloud-sync-panel');
-
-    if (panel.state === 'open') {
-      panel.hidePopup();
-      return;
-    }
-
-    // 初始化面板内容
-    await this._initCloudSyncPanel(panel);
-
-    // 显示面板
-    panel.openPopup(button, 'after_end', 0, 0, false, false);
-
-    // 弹出后给 iframe 强制焦点，否则无法响应键盘（Zotero XUL 常见的坑）
-    setTimeout(() => {
-      if (panel._iframe && panel._iframe.contentWindow) {
-        panel._iframe.contentWindow.focus();
-        const doc = panel._iframe.contentWindow.document;
-        const firstInput = doc.querySelector('input');
-        if (firstInput) {
-          firstInput.focus();
-        }
-        // 刷新同步时间显示
-        if (panel._iframe.contentWindow.updateSyncLastTime) {
-          panel._iframe.contentWindow.updateSyncLastTime();
-        }
-      }
-    }, 300);
+    // 开源版无云账号：不弹登录面板
+    Zotero.debug('[ZoteroPane] OSS build: cloud account panel disabled');
   };
 
   this._ensureCloudSyncButtonSyncStyle = function () {
@@ -3086,36 +3061,10 @@ var ZoteroPane = new function () {
 
   /**
    * 初始化云同步面板内容
+   * 开源版：不再加载 account-status-iframe（账号面板已随云端账号体系一并移除）
    * @param {Element} panel - 面板元素
    */
-  this._initCloudSyncPanel = async function (panel) {
-    // 检查是否已初始化
-    if (panel._initialized) {
-      // 更新登录状态
-      await this._updateCloudSyncPanelStatus(panel);
-      return;
-    }
-
-    // 创建 iframe
-    const iframe = document.createElement('iframe');
-    iframe.setAttribute('id', 'account-status-iframe');
-    iframe.setAttribute('src', 'chrome://zotero/content/account-status-iframe.html');
-    iframe.style.cssText = `
-			width: 360px;
-			height: 600px;
-			border: none;
-			background: transparent;
-		`;
-
-    // 清空面板并添加 iframe
-    while (panel.firstChild) {
-      panel.removeChild(panel.firstChild);
-    }
-    panel.appendChild(iframe);
-
-    panel._initialized = true;
-    panel._iframe = iframe;
-  };
+  this._initCloudSyncPanel = async function (panel) {};
 
   /**
    * 更新云同步面板状态

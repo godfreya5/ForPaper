@@ -4,7 +4,6 @@ import { createRoot } from 'react-dom/client';
 import { Bubble, Prompts } from '@ant-design/x';
 import { Button, Flex, Input, message as antMessage, Space, Spin, Modal } from 'antd';
 import { BulbOutlined, BookOutlined, DeleteOutlined, EditOutlined, LoadingOutlined, FontSizeOutlined } from '@ant-design/icons';
-import contextTagPng from '../icons/@content.png';
 import loveMessageSvg from '../icons/love_message.svg';
 import atIconSvg from '../icons/at.svg';
 import viberoIconPng from '../icons/vibero.png';
@@ -278,7 +277,7 @@ function AIChatApp() {
     // 默认使用 Gemini
     const [selectedModel, setSelectedModel] = useState(defaultGeminiModel);
     /** 高级预设模型需 PRO / ULTIMATE 活跃订阅 */
-    const [canUseAdvancedModels, setCanUseAdvancedModels] = useState(false);
+    const [canUseAdvancedModels, setCanUseAdvancedModels] = useState(true); // 开源版：无订阅门槛
     /** 避免余额接口返回前误判无权限、把 PRO 用户从 Gemini 误切走 */
     const [subscriptionAccessResolved, setSubscriptionAccessResolved] = useState(false);
     /** 当前文献 PDF 总页数（未知则为 null，计价按首档基准） */
@@ -525,7 +524,7 @@ function AIChatApp() {
         try {
             const Zotero = window.Zotero || window.parent?.Zotero || window.top?.Zotero;
             const balance = await Zotero?.VibeDBSync?.getUserBalance?.();
-            setCanUseAdvancedModels(subscriptionAllowsAdvancedFromBalance(balance));
+            setCanUseAdvancedModels(true); // 开源版：无订阅门槛，恒可用
         } catch (e) {
             console.warn('[AIChat] Failed to refresh subscription tier:', e);
             setCanUseAdvancedModels(false);
@@ -543,16 +542,7 @@ function AIChatApp() {
         return () => window.removeEventListener('focus', onFocus);
     }, [refreshSubscriptionAccess]);
 
-    // 无 PRO/Ultimate 时禁止使用高级预设：自动切到标准模型（避免默认 Gemini 卡在不可用态）
-    useEffect(() => {
-        if (!historyLoaded || !subscriptionAccessResolved) return;
-        if (canUseAdvancedModels) return;
-        if (!ADVANCED_PRESET_MODEL_KEYS.has(selectedModel.key)) return;
-        setSelectedModel({
-            key: 'deepseek',
-            label: zoteroL10n('vibe-ai-chat-model-deepseek'),
-        });
-    }, [historyLoaded, subscriptionAccessResolved, canUseAdvancedModels, selectedModel.key]);
+    // 开源版：无订阅门槛，无需自动切换高级预设
 
     // 已移除 Claude 预设：旧会话若仍存 claude，迁到 ChatGPT
     useEffect(() => {
@@ -732,32 +722,7 @@ function AIChatApp() {
             }
         }
 
-        // 高级预设：仅 PRO / Ultimate 活跃订阅可用（发送前再拉一次余额，避免档位刚变更）
-        if (ADVANCED_PRESET_MODEL_KEYS.has(selectedModel.key)) {
-            try {
-                const Zotero = window.Zotero || window.parent?.Zotero || window.top?.Zotero;
-                const balance = await Zotero?.VibeDBSync?.getUserBalance?.();
-                const allowed = subscriptionAllowsAdvancedFromBalance(balance);
-                setCanUseAdvancedModels(allowed);
-                if (!allowed) {
-                    antMessage.error(zoteroL10n('vibe-ai-chat-advanced-models-require-pro'));
-                    setLoading(false);
-                    return false;
-                }
-            } catch (e) {
-                console.error('[AIChat] Advanced-model permission check failed:', e);
-                antMessage.error(zoteroL10n('vibe-ai-chat-advanced-models-require-pro'));
-                setLoading(false);
-                return false;
-            }
-        }
-
-        const itemID = getItemID();
-        const resolvedPages = await resolvePdfPageCountForChat(itemID);
-        const pagesForBilling = resolvedPages ?? pdfPageCount ?? null;
-        if (typeof resolvedPages === 'number' && resolvedPages > 0) {
-            setPdfPageCount(resolvedPages);
-        }
+        // 开源版：无订阅门槛，高级预设直接可用（需自建网关，见 chatModelAccess.js）
 
         const normalizedExtraPapers = (Array.isArray(selectedExtraPapers) ? selectedExtraPapers : [])
             .filter((p) => p && Number.isFinite(parseInt(p.itemID, 10)))

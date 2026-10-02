@@ -4,14 +4,14 @@
  */
 
 const getBailianProxyUrl = () => {
-    if (typeof window !== 'undefined' && window.ZoteroHelper && window.ZoteroHelper.getSupabaseConfig) {
-        const config = window.ZoteroHelper.getSupabaseConfig();
-        if (config && config.url) {
-            const baseUrl = config.url.replace(/\/$/, '');
-            return `${baseUrl}/functions/v1/ai-summary-proxy-bailian`;
-        }
+    // 开源版：网关地址从 prefs（vibeProxy.baseUrl）读取；未配置返回 null，调用方应提示改用自定义模型
+    const Zotero = (typeof window !== 'undefined' && (window.Zotero || window.parent?.Zotero || window.top?.Zotero)) || null;
+    const config = Zotero?.VibeDBSync?.getSupabaseConfig?.() || null;
+    if (config && config.url) {
+        const baseUrl = config.url.replace(/\/$/, '');
+        return `${baseUrl}/functions/v1/ai-summary-proxy-bailian`;
     }
-    return 'https://spb-wz98bgf6x7f3zs9b.supabase.opentrust.net/functions/v1/ai-summary-proxy-bailian';
+    return null;
 };
 
 const DEFAULT_MODEL = 'qwen-plus-latest';

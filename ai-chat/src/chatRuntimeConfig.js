@@ -12,8 +12,20 @@ export function getVibeRegion() {
     }
 }
 
+/**
+ * 开源版：网关地址从 Zotero prefs（vibeProxy.baseUrl）读取，默认为空。
+ * 预设模型（OpenRouter / 百炼 / 豆包 / 全文总结）需要自建网关，未配置时返回 null，
+ * 调用方应提示用户改用「自定义模型」直连自己的 API。
+ */
 export function getCurrentSupabaseConfig() {
     try {
+        const Zotero = getRuntimeZotero();
+        if (Zotero?.VibeDBSync?.getSupabaseConfig) {
+            const config = Zotero.VibeDBSync.getSupabaseConfig();
+            if (config && config.url) {
+                return config;
+            }
+        }
         if (typeof window !== 'undefined' && window.ZoteroHelper?.getSupabaseConfig) {
             const config = window.ZoteroHelper.getSupabaseConfig();
             if (config && config.url) {
@@ -21,22 +33,15 @@ export function getCurrentSupabaseConfig() {
             }
         }
     } catch (e) {
-        console.error('[AIChatRuntime] Failed to read Supabase config:', e);
+        console.error('[AIChatRuntime] Failed to read proxy config:', e);
     }
     return null;
 }
 
 export function getOpenRouterProxyUrl() {
-    const region = getVibeRegion();
     const config = getCurrentSupabaseConfig();
-
-    if (region === 'global' && config?.url) {
-        return `${config.url.replace(/\/$/, '')}/functions/v1/ai-chat-proxy-openrouter`;
+    if (!config?.url) {
+        return null;
     }
-
-    if (region === 'cn') {
-        return 'https://spb-t4nj7wrm82msmqf9.supabase.opentrust.net/functions/v1/ai-chat-proxy-openrouter-cn';
-    }
-
-    return 'https://spb-t4nj7wrm82msmqf9.supabase.opentrust.net/functions/v1/ai-chat-proxy-openrouter';
+    return `${config.url.replace(/\/$/, '')}/functions/v1/ai-chat-proxy-openrouter`;
 }

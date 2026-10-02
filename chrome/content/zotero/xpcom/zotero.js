@@ -774,28 +774,14 @@ const { CommandLineOptions } = ChromeUtils.importESModule("chrome://zotero/conte
         console.log('[Zotero] ✅ VibeDB initialized successfully');
         Zotero.debug('[Zotero] VibeDB initialized successfully');
 
-        // 初始化 VibeDB 同步管理器
+        // 初始化 VibeDB 同步管理器（开源版：无云端账号的本地外观层）
         console.log('[Zotero] Initializing VibeDB Sync');
         Zotero.debug('[Zotero] Initializing VibeDB Sync');
         await Zotero.VibeDBSync.init();
         console.log('[Zotero] ✅ VibeDB Sync initialized successfully');
         Zotero.debug('[Zotero] VibeDB Sync initialized successfully');
 
-        // 初始化 VibeDB 云同步模块
-        console.log('[Zotero] Initializing VibeDB Cloud Sync');
-        Zotero.debug('[Zotero] Initializing VibeDB Cloud Sync');
-        await Zotero.VibeDBCloudSync.init();
-        console.log('[Zotero] ✅ VibeDB Cloud Sync initialized successfully');
-        Zotero.debug('[Zotero] VibeDB Cloud Sync initialized successfully');
-
-        // 若存在已恢复的登录态，启动每小时后台同步
-        try {
-          if (Zotero.VibeDBSync?.isLoggedIn?.()) {
-            Zotero.VibeDBCloudSync?.startAutoSync?.();
-          }
-        } catch (e) {
-          console.warn('[Zotero] 启动云同步后台任务失败:', e);
-        }
+        // VibeDBCloudSync 已移除（开源版不含云端数据同步，不再启动 hourly auto-sync）
 
         // 添加 shutdown listener
         Zotero.addShutdownListener(() => {

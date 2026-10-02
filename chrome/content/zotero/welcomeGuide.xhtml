@@ -52,59 +52,6 @@
 			}, 0);
 		}
 
-		function openAccountLogin() {
-			let mainWindow = getMainWindow();
-			if (!mainWindow || !mainWindow.ZoteroPane) return;
-
-			let syncButton = mainWindow.document.getElementById('zotero-tb-cloud-sync');
-			let panel = mainWindow.document.getElementById('zotero-cloud-sync-panel');
-			if (!syncButton) return;
-
-			mainWindow.focus();
-
-			setTimeout(async () => {
-				try {
-					if (!panel) {
-						return;
-					}
-					await mainWindow.ZoteroPane._initCloudSyncPanel(panel);
-					if (panel.state !== 'open') {
-						panel.openPopup(syncButton, 'after_end', 0, 0, false, false);
-					}
-
-					let attempts = 0;
-					let maxAttempts = 12;
-					let showLogin = () => {
-						let accountIframe = mainWindow.document.getElementById('account-status-iframe');
-						if (!accountIframe || !accountIframe.contentWindow) {
-							return false;
-						}
-						if (typeof accountIframe.contentWindow.showLoginView !== 'function') {
-							return false;
-						}
-						accountIframe.contentWindow.showLoginView();
-						let firstInput = accountIframe.contentWindow.document?.querySelector('input');
-						firstInput?.focus();
-						return true;
-					};
-
-					if (showLogin()) {
-						return;
-					}
-
-					let retryTimer = window.setInterval(() => {
-						attempts++;
-						if (showLogin() || attempts >= maxAttempts) {
-							window.clearInterval(retryTimer);
-						}
-					}, 250);
-				}
-				catch (e) {
-					Zotero.logError(e);
-				}
-			}, 0);
-		}
-
 		function openUserGuide() {
 			let mainWindow = getMainWindow();
 			mainWindow?.Zotero.launchURL('https://vibero.dev/guide');
@@ -744,12 +691,12 @@
 				<html:article class="step-card step-card--action">
 					<html:div class="step-index">4</html:div>
 					<html:div>
-						<html:div class="step-title">登录 Vibero 账户</html:div>
+						<html:div class="step-title">配置 AI 模型（可选）</html:div>
 						<html:div class="step-copy">
-							登录后Vibero账号。
+							开源版无需账号：在 AI Chat 中添加你自己的模型 API 即可开始使用。
 						</html:div>
-						<html:button class="step-button step-action" onclick="openAccountLogin()">打开登录面板</html:button>
-						<html:div class="step-note step-action-note">点击按钮登录</html:div>
+						
+						<html:div class="step-note step-action-note">详见 README「自定义模型」章节</html:div>
 					</html:div>
 				</html:article>
 				</html:div>

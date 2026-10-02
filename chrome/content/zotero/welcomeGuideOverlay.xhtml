@@ -55,56 +55,6 @@
 			}, 0);
 		}
 
-		function openAccountLogin() {
-			let mainWindow = getMainWindow();
-			if (!mainWindow || !mainWindow.ZoteroPane) return;
-
-			let syncButton = mainWindow.document.getElementById('zotero-tb-cloud-sync');
-			let panel = mainWindow.document.getElementById('zotero-cloud-sync-panel');
-			if (!syncButton || !panel) return;
-
-			mainWindow.focus();
-
-			setTimeout(async () => {
-				try {
-					await mainWindow.ZoteroPane._initCloudSyncPanel(panel);
-					if (panel.state !== 'open') {
-						panel.openPopup(syncButton, 'after_end', 0, 0, false, false);
-					}
-
-					let attempts = 0;
-					let maxAttempts = 12;
-					let showLogin = () => {
-						let accountIframe = mainWindow.document.getElementById('account-status-iframe');
-						if (!accountIframe || !accountIframe.contentWindow) {
-							return false;
-						}
-						if (typeof accountIframe.contentWindow.showLoginView !== 'function') {
-							return false;
-						}
-						accountIframe.contentWindow.showLoginView();
-						let firstInput = accountIframe.contentWindow.document?.querySelector('input');
-						firstInput?.focus();
-						return true;
-					};
-
-					if (showLogin()) {
-						return;
-					}
-
-					let retryTimer = window.setInterval(() => {
-						attempts++;
-						if (showLogin() || attempts >= maxAttempts) {
-							window.clearInterval(retryTimer);
-						}
-					}, 250);
-				}
-				catch (e) {
-					Zotero.logError(e);
-				}
-			}, 0);
-		}
-
 		function openUserGuide() {
 			let mainWindow = getMainWindow();
 			mainWindow?.Zotero.launchURL('https://vibero.dev/guide');
@@ -133,10 +83,9 @@
 				'step-plugin-copy': bilingual('迁移Zotero已有插件。', 'Migrate existing Zotero plugins.'),
 				'step-plugin-btn': bilingual('导入插件', 'Import plugins'),
 				'step-plugin-note': bilingual('点击按钮导入', 'Click the button to import'),
-				'step-login-title': bilingual('登录 Vibero 账户', 'Sign in to Vibero account'),
-				'step-login-copy': bilingual('登录后Vibero账号。', 'Sign in with your Vibero account.'),
-				'step-login-btn': bilingual('打开登录面板', 'Open login panel'),
-				'step-login-note': bilingual('点击按钮登录', 'Click the button to sign in'),
+				'step-login-title': bilingual('配置 AI 模型（可选）', 'Configure AI models (optional)'),
+				'step-login-copy': bilingual('开源版无需账号：在 AI Chat 中添加你自己的模型 API 即可开始使用。', 'No account needed in the OSS build: add your own model API in AI Chat.'),
+				'step-login-note': bilingual('详见 README「自定义模型」章节', 'See README for custom models'),
 				'finish-hint': bilingual('开始Vibero！', 'Start Vibero!'),
 				'finish-note': bilingual('（重启生效）', '(Takes effect after restart)'),
 				'welcome-guide-footer': bilingual('关闭引导后，以上入口仍可在菜单栏中随时访问。', 'After closing the guide, all entries above remain available from the menu bar.')
@@ -731,12 +680,11 @@
 						<article class="step-card step-card--action">
 							<div class="step-index">4</div>
 							<div>
-								<div id="step-login-title" class="step-title">登录 Vibero 账户</div>
+								<div id="step-login-title" class="step-title">配置 AI 模型（可选）</div>
 								<div class="step-copy">
-									<span id="step-login-copy">登录后Vibero账号。</span>
+									<span id="step-login-copy">开源版无需账号：在 AI Chat 中添加你自己的模型 API 即可开始使用。</span>
 								</div>
-								<button id="step-login-btn" class="step-button step-action" onclick="openAccountLogin()">打开登录面板</button>
-								<div id="step-login-note" class="step-note step-action-note">点击按钮登录</div>
+								<div id="step-login-note" class="step-note step-action-note">详见 README「自定义模型」章节</div>
 							</div>
 						</article>
 					</div>

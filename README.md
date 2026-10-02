@@ -87,6 +87,41 @@ For **ai-chat** and other frontends, run `npm run build` in the relevant subfold
 
 The DeepWiki shell is in place; wire up your own **DeepWiki proxy** to use it 🔗
 
+## 🧩 Open-source edition
+
+This tree is the **open-source edition** of Vibero: it contains **no account system, no subscription tiers, and no credit-based billing**. Everything runs locally — the login/subscription/balance checks in the codebase are pass-through stubs (`Zotero.VibeDBSync` in `chrome/content/zotero/xpcom/vibeDBSync.js`) that always report "logged in / unlimited balance", so all AI features work without any server.
+
+Two commercial-only pieces were removed:
+
+- **Cloud item sync** (`vibeDBCloudSync.js`, Supabase-backed) — removed along with its account panel
+- **Managed AI gateway** — the hardcoded proxy endpoints and bundled API keys are gone; preset models now expect **your own gateway** (see below), while custom models work with direct API keys out of the box
+
+### Bring-your-own AI gateway (optional)
+
+Preset chat models route through a configurable OpenAI-compatible gateway. Configure via Zotero prefs (`about:config`, or programmatically):
+
+| Pref | Purpose | Default |
+|---|---|---|
+| `extensions.zotero.vibeProxy.baseUrl` | Gateway base URL for preset models (e.g. your own `new-api` / `one-api` / Cloudflare Worker deployment) | *(empty — preset models unavailable until set)* |
+| `extensions.zotero.vibeProxy.anonKey` | Optional bearer token for the gateway | *(empty)* |
+| `extensions.zotero.vibeProxy.mineruLocalUrl` | Local MinerU FastAPI endpoint for PDF parsing | `http://127.0.0.1:8000/file_parse` |
+| `extensions.zotero.vibeProxy.deepwikiUrl` | Your DeepWiki proxy (Cloudflare Worker or compatible) | *(empty)* |
+
+Without a gateway, use **custom models** (chat panel → model menu → add custom OpenAI/Anthropic-compatible model with its own key) — they call provider APIs directly and need no gateway at all.
+
+### Local PDF parsing (MinerU)
+
+PDF parsing defaults to **local mode**: it expects a self-hosted [MinerU](https://github.com/opendatalab/MinerU) FastAPI server at `vibeProxy.mineruLocalUrl` (default `http://127.0.0.1:8000/file_parse`). Cloud parsing code is retained for self-hosters who wire their own endpoint; it is simply no longer used by default.
+
+### Frontend bundles
+
+`ai-chat/` and `code-pane/` are self-contained React apps. After editing their sources, rebuild with:
+
+```bash
+cd ai-chat && npm install && npm run build   # → chrome/content/zotero/ai-chat/ai-chat-bundle.js
+cd code-pane && npm install && npm run build # → chrome/content/zotero/code-pane/code-pane-bundle.js
+```
+
 ## 🥰 Acknowledgements
 **Built With**
 **[Zotero](https://github.com/zotero/zotero)**
