@@ -68,55 +68,57 @@ async function testModelConnectionRequest({ baseUrl, apiKey, modelName, apiForma
  * 供应商快捷预设（参考 epsilon/Mrite 的设置面板）：
  * 点一下自动填入 Base URL + 接口格式 + 常用模型下拉，用户只需再粘贴 API Key。
  * baseUrl 命中前缀时用于反向识别已保存配置属于哪个供应商。
+ * 模型列表按 2026-10 各平台现役型号整理（deepseek-chat/reasoner、kimi-k2、moonshot-v1、
+ * glm-4-plus、o4-mini、grok-3 等均已下线或弃用，勿再加回）。
  */
 const MODEL_PROVIDERS = [
     {
         key: 'deepseek', name: 'DeepSeek',
         baseUrl: 'https://api.deepseek.com', apiFormat: 'openai',
-        defaultModel: 'deepseek-chat',
-        models: ['deepseek-chat', 'deepseek-reasoner'],
+        defaultModel: 'deepseek-v4-flash',
+        models: ['deepseek-v4-flash', 'deepseek-v4-pro'],
         docsUrl: 'https://platform.deepseek.com/api_keys',
     },
     {
         key: 'kimi', name: 'Kimi',
         baseUrl: 'https://api.moonshot.cn/v1', apiFormat: 'openai',
-        defaultModel: 'kimi-k2',
-        models: ['kimi-k2', 'kimi-latest', 'moonshot-v1-128k', 'moonshot-v1-32k'],
+        defaultModel: 'kimi-k3',
+        models: ['kimi-k3', 'kimi-k2.6', 'kimi-k2.7-code', 'kimi-k2.7-code-highspeed'],
         docsUrl: 'https://platform.moonshot.cn/console/api-keys',
     },
     {
         key: 'glm', name: '智谱 GLM',
         baseUrl: 'https://open.bigmodel.cn/api/paas/v4', apiFormat: 'openai',
-        defaultModel: 'glm-4-plus',
-        models: ['glm-4-plus', 'glm-4-flash', 'glm-4-long'],
+        defaultModel: 'glm-4.7-flash',
+        models: ['glm-5.2', 'glm-5.1', 'glm-5-turbo', 'glm-4.7', 'glm-4.6', 'glm-4.5-air', 'glm-4.7-flash'],
         docsUrl: 'https://www.bigmodel.cn/usercenter/proj-mgmt/apikeys',
     },
     {
         key: 'qwen', name: '阿里千问',
         baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', apiFormat: 'openai',
-        defaultModel: 'qwen-plus',
-        models: ['qwen-max', 'qwen-plus', 'qwen-turbo'],
+        defaultModel: 'qwen3.6-plus',
+        models: ['qwen3.7-max', 'qwen3.6-plus', 'qwen3.6-flash', 'qwen-plus', 'qwen-turbo', 'qwen3-coder-plus', 'qwen-long'],
         docsUrl: 'https://bailian.console.aliyun.com/',
     },
     {
         key: 'openai', name: 'OpenAI',
         baseUrl: 'https://api.openai.com/v1', apiFormat: 'openai',
-        defaultModel: 'gpt-4.1-mini',
-        models: ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4o', 'o4-mini'],
+        defaultModel: 'gpt-5.2',
+        models: ['gpt-5.5', 'gpt-5.2', 'gpt-5.1', 'gpt-5', 'gpt-5-mini', 'gpt-5-nano', 'gpt-4.1', 'gpt-4.1-mini'],
         docsUrl: 'https://platform.openai.com/api-keys',
     },
     {
         key: 'gemini', name: 'Gemini',
         baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', apiFormat: 'openai',
-        defaultModel: 'gemini-2.5-flash',
-        models: ['gemini-2.5-flash', 'gemini-2.5-pro'],
+        defaultModel: 'gemini-3.8-flash',
+        models: ['gemini-3.1-pro-preview', 'gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'],
         docsUrl: 'https://aistudio.google.com/apikey',
     },
     {
         key: 'grok', name: 'Grok',
         baseUrl: 'https://api.x.ai/v1', apiFormat: 'openai',
-        defaultModel: 'grok-3-mini',
-        models: ['grok-3', 'grok-3-mini'],
+        defaultModel: 'grok-4.6',
+        models: ['grok-4.7', 'grok-4.6', 'grok-4.1-fast', 'grok-code-fast-1'],
         docsUrl: 'https://console.x.ai/',
     },
     {
