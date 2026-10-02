@@ -3196,12 +3196,12 @@ ${contentText}
     readerOptions.openLoginPanel = Components.utils.exportFunction(function () {
       try {
         if (Zotero.VibeDBSync?.handleAuthInvalid) {
-          Zotero.VibeDBSync.handleAuthInvalid('请先登录 Vibero 账号');
+          Zotero.VibeDBSync.handleAuthInvalid('请先登录 ForPaper 账号');
           return true;
         }
         if (Zotero.VibeDBSync?.ensureLoggedIn) {
           Zotero.VibeDBSync.ensureLoggedIn();
-          Zotero.VibeDBSync.notifyAuthStatusChanged?.('请先登录 Vibero 账号');
+          Zotero.VibeDBSync.notifyAuthStatusChanged?.('请先登录 ForPaper 账号');
           return true;
         }
         return false;

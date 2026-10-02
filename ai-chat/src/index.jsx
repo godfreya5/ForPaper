@@ -70,7 +70,7 @@ const OPENROUTER_MODEL_NAME_MAP = {
     'GLM-4.7': 'z-ai/glm-4.7'
 };
 
-const VIBERO_AI_SYSTEM_PROMPT_CN = `你是 Vibero 的 AI 助手，擅长帮助用户阅读和理解学术论文。请以简洁、专业的风格回答。
+const VIBERO_AI_SYSTEM_PROMPT_CN = `你是 ForPaper 的 AI 助手，擅长帮助用户阅读和理解学术论文。请以简洁、专业的风格回答。
 
 请使用与用户 user_prompt 相同的语言回答。
 
@@ -81,7 +81,7 @@ const VIBERO_AI_SYSTEM_PROMPT_CN = `你是 Vibero 的 AI 助手，擅长帮助�
 4. Markdown 标记必须是合法 CommonMark：例如使用 **加粗文本**，不要写成 **加粗文本 **。
 5. 代码请使用带语言标记的 fenced code block，例如 \`\`\`python。`;
 
-const VIBERO_AI_SYSTEM_PROMPT_GLOBAL = `You are Vibero's AI assistant, specialized in helping users read and understand academic papers. Please answer in a concise and professional style.
+const VIBERO_AI_SYSTEM_PROMPT_GLOBAL = `You are ForPaper's AI assistant, specialized in helping users read and understand academic papers. Please answer in a concise and professional style.
 
 Reply in the same language as the user's user_prompt.
 
@@ -184,7 +184,7 @@ function buildMultiPaperContext(mainPaperContext, extraPaperContexts = []) {
 
 // Vibero Logo
 const viberoLogo = (
-    <img src={viberoIconPng} width="40" height="40" alt="Vibero Logo" />
+    <img src={viberoIconPng} width="40" height="40" alt="ForPaper Logo" />
 );
 
 // 定义 roles 配置
@@ -1372,7 +1372,18 @@ function AIChatApp() {
 
     // 欢迎消息拖拽处理
     const handleWelcomeDragStart = (event) => {
-        const welcomeContent = `Welcome to Vibero! 🚀 Enjoy your vibe reading trip!
+        const welcomeContent = isZhLocale()
+            ? `欢迎使用 ForPaper！🚀 开启你的畅读之旅！
+
+**Canvas ⬅️ 对话**
+将 AI 对话拖到画布，生成问答闪卡。
+
+**Canvas ➡️ 对话**
+三种带上下文提问的方式：
+1️⃣ **Cmd/Ctrl + 点击**任意段落
+2️⃣ **拖动**总结卡片到这里
+3️⃣ **粘贴**截图`
+            : `Welcome to ForPaper! 🚀 Enjoy your vibe reading trip!
 
 **Canvas ⬅️ Chat**
 Drag AI chats to the canvas to generate Q&A flashcards.
@@ -1386,7 +1397,7 @@ Drag AI chats to the canvas to generate Q&A flashcards.
         const conversationData = {
             type: 'ai-chat-conversation',
             conversations: [{
-                userText: 'How can I use Vibero AI Chat?',
+                userText: isZhLocale() ? '如何使用 ForPaper AI 聊天？' : 'How can I use ForPaper AI Chat?',
                 aiText: welcomeContent,
                 userVibeCardRefs: []
             }],
@@ -1577,10 +1588,10 @@ Drag AI chats to the canvas to generate Q&A flashcards.
                                         {viberoLogo}
                                         <div>
                                             <div className="welcome-title">
-                                                Welcome to Vibero!
+                                                {isZhLocale() ? '欢迎使用 ForPaper！' : 'Welcome to ForPaper!'}
                                             </div>
                                             <div className="welcome-subtitle">
-                                                🚀 Enjoy your vibe reading trip!
+                                                {isZhLocale() ? '🚀 开启你的畅读之旅！' : '🚀 Enjoy your vibe reading trip!'}
                                             </div>
                                         </div>
                                     </Flex>

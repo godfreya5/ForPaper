@@ -1,7 +1,7 @@
--brand-shorter-name = Vibero
--brand-short-name = Vibero
--brand-full-name = Vibero
--brand-product-name = Vibero
--vendor-short-name = Vibero
--app-name = Vibero
-trademarkInfo = Vibero is a trademark of the Corporation for Digital Scholarship.
+-brand-shorter-name = ForPaper
+-brand-short-name = ForPaper
+-brand-full-name = ForPaper
+-brand-product-name = ForPaper
+-vendor-short-name = ForPaper
+-app-name = ForPaper
+trademarkInfo = ForPaper is an open-source project based on Zotero.

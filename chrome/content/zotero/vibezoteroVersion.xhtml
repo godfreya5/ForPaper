@@ -22,7 +22,7 @@
 						style="width: 48px; height: 48px;" />
 				</div>
 				<vbox>
-					<label style="font-size: 18px; font-weight: bold;">Vibero</label>
+					<label style="font-size: 18px; font-weight: bold;">ForPaper</label>
 					<label id="version-label" style="font-size: 14px; color: #666;"></label>
 				</vbox>
 			</hbox>
@@ -57,14 +57,14 @@
 
 			// 初始化窗口
 			async function initWindow() {
-				console.log('[Vibero版本窗口] 初始化窗口');
+				console.log('[ForPaper版本窗口] 初始化窗口');
 				try {
 					// 直接从 Prefs 读取版本号
 					// 注意：更新脚本会在替换应用后更新这个值
 					let currentVersion = Services.prefs.getCharPref('extensions.zotero.vibeZotero.version', '1.0.0');
-					console.log('[Vibero版本窗口] 当前版本:', currentVersion);
+					console.log('[ForPaper版本窗口] 当前版本:', currentVersion);
 
-					document.title = bilingual('Vibero 版本', 'Vibero Version');
+					document.title = bilingual('ForPaper 版本', 'ForPaper Version');
 					// 设置版本号
 					document.getElementById('version-label').textContent = `v${currentVersion}`;
 					document.getElementById('current-version').textContent = currentVersion;
@@ -84,7 +84,7 @@
 					} else if (Zotero.isLinux) {
 						platform = 'Linux';
 					}
-					console.log('[Vibero版本窗口] 平台:', platform);
+					console.log('[ForPaper版本窗口] 平台:', platform);
 					document.getElementById('platform-label').textContent = platform;
 
 					// 初始化更新日志
@@ -98,35 +98,35 @@
 						`点击"检查更新"按钮查看是否有新版本可用。`;
 
 					// 绑定按钮事件
-					console.log('[Vibero版本窗口] 绑定按钮事件');
+					console.log('[ForPaper版本窗口] 绑定按钮事件');
 					document.getElementById('check-update-btn').addEventListener('click', checkForUpdates);
 
-					console.log('[Vibero版本窗口] 初始化完成');
+					console.log('[ForPaper版本窗口] 初始化完成');
 				} catch (e) {
-					console.error('[Vibero版本窗口] 初始化出错:', e);
+					console.error('[ForPaper版本窗口] 初始化出错:', e);
 					Zotero.logError(e);
 				}
 			}
 
 			// 检查更新
 			async function checkForUpdates() {
-				console.log('[Vibero版本窗口] 点击检查更新按钮');
+				console.log('[ForPaper版本窗口] 点击检查更新按钮');
 				let statusLabel = document.getElementById('update-status');
 				statusLabel.textContent = bilingual('正在检查更新...', 'Checking for updates...');
 				statusLabel.style.color = '#666';
 
 				try {
-					console.log('[Vibero版本窗口] 调用 Zotero.checkVibeZoteroUpdates()');
+					console.log('[ForPaper版本窗口] 调用 Zotero.checkVibeZoteroUpdates()');
 					await Zotero.checkVibeZoteroUpdates();
 					// 更新完成后刷新状态
 					let currentVersion = Services.prefs.getCharPref('extensions.zotero.vibeZotero.version', '1.0.0');
 					document.getElementById('current-version').textContent = currentVersion;
 					document.getElementById('version-label').textContent = `v${currentVersion}`;
-					statusLabel.textContent = bilingual('已检查，Vibero 已是最新版本', 'Checked. Vibero is up to date.');
+					statusLabel.textContent = bilingual('已检查，ForPaper 已是最新版本', 'Checked. ForPaper is up to date.');
 					statusLabel.style.color = '#28a745';
-					console.log('[Vibero版本窗口] 检查更新完成');
+					console.log('[ForPaper版本窗口] 检查更新完成');
 				} catch (e) {
-					console.error('[Vibero版本窗口] 检查更新出错:', e);
+					console.error('[ForPaper版本窗口] 检查更新出错:', e);
 					statusLabel.textContent = bilingual('检查更新失败，请稍后重试', 'Update check failed. Please try again later.');
 					statusLabel.style.color = '#dc3545';
 					Zotero.logError(e);

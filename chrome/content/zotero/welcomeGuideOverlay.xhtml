@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta charset="utf-8" />
-	<title>欢迎使用 Vibero</title>
+	<title>欢迎使用 ForPaper</title>
 	<script><![CDATA[
 		Services.scriptloader.loadSubScript("chrome://zotero/content/include.js", this);
 		Services.scriptloader.loadSubScript("chrome://zotero/content/customElements.js", this);
@@ -66,10 +66,10 @@
 		}
 
 		function applyGuideLocaleTexts() {
-			document.title = bilingual('欢迎使用 Vibero', 'Welcome to Vibero');
+			document.title = bilingual('欢迎使用 ForPaper', 'Welcome to ForPaper');
 
 			const textMap = {
-				'welcome-guide-title': bilingual('欢迎来到 Vibero', 'Welcome to Vibero'),
+				'welcome-guide-title': bilingual('欢迎来到 ForPaper', 'Welcome to ForPaper'),
 				'welcome-guide-subtitle': bilingual('首次配置指引', 'First-time setup guide'),
 				'step-language-title': bilingual('语言设置', 'Language settings'),
 				'step-language-copy': bilingual('系统语言用于软件界面显示，VIBE 解析语言用于 AI 总结与翻译输出。', 'System language controls the app interface. VIBE parse language controls AI summary and translation output.'),
@@ -86,7 +86,7 @@
 				'step-login-title': bilingual('配置 AI 模型（可选）', 'Configure AI models (optional)'),
 				'step-login-copy': bilingual('开源版无需账号：在 AI Chat 中添加你自己的模型 API 即可开始使用。', 'No account needed in the OSS build: add your own model API in AI Chat.'),
 				'step-login-note': bilingual('详见 README「自定义模型」章节', 'See README for custom models'),
-				'finish-hint': bilingual('开始Vibero！', 'Start Vibero!'),
+				'finish-hint': bilingual('开始ForPaper！', 'Start ForPaper!'),
 				'finish-note': bilingual('（重启生效）', '(Takes effect after restart)'),
 				'welcome-guide-footer': bilingual('关闭引导后，以上入口仍可在菜单栏中随时访问。', 'After closing the guide, all entries above remain available from the menu bar.')
 			};
@@ -170,7 +170,7 @@
 		function updateFinishActionState() {
 			let finishHint = document.getElementById('finish-hint');
 			if (!finishHint) return;
-			finishHint.textContent = bilingual('开始Vibero！', 'Start Vibero!');
+			finishHint.textContent = bilingual('开始ForPaper！', 'Start ForPaper!');
 		}
 
 		function setPendingLocaleRestart(pending) {
@@ -620,8 +620,8 @@
 	<div class="guide-shell">
 		<section class="steps-panel">
 			<div class="hero-brand">
-				<img class="hero-logo" src="chrome://zotero/skin/Vibero.png" alt="Vibero"/>
-				<h1 id="welcome-guide-title" class="title">欢迎来到 Vibero</h1>
+				<img class="hero-logo" src="chrome://zotero/skin/Vibero.png" alt="ForPaper"/>
+				<h1 id="welcome-guide-title" class="title">欢迎来到 ForPaper</h1>
 			</div>
 			<div class="steps-main">
 				<div class="steps-header">
@@ -692,7 +692,7 @@
 					<div class="finish-wrap">
 						<button class="finish-action" onclick="finishWelcomeGuide()">
 							<img class="finish-arrow" src="chrome://zotero/skin/itempane/20/right-arrow.svg" alt="→"/>
-							<span id="finish-hint" class="finish-hint">开始Vibero！</span>
+							<span id="finish-hint" class="finish-hint">开始ForPaper！</span>
 							<span id="finish-note" class="finish-note">（重启生效）</span>
 						</button>
 					</div>

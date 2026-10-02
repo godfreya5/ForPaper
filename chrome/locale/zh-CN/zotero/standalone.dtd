@@ -6,7 +6,7 @@
 <!ENTITY hideOtherAppsCmdMac.label "隐藏其他">
 <!ENTITY hideOtherAppsCmdMac.commandkey "H">
 <!ENTITY showAllAppsCmdMac.label "显示所有">
-<!ENTITY quitApplicationCmdMac.label "退出 Vibero">
+<!ENTITY quitApplicationCmdMac.label "退出 ForPaper">
 <!ENTITY quitApplicationCmdMac.key "Q">
 
 <!ENTITY fileMenu.label "文件">
@@ -73,7 +73,7 @@
 <!ENTITY helpMenuWin.label "帮助">
 <!ENTITY helpMenuWin.accesskey "H">
 <!ENTITY helpMac.commandkey "?">
-<!ENTITY aboutProduct.label "关于 Vibero">
+<!ENTITY aboutProduct.label "关于 ForPaper">
 <!ENTITY aboutProduct.accesskey "A">
 <!ENTITY productHelp.label "支持与文档">
 <!ENTITY productHelp.accesskey "D">

@@ -92,7 +92,7 @@
 <!ENTITY zotero.toolbar.rtfScan.label "RTF 扫描">
 <!ENTITY zotero.toolbar.preferences.label "首选项…">
 <!ENTITY zotero.toolbar.supportAndDocumentation "支持与文档">
-<!ENTITY zotero.toolbar.about.label "关于 Vibero">
+<!ENTITY zotero.toolbar.about.label "关于 ForPaper">
 <!ENTITY zotero.toolbar.advancedSearch "高级搜索">
 <!ENTITY zotero.toolbar.openURL.label "检索">
 <!ENTITY zotero.toolbar.openURL.tooltip "在本地文献库里查找">

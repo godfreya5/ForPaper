@@ -83,7 +83,7 @@
 <!ENTITY helpMenuWin.label        "Help"> 
 <!ENTITY helpMenuWin.accesskey    "H">
 <!ENTITY helpMac.commandkey       "?">
-<!ENTITY aboutProduct.label       "About Vibero">
+<!ENTITY aboutProduct.label       "About ForPaper">
 <!ENTITY aboutProduct.accesskey   "A">
 <!ENTITY productHelp.label        "Support and Documentation">
 <!ENTITY productHelp.accesskey    "D">

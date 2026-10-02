@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="./assets/vibero-logo.png" width="132" alt="Vibero logo"/>
+<img src="./assets/vibero-logo.png" width="132" alt="ForPaper logo"/>
 
-# Vibero
+# ForPaper
 
 <p>
   <a href="https://github.com/chenyu-xjtu/Vibero/stargazers"><img src="https://img.shields.io/github/stars/chenyu-xjtu/Vibero?style=for-the-badge&logo=github&color=ffc107&label=Stars" alt="GitHub Stars"/></a>
@@ -89,7 +89,7 @@ The DeepWiki shell is in place; wire up your own **DeepWiki proxy** to use it �
 
 ## 🧩 Open-source edition
 
-This tree is the **open-source edition** of Vibero: it contains **no account system, no subscription tiers, and no credit-based billing**. Everything runs locally — the login/subscription/balance checks in the codebase are pass-through stubs (`Zotero.VibeDBSync` in `chrome/content/zotero/xpcom/vibeDBSync.js`) that always report "logged in / unlimited balance", so all AI features work without any server.
+This tree is the **open-source edition** of ForPaper: it contains **no account system, no subscription tiers, and no credit-based billing**. Everything runs locally — the login/subscription/balance checks in the codebase are pass-through stubs (`Zotero.VibeDBSync` in `chrome/content/zotero/xpcom/vibeDBSync.js`) that always report "logged in / unlimited balance", so all AI features work without any server.
 
 Two commercial-only pieces were removed:
 

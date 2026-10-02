@@ -22,16 +22,16 @@
 	
 	<vbox id="aboutcontent" class="zotero-dialog">
 		<div xmlns="http://www.w3.org/1999/xhtml">
-			<img id="logo" src="chrome://zotero/skin/icons/Vibero.png" alt="Vibero" style="width: 64px; height: 64px;" />
+			<img id="logo" src="chrome://zotero/skin/icons/Vibero.png" alt="ForPaper" style="width: 64px; height: 64px;" />
 		</div>
 		<hbox>
 			<label id="version"/>
 			<label id="changelog" is="zotero-text-link" value="&zotero.whatsNew;"/>
 		</hbox>
 		<script>
-			// 显示 Vibero 版本号
+			// 显示 ForPaper 版本号
 			var vibeZoteroVersion = Services.prefs.getCharPref('extensions.zotero.vibeZotero.version', '1.0.0');
-			document.getElementById('version').textContent = `Vibero ${vibeZoteroVersion}`;
+			document.getElementById('version').textContent = `ForPaper ${vibeZoteroVersion}`;
 		</script>
 		
 		<!-- 版本信息和检查更新 -->
@@ -50,7 +50,7 @@
 		<vbox>
 			<div id="about-text" xmlns="http://www.w3.org/1999/xhtml">
 				<p id="about-intro-1" style="margin: 8px 0; line-height: 1.6;">
-					<strong>Vibero</strong> is the world's first vibe reading AI tool.
+					<strong>ForPaper</strong> is the world's first vibe reading AI tool.
 				</p>
 				<p id="about-intro-2" style="margin: 8px 0; line-height: 1.6;">
 					Built on <span class="text-link" data-href="https://www.zotero.org">Zotero</span>, fully compatible with the Zotero ecosystem and its plugins.
@@ -67,9 +67,9 @@
 							checkUpdates: '检查更新',
 							updateIdle: '点击"检查更新"查看最新版本',
 							updateChecking: '正在检查更新...',
-							updateLatest: '已检查，Vibero 已是最新版本',
+							updateLatest: '已检查，ForPaper 已是最新版本',
 							updateFailed: '检查更新失败，请稍后重试',
-							about1: '<strong>Vibero</strong> 是全球首款氛围阅读 AI 工具。',
+							about1: '<strong>ForPaper</strong> 是全球首款氛围阅读 AI 工具。',
 							about2: '基于 <span class="text-link" data-href="https://www.zotero.org">Zotero</span> 构建，完全兼容 Zotero 生态系统，支持所有 Zotero 插件和功能。',
 							logPrefix: '[About Dialog]'
 						},
@@ -79,9 +79,9 @@
 							checkUpdates: 'Check Updates',
 							updateIdle: 'Click "Check Updates" to check the latest version',
 							updateChecking: 'Checking for updates...',
-							updateLatest: 'Checked. Vibero is up to date.',
+							updateLatest: 'Checked. ForPaper is up to date.',
 							updateFailed: 'Update check failed. Please try again later.',
-							about1: "<strong>Vibero</strong> is the world's first vibe reading AI tool.",
+							about1: "<strong>ForPaper</strong> is the world's first vibe reading AI tool.",
 							about2: 'Built on <span class="text-link" data-href="https://www.zotero.org">Zotero</span>, fully compatible with the Zotero ecosystem and its plugins.',
 							logPrefix: '[About Dialog]'
 						}
@@ -110,7 +110,7 @@
 							// 更新完成后刷新状态
 							let currentVersion = Services.prefs.getCharPref('extensions.zotero.vibeZotero.version', '1.0.0');
 							document.getElementById('current-version').textContent = currentVersion;
-							document.getElementById('version').textContent = `Vibero ${currentVersion}`;
+							document.getElementById('version').textContent = `ForPaper ${currentVersion}`;
 							statusLabel.textContent = L.updateLatest;
 							statusLabel.style.color = '#28a745';
 						} catch (e) {

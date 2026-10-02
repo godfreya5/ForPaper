@@ -47,7 +47,7 @@ async function callHuoshanAI(message = "你好，请介绍一下你自己", opti
     // 如果获取不到 token，且 ensureLoggedIn 可用，强制检查登录
     if (!token && Zotero.VibeDBSync.ensureLoggedIn) {
       if (Zotero.VibeDBSync.handleAuthInvalid) {
-        Zotero.VibeDBSync.handleAuthInvalid('请先登录 Vibero 账号');
+        Zotero.VibeDBSync.handleAuthInvalid('请先登录 ForPaper 账号');
       } else if (!Zotero.VibeDBSync.ensureLoggedIn()) {
         throw new Error("用户未登录，请登录后重试");
       }
@@ -181,7 +181,7 @@ async function callBailianAI(message = "你好，请介绍一下你自己", opti
     token = await Zotero.VibeDBSync.getAccessToken();
     if (!token && Zotero.VibeDBSync.ensureLoggedIn) {
       if (Zotero.VibeDBSync.handleAuthInvalid) {
-        Zotero.VibeDBSync.handleAuthInvalid('请先登录 Vibero 账号');
+        Zotero.VibeDBSync.handleAuthInvalid('请先登录 ForPaper 账号');
       } else if (!Zotero.VibeDBSync.ensureLoggedIn()) {
         throw new Error("用户未登录，请登录后重试");
       }

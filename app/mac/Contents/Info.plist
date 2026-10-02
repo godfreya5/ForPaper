@@ -135,17 +135,17 @@
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
-	<string>vibero</string>
+	<string>forpaper</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Vibero, larryychen and Zotero Contributors</string>
+	<string>ForPaper (Open-source edition), based on Zotero</string>
 	<key>CFBundleIconFile</key>
-	<string>Vibero</string>
+	<string>ForPaper</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.zotero.zotero</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Vibero</string>
+	<string>ForPaper</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

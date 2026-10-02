@@ -5,7 +5,7 @@
 <window
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 	xmlns:html="http://www.w3.org/1999/xhtml"
-	title="欢迎使用 Vibero"
+	title="欢迎使用 ForPaper"
 	width="980"
 	height="720"
 	onload="initWelcomeGuide();">
@@ -134,7 +134,7 @@
 		function updateFinishActionState() {
 			let finishHint = document.getElementById('finish-hint');
 			if (!finishHint) return;
-			finishHint.textContent = '开始Vibero！';
+			finishHint.textContent = '开始ForPaper！';
 		}
 
 		function setPendingLocaleRestart(pending) {
@@ -633,8 +633,8 @@
 		<html:div class="guide-shell">
 			<html:section class="steps-panel">
 				<html:div class="hero-brand">
-					<html:img class="hero-logo" src="chrome://zotero/skin/Vibero.png" alt="Vibero"/>
-					<html:h1 class="title">欢迎来到 Vibero</html:h1>
+					<html:img class="hero-logo" src="chrome://zotero/skin/Vibero.png" alt="ForPaper"/>
+					<html:h1 class="title">欢迎来到 ForPaper</html:h1>
 				</html:div>
 				<html:div class="steps-header">
 					<html:div class="steps-title">首次配置指引</html:div>
@@ -704,7 +704,7 @@
 				<html:div class="finish-wrap">
 					<html:button class="finish-action" onclick="finishWelcomeGuide()">
 						<html:img class="finish-arrow" src="chrome://zotero/skin/itempane/20/right-arrow.svg" alt="→"/>
-						<html:span id="finish-hint" class="finish-hint">开始Vibero！</html:span>
+						<html:span id="finish-hint" class="finish-hint">开始ForPaper！</html:span>
 						<html:span class="finish-note">（重启生效）</html:span>
 						<html:a class="finish-guide-link" onclick="event.stopPropagation(); openUserGuide()">用前必读指南</html:a>
 					</html:button>

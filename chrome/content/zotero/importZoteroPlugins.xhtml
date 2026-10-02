@@ -30,15 +30,15 @@
 			const textMap = {
 				"header-title-text": bilingual("插件迁移", "Plugin Migration"),
 				"header-subtitle": bilingual(
-					"从 Zotero 导入插件到 Vibero，并自动尽量迁移配置",
-					"Import plugins from Zotero into Vibero and migrate settings when possible"
+					"从 Zotero 导入插件到 ForPaper，并自动尽量迁移配置",
+					"Import plugins from Zotero into ForPaper and migrate settings when possible"
 				),
 				"zotero-panel-title-text": bilingual("Zotero 插件", "Zotero Plugins"),
 				"select-all-btn": bilingual("全选 / 反选", "Select All / Invert"),
-				"vibero-panel-title-text": bilingual("Vibero 已安装", "Installed in Vibero"),
+				"vibero-panel-title-text": bilingual("ForPaper 已安装", "Installed in ForPaper"),
 				"footer-hint": bilingual(
-					"默认会尽量迁移所选插件配置；已同步插件和 Vibero 已有配置会自动跳过。",
-					"Selected plugin settings will be migrated when possible. Already synced plugins and existing Vibero settings will be skipped automatically."
+					"默认会尽量迁移所选插件配置；已同步插件和 ForPaper 已有配置会自动跳过。",
+					"Selected plugin settings will be migrated when possible. Already synced plugins and existing ForPaper settings will be skipped automatically."
 				),
 				"cancel-btn": bilingual("取消", "Cancel")
 			};
@@ -496,7 +496,7 @@
 				<html:div class="header-icon">P</html:div>
 				<html:div>
 					<html:div class="header-title"><html:span id="header-title-text">插件迁移</html:span></html:div>
-					<html:div id="header-subtitle" class="header-subtitle">从 Zotero 导入插件到 Vibero，并自动尽量迁移配置</html:div>
+					<html:div id="header-subtitle" class="header-subtitle">从 Zotero 导入插件到 ForPaper，并自动尽量迁移配置</html:div>
 				</html:div>
 			</html:div>
 		</html:div>
@@ -515,11 +515,11 @@
 				<html:div class="panel-body" id="zotero-list"></html:div>
 			</html:div>
 
-			<!-- Right: Vibero -->
+			<!-- Right: ForPaper -->
 			<html:div class="panel">
 				<html:div class="panel-header">
 					<html:div class="panel-title">
-						<html:span id="vibero-panel-title-text">Vibero 已安装</html:span>
+						<html:span id="vibero-panel-title-text">ForPaper 已安装</html:span>
 						<html:span id="vibero-count" class="panel-count">0</html:span>
 					</html:div>
 				</html:div>
@@ -529,7 +529,7 @@
 
 		<!-- Footer -->
 		<html:div class="footer">
-			<html:div id="footer-hint" class="footer-hint">默认会尽量迁移所选插件配置；已同步插件和 Vibero 已有配置会自动跳过。</html:div>
+			<html:div id="footer-hint" class="footer-hint">默认会尽量迁移所选插件配置；已同步插件和 ForPaper 已有配置会自动跳过。</html:div>
 			<html:div class="footer-actions">
 				<html:button id="cancel-btn" class="btn btn-secondary" onclick="doCancel()">取消</html:button>
 				<html:button class="btn btn-primary" id="import-btn" onclick="doImport()" disabled="true">请选择要导入的插件</html:button>
