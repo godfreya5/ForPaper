@@ -1024,10 +1024,15 @@ class MinerUParser {
       // console.log(`[MinerU] 正在调用本地 API: ${LOCAL_MINERU_API_URL}`);
 
       // 3. 发送请求到本地 API
+      Zotero.debug('[MinerU] POST ' + LOCAL_MINERU_API_URL + ' (size=' + bytes.length + ')');
       const response = await fetch(LOCAL_MINERU_API_URL, {
         method: 'POST',
         body: formData
+      }).catch((e) => {
+        Zotero.debug('[MinerU] fetch 异常: ' + (e && e.message) + ' | ' + (e && e.stack), 1);
+        throw e;
       });
+      Zotero.debug('[MinerU] 响应状态: ' + response.status);
 
       // console.log(`[MinerU] 本地 API 响应状态: ${response.status}`);
 

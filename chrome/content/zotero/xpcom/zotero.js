@@ -2723,8 +2723,7 @@ log_msg "Linux 更新完成"
     version += ')';
 
     var info = {
-      // appName: Services.appinfo.name,
-      appName: AppName,
+      appName: Services.appinfo.name,
       version,
       os: await this.getOSVersion(),
       locale: Zotero.locale
@@ -3339,8 +3338,7 @@ Zotero.VersionHeader = {
    */
   update: function (ua) {
     var info = Services.appinfo;
-    // var appName = info.name;
-    var appName = AppName;
+    var appName = info.name;
 
     var pos = ua.indexOf(appName + '/');
 

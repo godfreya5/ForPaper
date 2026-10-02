@@ -125587,7 +125587,7 @@
           className: "empty-state"
         }, /*#__PURE__*/external_React_default().createElement("p", null, outlineSidebarState?.error ? outline_view_bilingual('生成大纲和思维导图失败，请重试', 'Failed to generate outline and mind map. Please try again.') : outline_view_bilingual('该论文无大纲，是否生成大纲和思维导图？', 'No outline found for this paper. Generate outline and mind map?')), /*#__PURE__*/external_React_default().createElement("p", {
           className: "outline-empty-hint"
-        }, `${outline_view_bilingual('预计消耗', 'Estimated cost')} ${outlineSidebarState?.creditsNeeded ?? '--'} credits`), /*#__PURE__*/external_React_default().createElement("button", {
+        }, outlineSidebarState?.creditsNeeded === 0 ? outline_view_bilingual('本地模式：免费', 'Local mode: free') : `${outline_view_bilingual('预计消耗', 'Estimated cost')} ${outlineSidebarState?.creditsNeeded ?? '--'} credits`), /*#__PURE__*/external_React_default().createElement("button", {
           type: "button",
           className: "outline-generate-button theme-adaptive-btn",
           style: {
@@ -201440,7 +201440,7 @@
             // 在所有任务结束，包括保存到数据库之前/之后，打印总耗时
             if (this._printTotalTokenUsage) this._printTotalTokenUsage();
             if (this._logUsage) this._logUsage(successPageCount);
-            const summaryMsg = this._isZhLocale() ? `本次解析任务共 ${billablePages} 页，成功解析 ${successPageCount} 页，扣除 ${actualCredits} Credits` : `Parse task: ${billablePages} page(s) requested, ${successPageCount} succeeded, ${actualCredits} Credits deducted.`;
+            const summaryMsg = actualCredits > 0 ? (this._isZhLocale() ? `本次解析任务共 ${billablePages} 页，成功解析 ${successPageCount} 页，扣除 ${actualCredits} Credits` : `Parse task: ${billablePages} page(s) requested, ${successPageCount} succeeded, ${actualCredits} Credits deducted.`) : (this._isZhLocale() ? `本次解析任务共 ${billablePages} 页，成功解析 ${successPageCount} 页` : `Parse task: ${billablePages} page(s) requested, ${successPageCount} succeeded.`);
             this._showNotification(summaryMsg, successPageCount < billablePages ? 'warning' : 'info');
             this._setFlowProgress({
               status: 'done',
@@ -202867,7 +202867,7 @@
           const creditsNeeded = this._getArticleSummaryCreditsNeeded(pdfPages);
           const confirmed = await this._showCreditsConfirmDialog({
             title: this._bilingual('重新生成全文总结？', 'Regenerate full article summary?'),
-            description: this._bilingual(`本次将消耗 ${creditsNeeded} Credits，并覆盖已有全文总结。`, `This will use ${creditsNeeded} Credits and replace the existing full article summary.`),
+            description: creditsNeeded > 0 ? this._bilingual(`本次将消耗 ${creditsNeeded} Credits，并覆盖已有全文总结。`, `This will use ${creditsNeeded} Credits and replace the existing full article summary.`) : this._bilingual('本地模式免费，已有全文总结会被覆盖。', 'Free in local mode. The existing full article summary will be replaced.'),
             confirmLabel: this._bilingual('开始生成', 'Start generation')
           });
           if (!confirmed) {
@@ -202908,7 +202908,7 @@
             this._readerRef.current?.refreshArticleSummaryView?.();
             await this._deductBalance(balanceCheck, creditsNeeded, creditsNeeded);
             await this._saveParsedDataToVibeDB();
-            this._showNotification(this._bilingual(`全文总结已重新生成，扣除 ${creditsNeeded} Credits`, `Full article summary regenerated. ${creditsNeeded} Credits deducted`), 'info');
+            this._showNotification(creditsNeeded > 0 ? this._bilingual(`全文总结已重新生成，扣除 ${creditsNeeded} Credits`, `Full article summary regenerated. ${creditsNeeded} Credits deducted`) : this._bilingual('全文总结已重新生成', 'Full article summary regenerated'), 'info');
             this._setFlowProgress({
               status: 'done',
               percent: 100,
@@ -203091,9 +203091,25 @@
           const pdfApp = this._primaryView?._iframeWindow?.PDFViewerApplication;
           return pdfApp?.pdfViewer?.pagesCount || pdfApp?.pdfDocument?.numPages || 0;
         }
+        /**
+         * 开源本地模式判定：PAGE 单价为 0 时表示本地免费（VibeDBSync 开源桩返回 PRICING.PAGE=0）。
+         * 免费模式下不显示/不计算 Credits 消耗，避免误导用户。
+         */
+        _isFreeLocalMode() {
+          try {
+            const pricing = this._getPricing ? this._getPricing() : null;
+            return !!pricing && pricing.PAGE === 0;
+          } catch (e) {
+            return false;
+          }
+        }
         _getOutlineCreditsNeeded(pdfPages) {
           if (!Number.isFinite(pdfPages) || pdfPages <= 0) {
             return 1;
+          }
+          // 开源本地模式：免费
+          if (this._isFreeLocalMode()) {
+            return 0;
           }
           // 按总页数 ÷4，进一法（如 13 页 → ceil(13/4)=4 credits）
           return Math.max(1, Math.ceil(pdfPages / 4));
@@ -203438,7 +203454,7 @@
           const creditsNeeded = this._getOutlineCreditsNeeded(pdfPages);
           const confirmed = await this._showCreditsConfirmDialog({
             title: this._bilingual('生成大纲和思维导图？', 'Generate outline and mind map?'),
-            description: this._bilingual(`本次将消耗 ${creditsNeeded} Credits。已有大纲和思维导图会被清除并重新生成。`, `This will use ${creditsNeeded} Credits. Existing outline and mind map data will be cleared and regenerated.`),
+            description: creditsNeeded > 0 ? this._bilingual(`本次将消耗 ${creditsNeeded} Credits。已有大纲和思维导图会被清除并重新生成。`, `This will use ${creditsNeeded} Credits. Existing outline and mind map data will be cleared and regenerated.`) : this._bilingual('本地模式免费。已有大纲和思维导图会被清除并重新生成。', 'Free in local mode. Existing outline and mind map data will be cleared and regenerated.'),
             confirmLabel: this._bilingual('开始生成', 'Start generation')
           });
           if (!confirmed) {
@@ -203489,7 +203505,7 @@
             } catch (error) {
               console.warn('[reader/generateOutlineForSidebar] Outline generated, but cache save failed:', error);
             }
-            this._showNotification(this._bilingual(`大纲生成成功，扣除 ${creditsNeeded} Credits`, `Outline generated successfully. ${creditsNeeded} Credits deducted`), 'info');
+            this._showNotification(creditsNeeded > 0 ? this._bilingual(`大纲生成成功，扣除 ${creditsNeeded} Credits`, `Outline generated successfully. ${creditsNeeded} Credits deducted`) : this._bilingual('大纲生成成功', 'Outline generated successfully'), 'info');
             this._updateOutlineSidebarState({
               status: 'ready',
               creditsNeeded,
@@ -204813,7 +204829,7 @@ Paper sections JSON data:`;
           let titleCount = 0; // 遇到的标题数量计数器
           let referencesStartIndex = -1;
           let referencesEndIndex = pdfContentList.length;
-          const referencesPattern = /^(\d+\.?\s*)?(references?|reference[s]?)\b[:\s\-]*/i;
+          const referencesPattern = /^(\d+\.?\s*)?(references?\b|参考文献|参考资料|参考书目)[:\s：\-]*/i;
 
           // 第一步：识别关键section位置
           for (let i = 0; i < pdfContentList.length; i++) {

@@ -163,8 +163,11 @@ def _download_output(client: httpx.Client, ref: dict, dest_dir: str, name: str):
 
 def _flatten_structured_content(data: dict) -> list:
     """v4 structured_content 是 {"pages":[{page_idx, blocks:[...]}]} 嵌套结构，
-    ForPaper (pdfParser.js) 要求顶层数组、每项自带 page_idx。展平：
-      页级 blocks 提出来，每块补 page_idx。
+    ForPaper (pdfParser.js) 要求顶层数组、每项自带 page_idx。展平并做 v4→v1 字段适配：
+      - content → text（reader.js 全程读 block.text）
+      - bbox: v4 归一化 [0,1] → ForPaper 期望的千分比 [0,1000]（y 从顶部起算）
+      - 标题块 doc_title/paragraph_title → type='text' + text_level=1
+      - ref_text/aside_text → text；page_number/page_footnote 原样保留
     """
     out = []
     for page in data.get("pages", []):
@@ -172,6 +175,19 @@ def _flatten_structured_content(data: dict) -> list:
         for block in page.get("blocks", []):
             item = dict(block)
             item.setdefault("page_idx", pidx)
+            if "text" not in item and "content" in item:
+                item["text"] = item.pop("content")
+            bb = item.get("bbox")
+            if isinstance(bb, list) and len(bb) >= 4 and all(isinstance(v, (int, float)) for v in bb[:4]):
+                if max(abs(float(v)) for v in bb[:4]) <= 1.5:
+                    item["bbox"] = [round(float(v) * 1000, 1) for v in bb[:4]]
+            btype = item.get("type")
+            if btype in ("doc_title", "paragraph_title"):
+                item["type"] = "text"
+                item["text_level"] = 1
+            elif btype in ("ref_text", "aside_text"):
+                item["type"] = "text"
+            item.pop("level", None)
             out.append(item)
     return out
 
@@ -294,11 +310,14 @@ async def file_parse(
         dur = round(time.time() - t0, 1)
         print(f"[adapter] {filename} 解析完成 {dur}s 产物: {downloaded}")
 
+        from urllib.parse import quote
+        utf8_name = quote(f"{stem}_mineru.zip")
         return StreamingResponse(
             buf,
             media_type="application/zip",
             headers={
-                "Content-Disposition": f'attachment; filename="{stem}_mineru.zip"',
+                # RFC 5987：中文文件名必须 URL 编码，ASCII 回退名防止 latin-1 编码崩溃
+                "Content-Disposition": f"attachment; filename=\"mineru_result.zip\"; filename*=UTF-8''{utf8_name}",
                 "X-Parse-Duration": str(dur),
             },
         )

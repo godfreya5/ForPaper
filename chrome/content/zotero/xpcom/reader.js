@@ -835,6 +835,7 @@ class ReaderInstance {
         };
       } catch (error) {
         console.error('[Reader] API调用失败:', error);
+        Zotero.logError(error);
 
         let userMessage = 'PDF处理失败';
         if (error.message.includes('API Token')) {
