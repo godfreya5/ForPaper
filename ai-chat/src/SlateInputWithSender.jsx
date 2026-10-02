@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createEditor, Editor, Range, Transforms } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, Slate, useFocused, useSelected, withReact } from 'slate-react';
-import { SendOutlined, DownOutlined, SettingOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { SendOutlined, DownOutlined, SettingOutlined, PlusOutlined, DeleteOutlined, CloseOutlined } from '@ant-design/icons';
 import { Button, Flex, theme, Dropdown, message as antMessage, Modal, Form, Input, Select, Badge, Checkbox, AutoComplete } from 'antd';
 import { formatCustomModelLabel, zoteroL10n } from './zoteroL10n';
 import modelIcon from '../icons/model.svg';
@@ -75,50 +75,71 @@ const MODEL_PROVIDERS = [
         baseUrl: 'https://api.deepseek.com', apiFormat: 'openai',
         defaultModel: 'deepseek-chat',
         models: ['deepseek-chat', 'deepseek-reasoner'],
+        docsUrl: 'https://platform.deepseek.com/api_keys',
     },
     {
         key: 'kimi', name: 'Kimi',
         baseUrl: 'https://api.moonshot.cn/v1', apiFormat: 'openai',
         defaultModel: 'kimi-k2',
         models: ['kimi-k2', 'kimi-latest', 'moonshot-v1-128k', 'moonshot-v1-32k'],
+        docsUrl: 'https://platform.moonshot.cn/console/api-keys',
     },
     {
         key: 'glm', name: '智谱 GLM',
         baseUrl: 'https://open.bigmodel.cn/api/paas/v4', apiFormat: 'openai',
         defaultModel: 'glm-4-plus',
         models: ['glm-4-plus', 'glm-4-flash', 'glm-4-long'],
+        docsUrl: 'https://www.bigmodel.cn/usercenter/proj-mgmt/apikeys',
     },
     {
         key: 'qwen', name: '阿里千问',
         baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', apiFormat: 'openai',
         defaultModel: 'qwen-plus',
         models: ['qwen-max', 'qwen-plus', 'qwen-turbo'],
+        docsUrl: 'https://bailian.console.aliyun.com/',
     },
     {
         key: 'openai', name: 'OpenAI',
         baseUrl: 'https://api.openai.com/v1', apiFormat: 'openai',
         defaultModel: 'gpt-4.1-mini',
         models: ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4o', 'o4-mini'],
+        docsUrl: 'https://platform.openai.com/api-keys',
     },
     {
         key: 'gemini', name: 'Gemini',
         baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', apiFormat: 'openai',
         defaultModel: 'gemini-2.5-flash',
         models: ['gemini-2.5-flash', 'gemini-2.5-pro'],
+        docsUrl: 'https://aistudio.google.com/apikey',
     },
     {
         key: 'grok', name: 'Grok',
         baseUrl: 'https://api.x.ai/v1', apiFormat: 'openai',
         defaultModel: 'grok-3-mini',
         models: ['grok-3', 'grok-3-mini'],
+        docsUrl: 'https://console.x.ai/',
     },
     {
         key: 'custom', name: '自定义',
         baseUrl: '', apiFormat: 'openai',
         defaultModel: '',
         models: [],
+        docsUrl: '',
     },
 ];
+
+// 在 Zotero iframe 里打开外部链接（优先走主窗口的 Zotero.launchURL）
+const openExternalUrl = (url) => {
+    if (!url) return;
+    try {
+        const z = window.Zotero || window.parent?.Zotero || window.top?.Zotero;
+        if (z && typeof z.launchURL === 'function') {
+            z.launchURL(url);
+            return;
+        }
+    } catch (e) { /* 跨域等异常走回退 */ }
+    try { window.open(url, '_blank'); } catch (e) { /* ignore */ }
+};
 
 // VibeCard Mention 组件
 const BaseMention = ({ attributes, children, element, label }) => {
@@ -421,6 +442,26 @@ const SlateInputWithSender = ({
         });
         syncProviderFromConfig(pick);
     }, [isConfigModalOpen, getCustomModelConfigs, getSelectedConfigId, form]);
+
+    // 弹窗打开时把本 iframe 临时扩展为整个窗口大小（fixed 全屏），
+    // 让白卡片弹窗 + 暗色遮罩覆盖所有页面；关闭时精确还原。
+    // 同域 chrome iframe，window.frameElement 可直接拿到父文档里的 iframe 元素。
+    useEffect(() => {
+        let frame = null;
+        try { frame = window.frameElement; } catch (e) { frame = null; }
+        if (!frame) return undefined;
+        if (isConfigModalOpen) {
+            if (frame.dataset.prevCssText === undefined) {
+                frame.dataset.prevCssText = frame.style.cssText || '';
+            }
+            frame.style.cssText += ';position:fixed !important;top:0 !important;left:0 !important;width:100vw !important;height:100vh !important;z-index:99998 !important;';
+            return () => {
+                frame.style.cssText = frame.dataset.prevCssText || '';
+                delete frame.dataset.prevCssText;
+            };
+        }
+        return undefined;
+    }, [isConfigModalOpen]);
 
     const handleSaveConfig = () => {
         form.validateFields().then(values => {
@@ -1372,9 +1413,9 @@ const SlateInputWithSender = ({
                 </Flex>
             </div>
 
-            {/* 自定义模型配置弹窗（多配置管理） */}
+            {/* 自定义模型配置弹窗（多配置管理）— 白卡片风格，参考 WorkBuddy「添加模型」 */}
             <Modal
-                title={zoteroL10n('vibe-ai-chat-custom-model-settings-title')}
+                title={null}
                 open={isConfigModalOpen}
                 onCancel={() => { setIsConfigModalOpen(false); setEditingConfigId(null); setTestResult(null); form.resetFields(); }}
                 footer={[
@@ -1394,54 +1435,85 @@ const SlateInputWithSender = ({
                 zIndex={10001}
                 centered
                 getContainer={false}
-                wrapClassName="ai-chat-modal"
-                width={580}
+                closable={false}
+                wrapClassName="ai-chat-modal custom-config-modal"
+                width={600}
             >
-                <Flex gap="middle" align="flex-start" style={{ marginBottom: 0 }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ marginBottom: 8, fontWeight: 500, fontSize: 13 }}>{zoteroL10n('vibe-ai-chat-saved-configurations')}</div>
-                        <div style={{
-                            border: '1px solid var(--fill-quinary, #e8e8e8)',
-                            borderRadius: 6,
-                            maxHeight: 180,
-                            overflowY: 'auto',
-                            background: '#ffffff'
-                        }}>
-                            {customConfigs.map((c) => (
-                                <div
-                                    key={c.id}
-                                    className="custom-config-row"
-                                    onClick={() => handleSelectConfigToEdit(c)}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        padding: '10px 12px',
-                                        borderBottom: customConfigs.indexOf(c) < customConfigs.length - 1 ? '1px solid var(--fill-quinary, #f0f0f0)' : 'none',
-                                        cursor: 'pointer',
-                                        background: editingConfigId === c.id ? '#f0f0f0' : '#ffffff'
-                                    }}
-                                >
-                                    <span style={{ fontSize: 13, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                        {getConfigDisplayName(c)}
-                                    </span>
-                                    <Button type="text" size="small" icon={<DeleteOutlined />} onClick={(e) => { e.stopPropagation(); handleDeleteConfig(c); }} className="custom-config-delete-btn" style={{ padding: '0 6px', flexShrink: 0 }} />
+                {/* 自定义头部：标题 + 协议标签 + 关闭按钮（默认 header 被全局隐藏） */}
+                <div className="config-modal-header">
+                    <span className="config-modal-title">{zoteroL10n('vibe-ai-chat-custom-model-settings-title')}</span>
+                    <span className="config-modal-tag">{zoteroL10n('vibe-ai-chat-modal-support-tag')}</span>
+                    <button
+                        type="button"
+                        className="config-modal-close"
+                        onClick={() => { setIsConfigModalOpen(false); setEditingConfigId(null); setTestResult(null); form.resetFields(); }}
+                    >
+                        <CloseOutlined />
+                    </button>
+                </div>
+                {/* 单列布局：已保存配置在上（无配置时只留添加按钮），表单在下 —— 适配窄侧栏 */}
+                <div style={{ marginBottom: 0 }}>
+                    <div style={{ marginBottom: 14 }}>
+                        {customConfigs.length > 0 && (
+                            <>
+                                <div style={{ marginBottom: 8, fontWeight: 500, fontSize: 13 }}>{zoteroL10n('vibe-ai-chat-saved-configurations')}</div>
+                                <div style={{
+                                    border: '1px solid #e8e8e8',
+                                    borderRadius: 8,
+                                    maxHeight: 132,
+                                    overflowY: 'auto',
+                                    background: '#ffffff',
+                                    marginBottom: 8
+                                }}>
+                                    {customConfigs.map((c) => (
+                                        <div
+                                            key={c.id}
+                                            className="custom-config-row"
+                                            onClick={() => handleSelectConfigToEdit(c)}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                padding: '10px 12px',
+                                                borderBottom: customConfigs.indexOf(c) < customConfigs.length - 1 ? '1px solid #f0f0f0' : 'none',
+                                                cursor: 'pointer',
+                                                background: editingConfigId === c.id ? '#f0f0f0' : '#ffffff'
+                                            }}
+                                        >
+                                            <span style={{ fontSize: 13, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {getConfigDisplayName(c)}
+                                            </span>
+                                            <Button type="text" size="small" icon={<DeleteOutlined />} onClick={(e) => { e.stopPropagation(); handleDeleteConfig(c); }} className="custom-config-delete-btn" style={{ padding: '0 6px', flexShrink: 0 }} />
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
-                        <Button type="dashed" icon={<PlusOutlined />} onClick={handleAddConfig} style={{ marginTop: 8, width: '100%' }}>
+                            </>
+                        )}
+                        <Button type="dashed" icon={<PlusOutlined />} onClick={handleAddConfig} style={{ width: '100%' }}>
                             {zoteroL10n('vibe-ai-chat-add-configuration')}
                         </Button>
                     </div>
                     <div
                         className={addFormFlash ? 'custom-config-form-pane custom-config-form-flash' : 'custom-config-form-pane'}
-                        style={{ flex: 1.2, minWidth: 0 }}
                     >
                         <Form form={form} layout="vertical" preserve={false} initialValues={{ apiFormat: 'openai' }}>
                             {/* 供应商快捷选择（参考 epsilon/Mrite）：一键填入地址与模型，只需再填 Key */}
                             <div style={{ marginBottom: 12 }}>
-                                <div style={{ marginBottom: 6, fontSize: 12, color: token.colorTextSecondary }}>
-                                    {zoteroL10n('vibe-ai-chat-provider-quick-pick')}
+                                <div style={{ marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: 12, color: '#555555' }}>
+                                        {zoteroL10n('vibe-ai-chat-provider-quick-pick')}
+                                    </span>
+                                    {(() => {
+                                        const activeProvider = MODEL_PROVIDERS.find((p) => p.key === activeProviderKey);
+                                        return activeProvider && activeProvider.docsUrl ? (
+                                            <a
+                                                style={{ fontSize: 12, color: '#4072e5', cursor: 'pointer' }}
+                                                onClick={() => openExternalUrl(activeProvider.docsUrl)}
+                                            >
+                                                {zoteroL10n('vibe-ai-chat-view-docs')}
+                                            </a>
+                                        ) : null;
+                                    })()}
                                 </div>
                                 <Flex wrap="wrap" gap={6}>
                                     {MODEL_PROVIDERS.map((p) => (
@@ -1489,7 +1561,7 @@ const SlateInputWithSender = ({
                                 rules={[{ required: true }]}
                                 tooltip={zoteroL10n('vibe-ai-chat-api-key-tooltip')}
                             >
-                                <Input.Password placeholder={zoteroL10n('vibe-ai-chat-api-key-placeholder')} autoComplete="off" visibilityToggle={false} />
+                                <Input.Password placeholder={zoteroL10n('vibe-ai-chat-api-key-placeholder')} autoComplete="off" />
                             </Form.Item>
                             <Form.Item
                                 label={zoteroL10n('vibe-ai-chat-model-name')}
@@ -1526,7 +1598,7 @@ const SlateInputWithSender = ({
                             </div>
                         )}
                     </div>
-                </Flex>
+                </div>
             </Modal>
         </div>
     );

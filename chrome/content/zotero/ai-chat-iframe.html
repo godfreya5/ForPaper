@@ -132,8 +132,9 @@
                 color: #ffffff8c;
             }
 
-            /* 强制覆盖所有 Ant Design 组件的文字颜色 */
-            * {
+            /* 强制覆盖所有 Ant Design 组件的文字颜色
+               （豁免 .custom-config-modal 白卡片弹窗子树，避免把白底卡片里的文字刷白） */
+            *:not(.custom-config-modal):not(.custom-config-modal *) {
                 color: #ffffffe5 !important;
             }
 
@@ -149,9 +150,9 @@
                 color: #cf1322 !important;
             }
 
-            /* 图标颜色 */
-            .anticon,
-            svg {
+            /* 图标颜色（同样豁免白卡片弹窗子树，否则关闭 X、密码眼睛等图标变白） */
+            .anticon:not(.custom-config-modal *),
+            svg:not(.custom-config-modal *) {
                 color: #ffffffe5 !important;
             }
 
