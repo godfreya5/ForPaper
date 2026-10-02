@@ -234,7 +234,7 @@ function CodePaneApp() {
             <div className="code-pane-container">
                 <div className="code-pane-loading">
                     <div className="loading-icon">🔍</div>
-                    <div className="loading-text">Searching for GitHub repository...</div>
+                    <div className="loading-text">正在搜索 GitHub 仓库...</div>
                 </div>
             </div>
         );
@@ -259,8 +259,8 @@ function CodePaneApp() {
             <div className="code-pane-container">
                 <div className="code-pane-empty">
                     <div className="empty-icon">📭</div>
-                    <div className="empty-text">No GitHub repository found</div>
-                    <div className="empty-hint">The paper may not have an associated code repository</div>
+                    <div className="empty-text">未找到 GitHub 仓库</div>
+                    <div className="empty-hint">该论文可能没有关联的代码仓库</div>
                 </div>
             </div>
         );
@@ -313,7 +313,7 @@ function CodePaneApp() {
             {proxyConnected && (
                 <div className="wiki-section">
                     <div className="section-header">
-                        <span className="section-title">📚 DeepWiki Documentation</span>
+                        <span className="section-title">📚 DeepWiki 文档</span>
                         <button
                             className="refresh-btn"
                             onClick={() => loadWikiContents(repoInfo.url || repoInfo.name)}
@@ -328,7 +328,7 @@ function CodePaneApp() {
                         {wikiLoading && (
                             <div className="wiki-loading">
                                 <div className="loading-spinner"></div>
-                                <span>Loading documentation...</span>
+                                <span>正在加载文档...</span>
                             </div>
                         )}
 

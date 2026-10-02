@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat</title>
+    <title>AI 聊天</title>
     <script>
         // 提供全局的 Zotero 辅助函数，供 ai-chat bundle 使用
         window.ZoteroHelper = {
@@ -283,8 +283,23 @@
 
 <body>
     <div id="root">
-        <div class="loading">Loading AI Chat</div>
+        <div class="loading">正在加载 AI 聊天</div>
     </div>
+
+    <script>
+        // 与 ai-chat 面板的 zoteroL10n 同一判定：非中文环境回退英文
+        (function () {
+            try {
+                var Z = window.Zotero || (window.parent && window.parent.Zotero) || (window.top && window.top.Zotero);
+                var loc = (Z && Z.locale) || navigator.language || 'en-US';
+                if (!String(loc).toLowerCase().startsWith('zh')) {
+                    document.title = 'AI Chat';
+                    var el = document.querySelector('.loading');
+                    if (el) el.textContent = 'Loading AI Chat';
+                }
+            } catch (e) { /* 保持中文默认 */ }
+        })();
+    </script>
 
     <!-- Webpack 构建后的 JS -->
     <script src="ai-chat/ai-chat-bundle.js"

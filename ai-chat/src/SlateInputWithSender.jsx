@@ -1244,7 +1244,7 @@ const SlateInputWithSender = ({
                         onPaste={handlePaste}
                         onDrop={handleDrop}
                         onDragOver={handleDragOver}
-                        placeholder="Press Enter to send message"
+                        placeholder={zoteroL10n('vibe-ai-chat-input-placeholder')}
                         disabled={loading}
                         style={{
                             minHeight: '36px',

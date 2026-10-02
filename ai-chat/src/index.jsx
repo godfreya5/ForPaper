@@ -28,7 +28,7 @@ import {
     buildChatHardFailureToastContent,
 } from './chatHardFailureContent';
 import { getVibeRegion } from './chatRuntimeConfig';
-import { formatCustomModelLabel, zoteroL10n } from './zoteroL10n';
+import { formatCustomModelLabel, isZhLocale, zoteroL10n } from './zoteroL10n';
 import MarkdownRenderer from './MarkdownRenderer';
 import ChatImageLightbox from './ChatImageLightbox';
 import './styles.css';
@@ -165,7 +165,7 @@ function buildMultiPaperContext(mainPaperContext, extraPaperContexts = []) {
     if (mainPaperContext?.content) {
         blocks.push(
             `[当前正在阅读的论文开始]\n` +
-            `标题: ${mainPaperContext.title || 'Untitled'}\n` +
+            `标题: ${mainPaperContext.title || (isZhLocale() ? '无标题' : 'Untitled')}\n` +
             `${mainPaperContext.content}\n` +
             `[当前正在阅读的论文结束]`
         );
@@ -211,19 +211,32 @@ const welcomePromptItems = [
     {
         key: '1',
         icon: <BookOutlined style={{ color: '#1890FF' }} />,
-        label: 'Canvas ⬅️ Chat',
-        description: 'Drag AI chats to the canvas to generate Q&A flashcards.',
+        label: isZhLocale() ? 'Canvas ⬅️ 对话' : 'Canvas ⬅️ Chat',
+        description: isZhLocale()
+            ? '将 AI 对话拖到画布，生成问答闪卡。'
+            : 'Drag AI chats to the canvas to generate Q&A flashcards.',
     },
     {
         key: '2',
         icon: <BulbOutlined style={{ color: '#FFD700' }} />,
-        label: 'Canvas ➡️ Chat',
+        label: isZhLocale() ? 'Canvas ➡️ 对话' : 'Canvas ➡️ Chat',
         description: (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
-                <span style={{ fontWeight: 600, color: '#262626' }}>3 ways to chat with context:</span>
-                <span>1️⃣ <span style={{ fontWeight: 600 }}>Cmd/Ctrl + Click</span> any paragraph</span>
-                <span>2️⃣ <span style={{ fontWeight: 600 }}>Drag</span> Summary Card here</span>
-                <span>3️⃣ <span style={{ fontWeight: 600 }}>Paste</span> Screenshot</span>
+                {isZhLocale() ? (
+                    <>
+                        <span style={{ fontWeight: 600, color: '#262626' }}>三种带上下文提问的方式：</span>
+                        <span>1️⃣ <span style={{ fontWeight: 600 }}>Cmd/Ctrl + 点击</span>任意段落</span>
+                        <span>2️⃣ <span style={{ fontWeight: 600 }}>拖动</span>总结卡片到这里</span>
+                        <span>3️⃣ <span style={{ fontWeight: 600 }}>粘贴</span>截图</span>
+                    </>
+                ) : (
+                    <>
+                        <span style={{ fontWeight: 600, color: '#262626' }}>3 ways to chat with context:</span>
+                        <span>1️⃣ <span style={{ fontWeight: 600 }}>Cmd/Ctrl + Click</span> any paragraph</span>
+                        <span>2️⃣ <span style={{ fontWeight: 600 }}>Drag</span> Summary Card here</span>
+                        <span>3️⃣ <span style={{ fontWeight: 600 }}>Paste</span> Screenshot</span>
+                    </>
+                )}
             </div>
         ),
     }
@@ -1472,7 +1485,7 @@ Drag AI chats to the canvas to generate Q&A flashcards.
                         color: '#262626',
                         marginBottom: '8px',
                     }}>
-                        Drop content here to @!
+                        {isZhLocale() ? '把内容拖到这里即可 @ 引用！' : 'Drop content here to @!'}
                     </div>
                 </div>
             )}
@@ -1480,7 +1493,7 @@ Drag AI chats to the canvas to generate Q&A flashcards.
             {/* 头部 */}
             <div className="ai-chat-header">
                 <Flex justify="space-between" align="center">
-                    <h3>AI Chat</h3>
+                    <h3>{isZhLocale() ? 'AI 聊天' : 'AI Chat'}</h3>
                     <Flex gap="small">
                         <Button
                             type="text"

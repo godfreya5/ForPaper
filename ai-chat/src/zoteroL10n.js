@@ -132,7 +132,8 @@ const STR = {
         'vibe-ai-chat-custom-model-config-incomplete': '自定义模型配置不完整，请点击模型菜单右侧的设置图标进行配置。',
         'vibe-ai-chat-network-timeout': '网络连接超时，请检查网络并重试',
         'vibe-ai-chat-network-failed': '网络连接失败，请检查网络并重试',
-        'vibe-ai-chat-request-interrupted': '请求被中断，请重试'
+        'vibe-ai-chat-request-interrupted': '请求被中断，请重试',
+        'vibe-ai-chat-input-placeholder': '输入消息，按 Enter 发送'
     },
     en: {
         'general-cancel': 'Cancel',
@@ -247,7 +248,8 @@ const STR = {
         'vibe-ai-chat-custom-model-config-incomplete': 'Custom model configuration is incomplete. Open model settings and finish configuration.',
         'vibe-ai-chat-network-timeout': 'Network timeout. Please check your connection and retry',
         'vibe-ai-chat-network-failed': 'Network error. Please check your connection and retry',
-        'vibe-ai-chat-request-interrupted': 'Request was interrupted. Please retry'
+        'vibe-ai-chat-request-interrupted': 'Request was interrupted. Please retry',
+        'vibe-ai-chat-input-placeholder': 'Press Enter to send message'
     }
 };
 
