@@ -207955,8 +207955,17 @@ Output (if target language is English):
         }
         _getUILocale() {
           const Z = window.Zotero || window.parent?.Zotero || window.top?.Zotero;
-          const locale = Z?.locale || document?.documentElement?.lang || navigator?.language || 'en-US';
-          return String(locale).toLowerCase();
+          // 候选全部检查（任一含 zh 即中文），与 outline_view_isZhLocale 行为一致：
+          // App locale 为 en-US 而 OS navigator 为 zh 时，通知文案才不会错判成英文
+          const candidates = [Z?.locale, document?.documentElement?.lang, navigator?.language, ...(Array.isArray(navigator?.languages) ? navigator.languages : [])].filter(Boolean);
+          for (const raw of candidates) {
+            const locale = String(raw).toLowerCase().trim();
+            if (locale === 'zh' || locale.startsWith('zh-') || locale.startsWith('zh_') || locale.includes('zh')) {
+              return 'zh-CN';
+            }
+          }
+          const fallback = Z?.locale || document?.documentElement?.lang || navigator?.language || 'en-US';
+          return String(fallback).toLowerCase();
         }
         _isZhLocale() {
           return this._getUILocale().startsWith('zh');
