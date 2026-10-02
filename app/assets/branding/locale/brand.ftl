@@ -1,7 +1,7 @@
--brand-shorter-name = Zotero
--brand-short-name = Zotero
--brand-full-name = Zotero
--brand-product-name = Zotero
--vendor-short-name = Zotero
--app-name = Zotero
-trademarkInfo = Zotero is a trademark of the Corporation for Digital Scholarship.
+-brand-shorter-name = Vibero
+-brand-short-name = Vibero
+-brand-full-name = Vibero
+-brand-product-name = Vibero
+-vendor-short-name = Vibero
+-app-name = Vibero
+trademarkInfo = Vibero is a trademark of the Corporation for Digital Scholarship.

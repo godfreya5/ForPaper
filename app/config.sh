@@ -13,7 +13,7 @@ custom_components_hash_win_x64="5124fb47abbd7ee1194602179e70e9930ae563af13cdb981
 custom_components_hash_win_arm64="74350e7c4b2c7a52a3d7337b31ff3786c678e979f32ad223b65827d95be58853"
 custom_components_hash_win32="0aa4b1b62ca25647ce81cfe7f50fe5ea996ae7a09d30d167ec52113471face6a"
 
-APP_NAME="Zotero"
+APP_NAME="Vibero"
 APP_ID="zotero\@zotero.org"
 
 # Whether to sign builds

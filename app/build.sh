@@ -612,10 +612,10 @@ find "$BUILD_DIR" -name .DS_Store -exec rm -f {} \;
 
 # Mac
 if [ $BUILD_MAC == 1 ]; then
-	echo 'Building Zotero.app'
-		
+	echo 'Building Vibero.app'
+
 	# Set up directory structure
-	APPDIR="$STAGE_DIR/Zotero.app"
+	APPDIR="$STAGE_DIR/Vibero.app"
 	rm -rf "$APPDIR"
 	mkdir "$APPDIR"
 	chmod 755 "$APPDIR"
@@ -635,9 +635,9 @@ if [ $BUILD_MAC == 1 ]; then
 	fi
 	
 	# Use our own launcher
-	check_lfs_file "$CALLDIR/mac/zotero.xz"
-	xz -d --stdout "$CALLDIR/mac/zotero.xz" > "$CONTENTSDIR/MacOS/zotero"
-	chmod 755 "$CONTENTSDIR/MacOS/zotero"
+	check_lfs_file "$CALLDIR/mac/vibero.xz"
+	xz -d --stdout "$CALLDIR/mac/vibero.xz" > "$CONTENTSDIR/MacOS/vibero"
+	chmod 755 "$CONTENTSDIR/MacOS/vibero"
 
 	# TEMP: Custom version of XUL with some backported Mozilla bug fixes
 	if [ -n "$custom_components_hash_mac" ]; then
@@ -767,10 +767,10 @@ if [ $BUILD_MAC == 1 ]; then
 	if [ $PACKAGE == 1 ]; then
 		if [ $MAC_NATIVE == 1 ]; then
 			echo "Creating Mac installer"
-			dmg="$DIST_DIR/Zotero-$VERSION.dmg"
-			"$CALLDIR/mac/pkg-dmg" --source "$STAGE_DIR/Zotero.app" \
+			dmg="$DIST_DIR/Vibero-$VERSION.dmg"
+			"$CALLDIR/mac/pkg-dmg" --source "$STAGE_DIR/Vibero.app" \
 				--target "$dmg" \
-				--sourcefile --volname Zotero --copy "$CALLDIR/mac/DSStore:/.DS_Store" \
+				--sourcefile --volname Vibero --copy "$CALLDIR/mac/DSStore:/.DS_Store" \
 				--symlink /Applications:"/Drag Here to Install" > /dev/null
 			
 			if [ "$UPDATE_CHANNEL" != "test" ]; then
@@ -788,8 +788,8 @@ if [ $BUILD_MAC == 1 ]; then
 			echo
 		else
 			echo 'Not building on Mac; creating Mac distribution as a zip file'
-			rm -f "$DIST_DIR/Zotero_mac.zip"
-			cd "$STAGE_DIR" && zip -rqX "$DIST_DIR/Zotero-${VERSION}_mac.zip" Zotero.app
+			rm -f "$DIST_DIR/Vibero_mac.zip"
+			cd "$STAGE_DIR" && zip -rqX "$DIST_DIR/Vibero-${VERSION}_mac.zip" Vibero.app
 		fi
 	fi
 fi
