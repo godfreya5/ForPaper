@@ -3,7 +3,7 @@ import { createEditor, Editor, Range, Transforms } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, Slate, useFocused, useSelected, withReact } from 'slate-react';
 import { SendOutlined, DownOutlined, SettingOutlined, PlusOutlined, DeleteOutlined, CloseOutlined } from '@ant-design/icons';
-import { Button, Flex, theme, Dropdown, message as antMessage, Modal, Form, Input, Select, Badge, Checkbox, AutoComplete } from 'antd';
+import { Button, Flex, theme, Dropdown, message as antMessage, Modal, Form, Input, Select, Badge, Checkbox } from 'antd';
 import { formatCustomModelLabel, zoteroL10n } from './zoteroL10n';
 import modelIcon from '../icons/model.svg';
 import ImageUploader from './ImageUploader';
@@ -1538,6 +1538,7 @@ const SlateInputWithSender = ({
                                         <Select
                                             style={{ width: 152, flexShrink: 0 }}
                                             popupMatchSelectWidth={false}
+                                            getPopupContainer={(trigger) => trigger.parentElement}
                                             options={[
                                                 { value: 'openai', label: zoteroL10n('vibe-ai-chat-api-format-label-openai') },
                                                 { value: 'anthropic', label: zoteroL10n('vibe-ai-chat-api-format-label-anthropic') }
@@ -1569,14 +1570,22 @@ const SlateInputWithSender = ({
                                 rules={[{ required: true }]}
                                 tooltip={zoteroL10n('vibe-ai-chat-model-name-tooltip')}
                             >
-                                <AutoComplete
-                                    options={providerModelOptions.map((m) => ({ value: m }))}
-                                    placeholder={zoteroL10n('vibe-ai-chat-model-name-placeholder')}
-                                    allowClear
-                                    filterOption={(input, option) =>
-                                        String(option?.value || '').toLowerCase().includes(String(input).toLowerCase())
-                                    }
-                                />
+                                {providerModelOptions.length > 0 ? (
+                                    /* 已知供应商：下拉选择（可搜索），选项来自该供应商的预设模型列表 */
+                                    <Select
+                                        showSearch
+                                        allowClear
+                                        placeholder={zoteroL10n('vibe-ai-chat-model-name-placeholder')}
+                                        getPopupContainer={(trigger) => trigger.parentElement}
+                                        options={providerModelOptions.map((m) => ({ value: m, label: m }))}
+                                        filterOption={(input, option) =>
+                                            String(option?.value || '').toLowerCase().includes(String(input).toLowerCase())
+                                        }
+                                    />
+                                ) : (
+                                    /* 自定义供应商：无预设列表，保留手动输入 */
+                                    <Input placeholder={zoteroL10n('vibe-ai-chat-model-name-placeholder')} allowClear />
+                                )}
                             </Form.Item>
                         </Form>
                         {/* 测试连接结果（成功绿 / 失败红，深字适配暗色弹窗） */}
