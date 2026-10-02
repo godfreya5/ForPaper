@@ -5,3 +5,9 @@ build/
 tmp
 app/win/codesign
 *.bundle
+# Runtime download caches
+app/xulrunner/
+# Build sources fetched on demand (submodule-equivalent content, fetched per-platform at build time)
+translators/
+styles/*.csl
+!styles/update
