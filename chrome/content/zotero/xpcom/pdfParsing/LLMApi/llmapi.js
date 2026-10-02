@@ -6,12 +6,154 @@
 
 // 开源版：代理端点从 vibeDBSync（prefs vibeProxy.baseUrl）读取，默认为空。
 // 需要全文总结/大纲等 LLM 后处理时，请先在 prefs 中配置自建网关地址（见 README「自建后端」章节）。
+// 未配置网关时：自动回退直连 AI Chat 的自定义模型（pref aiChat.customModelConfigs），
+// 让「AI 解析」的 LLM 环节开箱即用，无需自建后端。
 const API_CONFIG = {
   get proxyUrl() {
     const base = typeof Zotero !== 'undefined' && Zotero.VibeDBSync?.getSupabaseConfig()?.url || '';
     return `${base}/functions/v1/ai-summary-proxy-bailian`;
+  },
+  get isGatewayConfigured() {
+    return !!(typeof Zotero !== 'undefined' && Zotero.VibeDBSync?.getSupabaseConfig()?.url);
   }
 };
+
+/**
+ * 读取 AI Chat 自定义模型配置（与 ai-chat/src/SlateInputWithSender.jsx 的 getCustomModelConfigs 同源）。
+ * 返回当前选中的配置（pref aiChat.customModelConfigId），或列表第一条。
+ * @returns {{baseUrl: string, apiKey: string, modelName: string, apiFormat: string} | null}
+ */
+function getCustomChatModelFallback() {
+  try {
+    if (typeof Zotero === 'undefined' || !Zotero.Prefs) return null;
+    const saved = Zotero.Prefs.get('aiChat.customModelConfigs', true);
+    if (!saved) return null;
+    const arr = JSON.parse(saved);
+    if (!Array.isArray(arr) || arr.length === 0) return null;
+    let selectedId = null;
+    try { selectedId = Zotero.Prefs.get('aiChat.customModelConfigId', true) || null; } catch (_) {}
+    const chosen = arr.find(c => c && c.id && c.id === selectedId) || arr[0];
+    if (!chosen || !chosen.baseUrl || !chosen.apiKey || !chosen.modelName) return null;
+    return {
+      baseUrl: String(chosen.baseUrl),
+      apiKey: String(chosen.apiKey),
+      modelName: String(chosen.modelName),
+      apiFormat: String(chosen.apiFormat || 'openai')
+    };
+  } catch (e) {
+    if (typeof Zotero !== 'undefined' && Zotero.debug) Zotero.debug(`[llmapi] 读取自定义模型配置失败: ${e}`);
+    return null;
+  }
+}
+
+/**
+ * 将 baseUrl 规范化为完整 chat/completions 端点（与 ai-chat customOpenAIService._formatUrl 同规则）。
+ */
+function normalizeChatCompletionsUrl(baseUrl) {
+  let url = String(baseUrl || '').trim();
+  if (!url) return '';
+  url = url.replace(/\/+$/, '');
+  if (url.endsWith('/chat/completions')) return url;
+  if (/\/v\d+$/.test(url)) return `${url}/chat/completions`;
+  if (/\/v\d+\/.*$/.test(url)) return url.replace(/(\/v\d+\/).*$/, '$1chat/completions');
+  return `${url}/v1/chat/completions`;
+}
+
+/**
+ * 回退：网关未配置时，直接调用自定义模型（OpenAI / Anthropic 兼容）。
+ * 返回值形态与 callBailianAI 一致（OpenAI choices 格式），保证 pdfParser.llmRequest 无感切换。
+ * @returns {Promise<Object>} OpenAI 兼容响应对象
+ */
+async function callCustomChatModel(message, options = {}) {
+  const cfg = getCustomChatModelFallback();
+  if (!cfg) {
+    throw new Error('[LLM 未配置] 请在右侧 AI Chat 面板底部点击「自定义模型」添加一个模型（如 DeepSeek），'
+      + ' 或在 prefs 中配置自建网关 extensions.zotero.vibeProxy.baseUrl。'
+      + ' 配好后重新点击「AI 解析」即可。');
+  }
+
+  const messages = [];
+  if (options.system) messages.push({ role: 'system', content: options.system });
+  messages.push({ role: 'user', content: message });
+
+  const requestBody = {
+    model: cfg.modelName,
+    stream: false,
+    temperature: options.temperature ?? 1.0,
+    max_tokens: options.max_tokens,
+    messages,
+    response_format: options.response_format || { type: 'json_object' }
+  };
+
+  // Anthropic 协议的响应结构（content 数组）与解析链路（choices[0].message.content）不兼容，直接给出可操作提示
+  if (cfg.apiFormat === 'anthropic') {
+    throw new Error('[LLM 不支持] 「AI 解析」的后处理暂不支持 Anthropic 协议模型，'
+      + '请在自定义模型中改用 OpenAI 兼容协议（如 DeepSeek / Kimi / GLM / 千问）。');
+  }
+
+  const url = normalizeChatCompletionsUrl(cfg.baseUrl);
+  const headers = { 'Content-Type': 'application/json' };
+  headers['Authorization'] = `Bearer ${cfg.apiKey}`;
+
+  const doFetch = async (body) => fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body)
+  });
+
+  let response = await doFetch(requestBody);
+
+  // 兼容性降级：部分供应商不支持 response_format 或限制 max_tokens 上限，报 400 时降参重试（最多两次）
+  if (response.status === 400) {
+    let probeText = await response.text().catch(() => '');
+    let retryBody = null;
+    if (requestBody.response_format && /response_format|json_object|json_schema/i.test(probeText)) {
+      if (typeof Zotero !== 'undefined' && Zotero.debug) {
+        Zotero.debug(`[llmapi] ${cfg.modelName} 不支持 response_format，去掉后重试`);
+      }
+      retryBody = { ...requestBody };
+      delete retryBody.response_format;
+    } else if (requestBody.max_tokens && /max_tokens/i.test(probeText)) {
+      if (typeof Zotero !== 'undefined' && Zotero.debug) {
+        Zotero.debug(`[llmapi] ${cfg.modelName} 拒绝 max_tokens=${requestBody.max_tokens}，降为 8192 重试`);
+      }
+      retryBody = { ...requestBody };
+      retryBody.max_tokens = 8192;
+    }
+    if (retryBody) {
+      response = await doFetch(retryBody);
+      // 第一轮降参后若仍 400（同时踩两个坑），去掉 response_format 并降 max_tokens 再试一次
+      if (response.status === 400 && retryBody.response_format) {
+        const secondText = await response.text().catch(() => '');
+        if (/response_format|json_object|json_schema|max_tokens/i.test(secondText)) {
+          const secondBody = { ...retryBody };
+          delete secondBody.response_format;
+          if (secondBody.max_tokens && secondBody.max_tokens > 8192) secondBody.max_tokens = 8192;
+          response = await doFetch(secondBody);
+        }
+      }
+    }
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    let detail = errorText;
+    try { detail = (JSON.parse(errorText)?.error?.message) || errorText; } catch (_) {}
+    throw new Error(`[LLM 调用失败] ${cfg.modelName} 返回 HTTP ${response.status}: ${String(detail).slice(0, 300)}`);
+  }
+
+  const data = await response.json();
+  // Token 统计与主链路一致
+  if (data.usage) {
+    if (typeof Zotero !== 'undefined') {
+      if (!Zotero._vibeTokenCounter) Zotero._vibeTokenCounter = { prompt: 0, completion: 0, total: 0 };
+      Zotero._vibeTokenCounter.prompt += data.usage.prompt_tokens || 0;
+      Zotero._vibeTokenCounter.completion += data.usage.completion_tokens || 0;
+      Zotero._vibeTokenCounter.total += data.usage.total_tokens || 0;
+    }
+  }
+  return data;
+}
 
 const MODEL_NAME_MAP = {
   'GLM47': 'ep-20260119112302-q7rcg', // 火山引擎 GLM endpoint ID
@@ -381,6 +523,11 @@ async function callOpenRouterAI(message = "你好，请介绍一下你自己", o
  */
 async function callZhipuAI(message = "你好，请介绍一下你自己", options = {}) {
   // console.log("[API_CONFIG.proxyUrl]:", API_CONFIG.proxyUrl);
+  // 开源版回退：未配置自建网关时，直连 AI Chat 自定义模型（如 DeepSeek），保证「AI 解析」开箱即用
+  if (!API_CONFIG.isGatewayConfigured) {
+    return callCustomChatModel(message, options);
+  }
+
   // 如果使用火山引擎代理，调用 callHuoshanAI
   if (API_CONFIG.proxyUrl.includes('ai-summary-proxy-huoshan')) {
     return callHuoshanAI(message, options);

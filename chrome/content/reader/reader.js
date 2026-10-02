@@ -124720,7 +124720,7 @@
           className: "flow-error-icon"
         }, "\u26A0\uFE0F"), /*#__PURE__*/React.createElement("p", {
           className: "flow-error-message"
-        }, errorMessage), errorMessage && !errorMessage.includes('暂不支持') && !errorMessageLower.includes('not supported') && /*#__PURE__*/React.createElement("p", {
+        }, errorMessage), errorMessage && !errorMessage.includes('暂不支持') && !errorMessageLower.includes('not supported') && !errorMessageLower.includes('http 4') && !errorMessageLower.includes('http 5') && !errorMessageLower.includes('llm 未配置') && !errorMessageLower.includes('llm 调用失败') && !errorMessageLower.includes('api key') && !errorMessageLower.includes('invalid api key') && !errorMessageLower.includes('authentication') && !errorMessageLower.includes('insufficient') && !errorMessageLower.includes('请在自定义模型') && /*#__PURE__*/React.createElement("p", {
           className: "flow-error-hint"
         }, t('请检查网络连接后重试', 'Please check your network connection and try again'))) : loading ? /*#__PURE__*/React.createElement("div", {
           className: "spinner"
@@ -199647,6 +199647,11 @@
        */
       function getUserFriendlyMessage(error, lang = 'zh') {
         const errorType = classifyError(error);
+        // 带 [LLM 前缀的是 llmapi 抛出的可操作配置/调用错误，已含指引文案，直接透传原文
+        const raw = error?.message || String(error);
+        if (/^\[LLM\s/.test(raw.trim())) {
+          return raw.replace(/^\[LLM\s[^\]]+\]\s*/, '');
+        }
         return USER_MESSAGES[errorType]?.[lang] || USER_MESSAGES[ErrorType.UNKNOWN][lang];
       }
 
