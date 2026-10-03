@@ -134358,6 +134358,15 @@
          */
         _detectDarkMode() {
           try {
+            // 优先跟随 PDF 内容主题：_updateColorScheme 会按主题背景/前景亮度
+            // 在文档根写入 dataset.colorScheme，避免「系统浅色 + PDF 深色主题」误判
+            const ds = this.doc?.documentElement?.dataset?.colorScheme;
+            if (ds === 'dark') {
+              return true;
+            }
+            if (ds === 'light') {
+              return false;
+            }
             if (this.doc.defaultView && this.doc.defaultView.matchMedia) {
               return this.doc.defaultView.matchMedia('(prefers-color-scheme: dark)').matches;
             }
@@ -134417,6 +134426,7 @@
 				font-weight: ${VibeCard.FONT_CONFIG.cardFontWeight};
 				font-size: calc(${VibeCard.FONT_CONFIG.cardFontSize}px * var(--scale-factor));
 				line-height: ${VibeCard.FONT_CONFIG.cardLineHeight};
+				color: ${this._isDarkMode ? '#f7fafc' : '#1a202c'};
 				
 				overflow: visible;
 				height: auto;
@@ -207466,7 +207476,7 @@ Output (if target language is English):
           if (init || this._state.sidebarFontScale !== previousState.sidebarFontScale) {
             document.documentElement.style.setProperty('--sidebar-font-scale', this._state.sidebarFontScale);
           }
-          if (init || ['summaryCardParagraphFontScale', 'summaryCardParagraphWidthScale', 'summaryCardParagraphFontPreset', 'summaryCardParagraphColor', 'summaryCardParagraphBold', 'summaryCardParagraphItalic', 'summaryCardParagraphUnderline', 'summaryCardParagraphTextAlign', 'summaryCardPointsFontScale', 'summaryCardPointsWidthScale', 'summaryCardPointsFontPreset', 'summaryCardPointsColor', 'summaryCardPointsBold', 'summaryCardPointsItalic', 'summaryCardPointsUnderline', 'summaryCardPointsTextAlign'].some((k) => this._state[k] !== previousState[k])) {
+          if (init || ['colorScheme', 'summaryCardParagraphFontScale', 'summaryCardParagraphWidthScale', 'summaryCardParagraphFontPreset', 'summaryCardParagraphColor', 'summaryCardParagraphBold', 'summaryCardParagraphItalic', 'summaryCardParagraphUnderline', 'summaryCardParagraphTextAlign', 'summaryCardPointsFontScale', 'summaryCardPointsWidthScale', 'summaryCardPointsFontPreset', 'summaryCardPointsColor', 'summaryCardPointsBold', 'summaryCardPointsItalic', 'summaryCardPointsUnderline', 'summaryCardPointsTextAlign'].some((k) => this._state[k] !== previousState[k])) {
             this._applySummaryCardTreeCss();
           }
           if (init || this._state.freeze !== previousState.freeze) {
@@ -207722,11 +207732,12 @@ Output (if target language is English):
           const s = this._state;
           const pScale = String(s.summaryCardParagraphFontScale ?? 1);
           const pWidthScale = s.summaryCardParagraphWidthScale ?? 1;
-          const pColor = s.summaryCardParagraphColor || '#111827';
+          // 出厂默认值（#111827）视为「未自定义」，深色主题下自动切换为浅色文字
+          const pColorCustom = s.summaryCardParagraphColor && s.summaryCardParagraphColor.toLowerCase() !== '#111827' ? s.summaryCardParagraphColor : '';
           const pStack = PRESETS[s.summaryCardParagraphFontPreset] ?? '';
           const ptScale = String(s.summaryCardPointsFontScale ?? 1);
           const ptWidthScale = s.summaryCardPointsWidthScale ?? 1;
-          const ptColor = s.summaryCardPointsColor || '#6b7280';
+          const ptColorCustom = s.summaryCardPointsColor && s.summaryCardPointsColor.toLowerCase() !== '#6b7280' ? s.summaryCardPointsColor : '';
           const ptStack = PRESETS[s.summaryCardPointsFontPreset] ?? '';
           const pTextAlign = parseSummaryCardTextAlign(s.summaryCardParagraphTextAlign);
           const ptTextAlign = parseSummaryCardTextAlign(s.summaryCardPointsTextAlign);
@@ -207737,6 +207748,21 @@ Output (if target language is English):
           const cardWidthScale = String(scaledTreeWidth / VIBE_CARD_CONFIG.defaultWidth);
           const applyToRoot = (root) => {
             if (!root?.style) return;
+            // 深色 PDF 主题下默认改用浅色文字（用户自定义颜色优先）。
+            // root 为各文档根：PDF iframe 根的 dataset.colorScheme 由 _updateColorScheme 写入
+            let isDarkRoot = false;
+            try {
+              const ds = root.dataset?.colorScheme;
+              if (ds === 'dark') {
+                isDarkRoot = true;
+              } else if (ds === 'light') {
+                isDarkRoot = false;
+              } else {
+                isDarkRoot = !!root.ownerDocument?.defaultView?.matchMedia?.('(prefers-color-scheme: dark)').matches;
+              }
+            } catch (e) {}
+            const pColor = pColorCustom || (isDarkRoot ? '#f7fafc' : '#111827');
+            const ptColor = ptColorCustom || (isDarkRoot ? '#cbd5e1' : '#6b7280');
             root.style.setProperty('--summarycard-paragraph-font-scale', pScale);
             root.style.setProperty('--summarycard-paragraph-max-width-scale', String(pWidthScale));
             root.style.setProperty('--summarycard-points-max-width-scale', String(ptWidthScale));
