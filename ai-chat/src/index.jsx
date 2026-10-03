@@ -830,6 +830,8 @@ function AIChatApp() {
             return false;
         }
         // 每次发送前重建上下文：主论文 + 附加论文
+        // 修复：handleSend 内 itemID 未声明（ReferenceError 导致发送卡死、全局 loading 锁死）
+        const itemID = getItemID();
         if (itemID) {
             try {
                 const Z = window.parent?.Zotero || window.Zotero;
